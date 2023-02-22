@@ -6,7 +6,7 @@ public final class Units {
     public static final double KILO = 1e3;
     // … autre(s) préfixe(s) SI utile(s) au projet
     // … classe Angle
-
+//wdfwdfqdqsd
     public static class Angle {
         public static final double RADIAN = 1;
         public static final double TURN = 2*(Math.PI)*RADIAN;
