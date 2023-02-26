@@ -10,4 +10,5 @@ public record AircraftTypeDesignator(String string) {
     }
 
     //test
+
 }
