@@ -8,4 +8,6 @@ public record AircraftTypeDesignator(String string) {
             throw new IllegalArgumentException();
         }
     }
+
+    //test
 }
