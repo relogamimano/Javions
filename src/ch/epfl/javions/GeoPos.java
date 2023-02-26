@@ -3,9 +3,7 @@ package ch.epfl.javions;
 public record GeoPos(int longitudeT32, int latitudeT32) {
 
     public GeoPos {
-        if (!isValidLatitudeT32(latitudeT32)) {
-            throw new IllegalArgumentException();
-        }
+        Preconditions.checkArgument(isValidLatitudeT32(latitudeT32));
     }
 
     public static boolean isValidLatitudeT32(int latitudeT32) {
@@ -13,11 +11,11 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
     }
 
     public double longitude() {
-        return Units.convert(longitudeT32, Units.Angle.T32, Units.Angle.RADIAN);
+        return Units.convertFrom(longitudeT32, Units.Angle.T32);
     }
 
     public double latitude () {
-        return Units.convert(latitudeT32, Units.Angle.T32, Units.Angle.RADIAN);
+        return Units.convertFrom(latitudeT32, Units.Angle.T32);
     }
 
     @Override

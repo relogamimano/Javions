@@ -34,7 +34,7 @@ public final class Submit {
     // Jeton du premier membre du groupe
     private static final String TOKEN_1 = "Homee9ah";
     // Jeton du second membre (identique au premier pour les personnes travaillant seules)
-    private static final String TOKEN_2 = "kaiF3gei";
+    private static final String TOKEN_2 = "Homee9ah";
     // -------------
 
     private static final String ZIP_ENTRY_NAME_PREFIX = "Javions/";
