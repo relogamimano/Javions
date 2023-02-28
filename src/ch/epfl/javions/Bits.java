@@ -6,10 +6,7 @@ public class Bits {
     private Bits() {}
 
     public static int extractUInt(long value, int start, int size) {
-
-        if ((size <= 0) || (size >= 32)) {
-            throw new IllegalArgumentException();
-        }
+        Preconditions.checkArgument(size>0 && size<32);
         Objects.checkFromIndexSize(start,size,Long.SIZE);
 
         value = value >>> start;

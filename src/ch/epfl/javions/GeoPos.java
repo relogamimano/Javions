@@ -11,10 +11,12 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
     }
 
     public double longitude() {
+
         return Units.convertFrom(longitudeT32, Units.Angle.T32);
     }
 
     public double latitude () {
+
         return Units.convertFrom(latitudeT32, Units.Angle.T32);
     }
 

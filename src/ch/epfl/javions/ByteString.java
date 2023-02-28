@@ -2,6 +2,7 @@ package ch.epfl.javions;
 
 import java.util.Arrays;
 import java.util.HexFormat;
+import java.util.Objects;
 
 public final class ByteString {
     private final byte[] byteString;
@@ -9,9 +10,7 @@ public final class ByteString {
         this.byteString = bytes.clone();
     }
     public static ByteString ofHexadecimalString(String hexString) {
-        if (hexString.length() % 2 == 1) {
-            throw new IllegalArgumentException();
-        }
+        Preconditions.checkArgument(hexString.length() % 2 == 0);
         for (int i = 0; i < hexString.length(); i++) {
             if(!HexFormat.isHexDigit(hexString.charAt(i))) {
                 char ch = hexString.charAt(i);
@@ -23,21 +22,17 @@ public final class ByteString {
         byte[] bytes = hf.parseHex(hexString); // identique à bytes
         return new ByteString(bytes);
     }
-    public int size() {return byteString.length;}
+    public int size() {
+        return byteString.length;
+    }
     public int byteAt(int index) {
-        if (index >= byteString.length || index < 0) {
-            throw new IndexOutOfBoundsException();
-        }
+        Objects.checkIndex(index, this.size());
         return Byte.toUnsignedInt(byteString[index]);
     }
 
     public long bytesInRange(int fromIndex, int toIndex) {
-        if(fromIndex < 0 || toIndex < 0 || (toIndex > byteString.length)) {
-            throw new IndexOutOfBoundsException();
-        }
-        if( toIndex - fromIndex >= 8 ) {
-            throw new IllegalArgumentException();
-        }
+        Objects.checkFromToIndex(fromIndex, toIndex, this.size());
+        Preconditions.checkArgument(toIndex - fromIndex < Long.BYTES);
         long result = 0;
         for (var i = fromIndex; i < toIndex; i++) {
             result = result << 8;
