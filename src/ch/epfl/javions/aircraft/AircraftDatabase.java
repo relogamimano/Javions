@@ -37,18 +37,17 @@ public final class AircraftDatabase {
 
             while ( (line= buffer.readLine()) != null){
                 if (adressString.compareTo(line) < 0) {
-                    break;
+                    if (line.startsWith(adressString)) {
+                        String[] data = line.split(",", -1);
+                        AircraftData aircraftData = new AircraftData(new AircraftRegistration(data[1]),
+                                new AircraftTypeDesignator(data[2]), data[3], new AircraftDescription(data[4]),
+                                WakeTurbulenceCategory.of(data[5]));
+                        return aircraftData;
+                    } else return null;
                 }
-                else {
-                }
-            }
-            if (line.startsWith(adressString)) {
-                String[] data = line.split(",",-1);
-                AircraftData aircraftData = new AircraftData(new AircraftRegistration(data[1]),
-                        new AircraftTypeDesignator(data[2]), data[3], new AircraftDescription(data[4]),
-                        WakeTurbulenceCategory.of(data[5]));
-                return aircraftData;
-            } else return null;
+
+            } return null;
+
         }
     }
 
