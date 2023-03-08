@@ -1,7 +1,8 @@
 package ch.epfl.javions;
 final public class Crc24 {
     private static final int N = 24;
-    private static final int byteLength = 8;
+    private static final int BYTE_LENGTH = 8;
+    private static final int BYTE_CAPACITY = 256;
     public static final int GENERATOR = 0xFFF409;
     int[] intTable;
 
@@ -10,7 +11,7 @@ final public class Crc24 {
     }
 
     static private int[] builtTable(int generator) {
-        int[] tab = new int[256];
+        int[] tab = new int[BYTE_CAPACITY];
         for (int i = 0; i < tab.length; i++) {
             tab[i] = crc_bitwise(generator, new byte[]{(byte)i});
         }
@@ -19,16 +20,13 @@ final public class Crc24 {
 
     public int crc(byte[] bytes) {
         int crc = 0;
-
         for (byte b: bytes) {
-            int j = Bits.extractUInt(crc, N-8,8);
-            crc = ((crc << byteLength) | Byte.toUnsignedInt(b)) ^ intTable[j];
+            crc = ((crc << BYTE_LENGTH) | Byte.toUnsignedInt(b)) ^ intTable[Bits.extractUInt(crc, N-BYTE_LENGTH,BYTE_LENGTH)];
         }
-        for (int i = 0; i < N/8; i++) {// erreur sur le nb d'iterations
-            int j = Bits.extractUInt(crc, N-8, 8);
-            crc = (crc << byteLength) ^ intTable[j];
+        for (int i = 0; i < N/BYTE_LENGTH; i++) {
+            crc = (crc << BYTE_LENGTH) ^ intTable[Bits.extractUInt(crc, N- BYTE_LENGTH, BYTE_LENGTH)];
         }
-        return Bits.extractUInt(crc, 0, N-1); // erreur la mais jsp quoi
+        return Bits.extractUInt(crc, 0, N);
     }
 
 
@@ -36,7 +34,7 @@ final public class Crc24 {
         int[] table = new int[]{0, generator};
         int crc = 0;
         for (byte b : message) {
-            for (int j = byteLength - 1; j >= 0; j--) {
+            for (int j = BYTE_LENGTH - 1; j >= 0; j--) {
                 crc = ((crc << 1) | Bits.extractUInt(b, j, 1)) ^ table[Bits.extractUInt(crc, N - 1, 1)];
             }
         }
