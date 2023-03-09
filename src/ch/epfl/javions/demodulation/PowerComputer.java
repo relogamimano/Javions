@@ -7,21 +7,15 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public final class PowerComputer {
-    //stocker un tbableau de type short[] issue de sampleDecoder, il est deux fois plus grand que le tableau suivant
-    private short[] sample;
+    private final short[] sample;
     private int[] queue = new int[Bits.LENTGH];
     private final int sampleNumber;
-    private InputStream sampleStream;
-    private int size;
-    private int headPos;
-    // TODO: 08.03.23 readSample comme ca ou plutot sur le modele de readByte comme pour SampleDecoder ?
+    private final InputStream sampleStream;
     SamplesDecoder samplesDecoder;
-    public PowerComputer(InputStream stream, int batchSize) throws IOException {
+    public PowerComputer(InputStream stream, int batchSize) {
         Preconditions.checkArgument((batchSize % Bits.LENTGH == 0) && (batchSize > 0));
         sampleNumber = batchSize * 2;
         sampleStream = stream;
-        headPos = Bits.LENTGH;
-        size = Bits.LENTGH;
         sample = new short[sampleNumber];
 
     }
@@ -43,7 +37,7 @@ public final class PowerComputer {
             batch[i] = power;
 
         }
-        return readSample/2;//nb d'echantillions de puissance
+        return readSample/2;
     }
 
     private int[] removeFirstTwoAddTwo(int[] tab, int v1, int v2) {
