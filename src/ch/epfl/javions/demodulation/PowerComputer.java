@@ -6,12 +6,24 @@ import ch.epfl.javions.Preconditions;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * @author: Sofia Henriques Garfo sciper:
+ * @author: Roméo Maignal sciper:
+ */
 public final class PowerComputer {
     private final short[] sample;
     private int[] queue = new int[Bits.LENTGH];
     private final int sampleNumber;
     private final InputStream sampleStream;
+    // TODO: 08.03.23 readSample comme ca ou plutot sur le modele de readByte comme pour SampleDecoder ?
     SamplesDecoder samplesDecoder;
+
+    /**
+     * Construct a Computer Object giving access to a method that calculate power samples using a byte stream
+     *
+     * @param stream    stream of byte
+     * @param batchSize length that determine how many bytes, from the input stream, will be used
+     */
     public PowerComputer(InputStream stream, int batchSize) {
         Preconditions.checkArgument((batchSize % Bits.LENTGH == 0) && (batchSize > 0));
         sampleNumber = batchSize * 2;
@@ -19,6 +31,14 @@ public final class PowerComputer {
         sample = new short[sampleNumber];
 
     }
+
+    /**
+     * File the int array given in parameter with power samples made from every two samples from the InputStream
+     *
+     * @param batch        int array filled with power samples
+     * @return             the length of the power sample array
+     * @throws IOException if the length of batch isn't equal to the number of samples divided by2
+     */
     public int readBatch(int[] batch) throws IOException{// le tembleau passé en argument est fait pour etre remplit, il ne doit pas etre lu
         samplesDecoder = new SamplesDecoder(sampleStream, sampleNumber);
         Preconditions.checkArgument(batch.length == sampleNumber/2);
@@ -39,7 +59,7 @@ public final class PowerComputer {
         }
         return readSample/2;
     }
-
+    // methode used to shift the queue to the left two times and add the two next samples at the end
     private int[] removeFirstTwoAddTwo(int[] tab, int v1, int v2) {
         int[] shiftedTab = new int[Bits.LENTGH];
         System.arraycopy(tab, 2, shiftedTab, 0, shiftedTab.length - 2);
