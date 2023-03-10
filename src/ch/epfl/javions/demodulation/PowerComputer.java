@@ -47,10 +47,11 @@ public final class PowerComputer {
             queue = removeFirstTwoAddTwo(queue, sample[i*2], sample[i*2 + 1]);
             int I = 0;
             int Q = 0;
-            for (int j = 0,  k = 0; j < queue.length-1 || k < queue.length / 2; j+=2, k++) {
-                // TODO: 10.03.23 changer pow
-                I = I + (int)( Math.pow( -1, k + 1) * queue[j] );
-                Q = Q + (int)( Math.pow( -1, k + 1) * queue[j+1] );
+            for (int j = 0; j < queue.length-1; j+=4) {
+                I += queue[j];
+                Q -= queue[j+1];
+                I -= queue[j+2];
+                Q += queue[j+3] ;
             }
             int power = (int) (Math.pow(I, 2) + Math.pow(Q, 2));
             batch[i] = power;
