@@ -3,6 +3,8 @@ package ch.epfl.javions;
 import java.util.Objects;
 
 public class Bits {
+    public static final int LENTGH = 8;
+
     private Bits() {}
 
     /**

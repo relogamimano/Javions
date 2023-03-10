@@ -29,15 +29,9 @@ public class SamplesDecoder {
         sampleStream = stream;
 
     }
-    /**
-     * File the int array given in parameter with samples made from every two bytes from the InputStream
-     *
-     * @param batch        short array filled with samples of combined bytes
-     * @return             the length of the sample array
-     * @throws IOException if the length of batch isn't equal to the number of bytes divided by 2
-     */
+//TODO: comment tester quand pas assez de bits ont etes lus
     public int readBatch(short[] batch) throws IOException {
-        // TODO: 08.03.23 voir powercomputer pour l'emplacement de l'appel a un flot 
+        // TODO: 08.03.23 voir powercomputer pour l'emplacement de l'appel a un flot, handling error? try?
         int readBytes = sampleStream.readNBytes(sampleTab, 0, byteNumber);
         Preconditions.checkArgument(batch.length == byteNumber/2);
         if ( readBytes != byteNumber ){

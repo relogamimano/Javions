@@ -7,9 +7,18 @@ import java.util.zip.ZipFile;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * @author: Sofia Henriques Garfo (346298)
+ * @author: Romeo Maignal (360568)
+ */
 public final class AircraftDatabase {
     String fileName;
 
+    /**
+     *
+     * @param fileName
+     *        file containing aircraft information
+     */
     public AircraftDatabase(String fileName){
             if (fileName.isEmpty())
                 throw new NullPointerException();
@@ -20,10 +29,10 @@ public final class AircraftDatabase {
 
 
     /**
-     * Searches the data base for the aicraft information that matches the given Icao address
+     * Searches the database for the aircraft information that matches the given Icao address
      * @param address
-     *
-     * @return
+     *        Icao Address
+     * @return Aircraftdata for the specific aircraft
      * @throws IOException
      */
     public  AircraftData get(IcaoAddress address) throws IOException {
