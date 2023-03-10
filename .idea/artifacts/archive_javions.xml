@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact name="archive javions">
+    <output-path>$PROJECT_DIR$/out/artifacts/archive_javions</output-path>
+    <root id="root">
+      <element id="directory" name="cs108_porjet_03">
+        <element id="directory" name="Mon Projet">
+          <element id="directory" name="src">
+            <element id="dir-copy" path="$PROJECT_DIR$/src" />
+          </element>
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

@@ -3,7 +3,7 @@ package ch.epfl.javions.aircraft;
 import java.util.Objects;
 
 /**
- * Collecte les données fixes d'un aéronef
+ * Fixed data for a plane
  * @param registration
  *          numéro d'immatriculation
  * @param typeDesignator
@@ -22,7 +22,7 @@ import java.util.Objects;
 public record AircraftData(AircraftRegistration registration, AircraftTypeDesignator typeDesignator, String model,
                            AircraftDescription description, WakeTurbulenceCategory wakeTurbulenceCategory) {
     /**
-     * Vérifie qu'aucune des donnés est vide
+     * Verifies that none of the parameters are empty
      */
     public AircraftData{
         Objects.requireNonNull(registration);
