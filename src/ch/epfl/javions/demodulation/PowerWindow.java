@@ -16,7 +16,7 @@ public class PowerWindow {
     private int currentBatch= 0;
     private int availableSamples;
 
-    public PowerWindow(InputStream stream, int windowSize, int batchSize) throws IOException {
+/*    public PowerWindow(InputStream stream, int windowSize, int batchSize) throws IOException {
         Preconditions.checkArgument((0 < windowSize) && (windowSize <= Math.pow(2, 16)));
 
 
@@ -28,13 +28,14 @@ public class PowerWindow {
         this.currentBatch ++;
 
 
+
         availableSamples = powerComputer.readBatch(evenBatch);
+        mainBatch= evenBatch;
 
 
-    }
-/*    public PowerWindow(InputStream stream, int windowSize) throws IOException {
+    }*/
+    public PowerWindow(InputStream stream, int windowSize) throws IOException {
         Preconditions.checkArgument(0 < windowSize && windowSize <= BATCHSIZE);
-        this.stream = stream; // TODO: check if use this outside of the constructe
         powerComputer = new PowerComputer(stream,BATCHSIZE);
         powerComputer.readBatch(evenBatch);
         mainBatch = evenBatch;
@@ -42,7 +43,7 @@ public class PowerWindow {
         this.currentBatch ++;
         this.windowSize= windowSize;
         windowPostion = 0;
-    }*/
+    }
 
     public int size() {
         return windowSize;
@@ -58,12 +59,12 @@ public class PowerWindow {
         } else return true;
          }
 
- /*   public int get(int i){
+    public int get(int i){
         if((i <0 ) || ( i >= windowSize)){
             throw new IndexOutOfBoundsException();
         }
 
-    }*/
+    }
 
     public void advance() throws IOException{ // handle exception??
         windowPostion ++;
@@ -71,11 +72,9 @@ public class PowerWindow {
 
         if ( ((windowPostion + windowSize - 1 )/currentBatch) > mainBatch.length ){  // si la fenetre chevauche le prochain lot
                 if (mainBatch == evenBatch){
-                    powerComputer.readBatch(oddBatch);
-                    availableSamples += oddBatch.length;
+                    availableSamples += powerComputer.readBatch(oddBatch);
                 } else if (mainBatch == oddBatch) {
-                    powerComputer.readBatch(evenBatch);
-                    availableSamples += evenBatch.length;
+                    availableSamples +=  powerComputer.readBatch(evenBatch);
                 }
         }
 
