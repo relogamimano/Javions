@@ -15,6 +15,10 @@ import java.util.Objects;
  * @param wakeTurbulenceCategory
  *          catégorie de turbulence de sillage
  */
+/**
+ * * @author: Sofia Henriques Garfo (346298)
+ *  * @author: Romeo Maignal (360568)
+ */
 public record AircraftData(AircraftRegistration registration, AircraftTypeDesignator typeDesignator, String model,
                            AircraftDescription description, WakeTurbulenceCategory wakeTurbulenceCategory) {
     /**

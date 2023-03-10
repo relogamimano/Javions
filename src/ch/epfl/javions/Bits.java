@@ -3,12 +3,11 @@ package ch.epfl.javions;
 import java.util.Objects;
 
 public class Bits {
+    // TODO: 10.03.23 c bien de faire ca ? 
     public static final int LENTGH = 8;
 
     private Bits() {}
-
     /**
-     *
      *
      * Public static methode which extracts from the 64-bit vector value the range of size bits starting at the index bit start,
      * which it interprets as an unsigned value

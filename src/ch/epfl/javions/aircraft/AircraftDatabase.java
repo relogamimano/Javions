@@ -1,24 +1,18 @@
 package ch.epfl.javions.aircraft;
 
 import java.io.*;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+
 import java.util.zip.ZipFile;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * @author: Sofia Henriques Garfo (346298)
- * @author: Romeo Maignal (360568)
+ * * @author: Sofia Henriques Garfo (346298)
+ *  * @author: Romeo Maignal (360568)
  */
 public final class AircraftDatabase {
     String fileName;
 
-    /**
-     *
-     * @param fileName
-     *        file containing aircraft information
-     */
     public AircraftDatabase(String fileName){
             if (fileName.isEmpty())
                 throw new NullPointerException();
@@ -29,13 +23,13 @@ public final class AircraftDatabase {
 
 
     /**
-     * Searches the database for the aircraft information that matches the given Icao address
-     * @param address
-     *        Icao Address
-     * @return Aircraftdata for the specific aircraft
+     * Searches the data base for the aicraft information that matches the given Icao address
+     * @param address       (IcaoAddress)
+     *
+     * @return              (AircraftData)
      * @throws IOException
      */
-    public  AircraftData get(IcaoAddress address) throws IOException {
+    public AircraftData get(IcaoAddress address) throws IOException {
         String adressString = address.string();
         String line;
         String fileCSV = adressString.substring(adressString.length()-2)+".csv";
@@ -46,17 +40,17 @@ public final class AircraftDatabase {
 
             while ( (line= buffer.readLine()) != null){
                 if (adressString.compareTo(line) < 0) {
-                    if (line.startsWith(adressString)) {
-                        String[] data = line.split(",", -1);
-                        AircraftData aircraftData = new AircraftData(new AircraftRegistration(data[1]),
-                                new AircraftTypeDesignator(data[2]), data[3], new AircraftDescription(data[4]),
-                                WakeTurbulenceCategory.of(data[5]));
-                        return aircraftData;
-                    } else return null;
+                    break;
                 }
-
-            } return null;
-
+            }
+            assert line != null;
+            if (line.startsWith(adressString)) {
+                String[] data = line.split(",",-1);
+                AircraftData aircraftData = new AircraftData(new AircraftRegistration(data[1]),
+                        new AircraftTypeDesignator(data[2]), data[3], new AircraftDescription(data[4]),
+                        WakeTurbulenceCategory.of(data[5]));
+                return aircraftData;
+            } else return null;
         }
     }
 

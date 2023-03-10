@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * @author: Sofia Henriques Garfo sciper:
- * @author: Roméo Maignal sciper:
+ * * @author: Sofia Henriques Garfo (346298)
+ *  * @author: Romeo Maignal (360568)
  */
 public class SamplesDecoder {
-    private byte[] sampleTab;
-    private InputStream sampleStream;
+    private final byte[] sampleTab;
+    private final InputStream sampleStream;
     private int byteNumber;
     /**
      * Construct a Decoder Object giving access to a method that calculate short samples using a byte stream
@@ -29,9 +29,15 @@ public class SamplesDecoder {
         sampleStream = stream;
 
     }
-//TODO: comment tester quand pas assez de bits ont etes lus
+    /**
+     * File the int array given in parameter with samples made from every two bytes from the InputStream
+     *
+     * @param batch        short array filled with samples of combined bytes
+     * @return             the length of the sample array
+     * @throws IOException if the length of batch isn't equal to the number of bytes divided by 2
+     */
     public int readBatch(short[] batch) throws IOException {
-        // TODO: 08.03.23 voir powercomputer pour l'emplacement de l'appel a un flot, handling error? try?
+        // TODO: 08.03.23 voir powercomputer pour l'emplacement de l'appel a un flot 
         int readBytes = sampleStream.readNBytes(sampleTab, 0, byteNumber);
         Preconditions.checkArgument(batch.length == byteNumber/2);
         if ( readBytes != byteNumber ){

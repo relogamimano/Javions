@@ -3,12 +3,23 @@ package ch.epfl.javions;
 import java.util.Arrays;
 import java.util.HexFormat;
 import java.util.Objects;
-
+/**
+ * * @author: Sofia Henriques Garfo (346298)
+ *  * @author: Romeo Maignal (360568)
+ */
 public final class ByteString {
     private final byte[] byteString;
     public ByteString(byte[] bytes) {
         this.byteString = bytes.clone();
     }
+    /**
+     *
+     * Public static methode which returns the byte string whose hexadecimal is the representation of the string passed as argument.
+     * @throws NumberFormatException if the given string is not of even length, or if it contains a character that is not a hexadecimal digit.
+     *
+     * @param hexString     (String)
+     * @return              (ByteString)
+     */
     public static ByteString ofHexadecimalString(String hexString) {
         Preconditions.checkArgument(hexString.length() % 2 == 0);
         for (int i = 0; i < hexString.length(); i++) {

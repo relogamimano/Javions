@@ -49,7 +49,7 @@ public class PowerWindow {
         if ((i < 0) || (i >= windowSize)) {
             throw new IndexOutOfBoundsException();
         }
-        if ((positionInTab + i) > firstBatch.length) { // position i is not on main tab
+        if ((positionInTab + i) > firstBatch.length) { // position  is not on main tab
             return secondBatch[i - (firstBatch.length - positionInTab)];
 
         } else { return firstBatch[i + positionInTab];
@@ -73,7 +73,7 @@ public class PowerWindow {
         positionInTab = 0;
         tempBatch = firstBatch;
         firstBatch = secondBatch;
-        secondBatch = firstBatch;
+        secondBatch = tempBatch;
 
 
     }}
