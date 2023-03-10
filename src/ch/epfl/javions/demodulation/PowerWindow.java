@@ -80,10 +80,12 @@ public class PowerWindow {
 
 
     public void advanceBy( int offset) throws IOException{
-        Preconditions.checkArgument(offset >= 0);
+        Preconditions.checkArgument(offset > 0);
         for(int i = 0; i< offset; i++)
             this.advance();
         }
 
     }
+
+
 
