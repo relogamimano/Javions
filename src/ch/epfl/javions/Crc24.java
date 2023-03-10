@@ -1,4 +1,8 @@
 package ch.epfl.javions;
+/**
+ * * @author: Sofia Henriques Garfo (346298)
+ *  * @author: Romeo Maignal (360568)
+ */
 final public class Crc24 {
     private static final int N = 24;
     private static final int BYTE_LENGTH = 8;

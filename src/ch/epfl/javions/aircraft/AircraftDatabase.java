@@ -1,12 +1,15 @@
 package ch.epfl.javions.aircraft;
 
 import java.io.*;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+
 import java.util.zip.ZipFile;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * * @author: Sofia Henriques Garfo (346298)
+ *  * @author: Romeo Maignal (360568)
+ */
 public final class AircraftDatabase {
     String fileName;
 
@@ -21,12 +24,12 @@ public final class AircraftDatabase {
 
     /**
      * Searches the data base for the aicraft information that matches the given Icao address
-     * @param address
+     * @param address       (IcaoAddress)
      *
-     * @return
+     * @return              (AircraftData)
      * @throws IOException
      */
-    public  AircraftData get(IcaoAddress address) throws IOException {
+    public AircraftData get(IcaoAddress address) throws IOException {
         String adressString = address.string();
         String line;
         String fileCSV = adressString.substring(adressString.length()-2)+".csv";
@@ -39,9 +42,8 @@ public final class AircraftDatabase {
                 if (adressString.compareTo(line) < 0) {
                     break;
                 }
-                else {
-                }
             }
+            assert line != null;
             if (line.startsWith(adressString)) {
                 String[] data = line.split(",",-1);
                 AircraftData aircraftData = new AircraftData(new AircraftRegistration(data[1]),

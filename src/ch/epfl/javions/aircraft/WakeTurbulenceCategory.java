@@ -3,6 +3,10 @@ package ch.epfl.javions.aircraft;
 /**
  * Répresente la catégorie de turbulence d'un aéronef
  */
+/**
+ * * @author: Sofia Henriques Garfo (346298)
+ *  * @author: Romeo Maignal (360568)
+ */
 public enum WakeTurbulenceCategory {
     LIGHT, MEDIUM , HEAVY, UNKNOWN;
 
