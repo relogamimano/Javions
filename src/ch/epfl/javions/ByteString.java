@@ -33,14 +33,31 @@ public final class ByteString {
         byte[] bytes = hf.parseHex(hexString); // identique à bytes
         return new ByteString(bytes);
     }
+
+    /**
+     * Return the size of the byteString
+     * @return the size of the byteString
+     */
     public int size() {
         return byteString.length;
     }
+
+    /**
+     * Getter method that return a specific byte at a given index
+     * @param index given index
+     * @return the specific byte at a given index
+     */
     public int byteAt(int index) {
         Objects.checkIndex(index, this.size());
         return Byte.toUnsignedInt(byteString[index]);
     }
 
+    /**
+     * Getter methode that return a string of bytes (long) in a specific range in the byteString
+     * @param fromIndex start of the range
+     * @param toIndex   end og the range
+     * @return the string of bytes (long)
+     */
     public long bytesInRange(int fromIndex, int toIndex) {
         Objects.checkFromToIndex(fromIndex, toIndex, this.size());
         Preconditions.checkArgument(toIndex - fromIndex < Long.BYTES);
