@@ -10,18 +10,12 @@ final public class Crc24 {
     public static final int GENERATOR = 0xFFF409;
     int[] intTable;
 
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
     /**
      * Return a CRC24 calculator using the generator of which the 24 LSB are the ones from the generator parameter
      * @param generator
      */
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
     public Crc24(int generator) {
         this.intTable = builtTable(generator);
     }
