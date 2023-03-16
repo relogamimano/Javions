@@ -7,8 +7,10 @@ final public class Crc24 {
     private static final int N = 24;
     private static final int BYTE_LENGTH = 8;
     private static final int BYTE_CAPACITY = 256;
+
     public static final int GENERATOR = 0xFFF409;
     int[] intTable;
+
 
     public Crc24(int generator) {
         this.intTable = builtTable(generator);
