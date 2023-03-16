@@ -2,9 +2,11 @@ package ch.epfl.javions;
 
 import java.util.Objects;
 
+/**
+ * @author: Sofia Henriques Garfo (346298)
+ * @author: Romeo Maignal (360568)
+ */
 public class Bits {
-    // TODO: 10.03.23 c bien de faire ca ? 
-    public static final int LENTGH = 8;
 
     private Bits() {}
     /**
@@ -20,7 +22,7 @@ public class Bits {
      * @return          (int) Specific integer made out of selected bits from the 64bits value
      */
     public static int extractUInt(long value, int start, int size) {
-        Preconditions.checkArgument(size>0 && size<32);
+        Preconditions.checkArgument(size>0 && size<Integer.SIZE);
         Objects.checkFromIndexSize(start,size,Long.SIZE);
 
         value = value >>> start;
@@ -32,6 +34,13 @@ public class Bits {
 
     }
 
+    /**
+     * Test the value of a given bit
+     * @throws IllegalArgumentException if the size is not strictly greater than 0 and strictly less than 64
+     * @param value value that contains the bit to be tested (long)
+     * @param index index of the bit in the value (int)
+     * @return true if the bit is 1
+     */
     public static boolean testBit(long value, int index) {
         Objects.checkIndex(index, Long.SIZE);
         return ((value >>> index) & 1) == 1;

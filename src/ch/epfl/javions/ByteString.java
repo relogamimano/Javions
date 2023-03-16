@@ -55,7 +55,11 @@ public final class ByteString {
     /**
      * Getter methode that return a string of bytes (long) in a specific range in the byteString
      * @param fromIndex start of the range
+<<<<<<< Updated upstream
      * @param toIndex   end og the range
+=======
+     * @param toIndex   end of the range (not included)
+>>>>>>> Stashed changes
      * @return the string of bytes (long)
      */
     public long bytesInRange(int fromIndex, int toIndex) {

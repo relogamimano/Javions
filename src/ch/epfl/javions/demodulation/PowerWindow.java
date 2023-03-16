@@ -11,7 +11,7 @@ public class PowerWindow {
     private int[] secondBatch;
     private final int BATCHSIZE = (int) Math.scalb(1,16); // TAILLE DES LOTS ENCHANTILLON DE PUISSANCE
     private int windowSize;
-    private int windowPostion;
+    private int windowPosition;
 
     private int currentBatch= 0;
     private int availableSamples;
@@ -27,7 +27,7 @@ public class PowerWindow {
         availableSamples  = powerComputer.readBatch(firstBatch);
         this.currentBatch ++;
         this.windowSize= windowSize;
-        windowPostion = 0;
+        windowPosition = 0;
         positionInTab = 0;
     }
 
@@ -36,7 +36,7 @@ public class PowerWindow {
     }
 
     public long position(){
-        return windowPostion;
+        return windowPosition;
     }
 
     public boolean isFull() {
@@ -58,18 +58,18 @@ public class PowerWindow {
 
 
     public void advance() throws IOException{ // handle exception??
-        windowPostion ++;
+        windowPosition ++;
         availableSamples --;
         positionInTab ++;
         int [ ] tempBatch;
 
-        if ( ((windowPostion + windowSize - 1 )/currentBatch) > firstBatch.length ){  // si la fenetre chevauche le prochain lot
+        if ( (this.windowPosition + this.windowSize) % BATCHSIZE == 0){  // si la fenetre chevauche le prochain lot
                 availableSamples += powerComputer.readBatch(secondBatch);
         }
 
 
 
-    if( positionInTab > firstBatch.length ) {// si le premier echantillon appartiens au deuxieme tableau on le set comme main
+    if( this.windowPosition % BATCHSIZE == 0 ) {// si le premier echantillon appartiens au deuxieme tableau on le set comme main
         positionInTab = 0;
         tempBatch = firstBatch;
         firstBatch = secondBatch;
@@ -86,6 +86,3 @@ public class PowerWindow {
         }
 
     }
-
-
-

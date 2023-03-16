@@ -15,7 +15,6 @@ public final class PowerComputer {
 
     private final int sampleNumber;
     private final InputStream sampleStream;
-    // TODO: 08.03.23 readSample comme ca ou plutot sur le modele de readByte comme pour SampleDecoder ?
     SamplesDecoder samplesDecoder;
 
     /**
