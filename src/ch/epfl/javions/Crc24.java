@@ -10,6 +10,10 @@ final public class Crc24 {
     public static final int GENERATOR = 0xFFF409;
     int[] intTable;
 
+    /**
+     * Return a CRC24 calculator using the generator of which the 24 LSB are the ones from the generator parameter
+     * @param generator
+     */
     public Crc24(int generator) {
         this.intTable = builtTable(generator);
     }
@@ -22,6 +26,11 @@ final public class Crc24 {
         return tab;
     }
 
+    /**
+     * Return the CRC24 of the given table
+     * @param bytes table parameter
+     * @return the CRC24 of the given table
+     */
     public int crc(byte[] bytes) {
         int crc = 0;
         for (byte b: bytes) {
