@@ -5,12 +5,18 @@ import ch.epfl.javions.Preconditions;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ *
+ * @author: Sofia Henriques Garfo (346298)
+ * @author: Romeo Maignal (360568)
+ */
 public class PowerWindow {
+    //TODO: test marche pas, index out of bounds, methode ne s arrete pas
     private PowerComputer powerComputer;
     private int[] firstBatch;
     private int[] secondBatch;
     private final int BATCHSIZE = (int) Math.scalb(1,16); // TAILLE DES LOTS ENCHANTILLON DE PUISSANCE
-    private int windowSize;
+    private int windowSize; // position pr au debut du flot
     private int windowPosition;
 
     private int currentBatch= 0;
@@ -18,7 +24,12 @@ public class PowerWindow {
 
     private int positionInTab;
 
-
+    /**
+     * Returns a window with the given size over the power samples
+     * @param stream stream of bytes
+     * @param windowSize
+     * @throws IOException if the window size is greater than 2^16, negative or null
+     */
     public PowerWindow(InputStream stream, int windowSize) throws IOException {
         Preconditions.checkArgument(0 < windowSize && windowSize <= BATCHSIZE);
         powerComputer = new PowerComputer(stream,BATCHSIZE);
@@ -31,32 +42,53 @@ public class PowerWindow {
         positionInTab = 0;
     }
 
+    /**
+     * @return window size
+     */
     public int size() {
         return windowSize;
     }
+
+    /**
+     * Current position relative to the beginning of the input stream
+     * @return window postion
+     */
 
     public long position(){
         return windowPosition;
     }
 
+    /**
+     * Verifies if the window is full
+     * @return true if there are as many samples as the window's size
+     */
     public boolean isFull() {
         if ( availableSamples < windowSize){
             return false;
         } else return true;
          }
 
+    /**
+     * Gives the sample located in the window at index i
+     * @param i index
+     * @return sample
+     * @throws IndexOutOfBoundsException if the index is negative or greater than the window size
+     */
     public int get(int i) {
         if ((i < 0) || (i >= windowSize)) {
             throw new IndexOutOfBoundsException();
         }
-        if ((positionInTab + i) > firstBatch.length) { // position  is not on main tab
+        if ((positionInTab + i) >= firstBatch.length) { // position  is not on main tab
             return secondBatch[i - (firstBatch.length - positionInTab)];
 
         } else { return firstBatch[i + positionInTab];
             }
         }
-
-
+    // i:587  position in tab:64949
+    /**
+     * Advances the window 1 position
+     * @throws IOException
+     */
     public void advance() throws IOException{ // handle exception??
         windowPosition ++;
         availableSamples --;
@@ -78,7 +110,11 @@ public class PowerWindow {
 
     }}
 
-
+    /**
+     * Advances the window position several times
+     * @param offset number of positions to advance
+     * @throws IOException
+     */
     public void advanceBy( int offset) throws IOException{
         Preconditions.checkArgument(offset > 0);
         for(int i = 0; i< offset; i++)
