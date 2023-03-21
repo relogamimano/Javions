@@ -11,7 +11,6 @@ import java.io.InputStream;
  * @author: Romeo Maignal (360568)
  */
 public class PowerWindow {
-    //TODO: test marche pas, index out of bounds, methode ne s arrete pas
     private PowerComputer powerComputer;
     private int[] firstBatch;
     private int[] secondBatch;
