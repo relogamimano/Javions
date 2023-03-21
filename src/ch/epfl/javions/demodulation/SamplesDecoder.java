@@ -37,7 +37,6 @@ public class SamplesDecoder {
      * @throws IOException if the length of batch isn't equal to the number of bytes divided by 2
      */
     public int readBatch(short[] batch) throws IOException {
-        // TODO: 08.03.23 voir powercomputer pour l'emplacement de l'appel a un flot 
         int readBytes = sampleStream.readNBytes(sampleTab, 0, byteNumber);
         Preconditions.checkArgument(batch.length == byteNumber/2);
         if ( readBytes != byteNumber ){
