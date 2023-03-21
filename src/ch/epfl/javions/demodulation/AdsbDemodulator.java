@@ -1,72 +1,68 @@
 package ch.epfl.javions.demodulation;
 
-import ch.epfl.javions.ByteString;
-import ch.epfl.javions.Crc24;
-import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.RawMessage;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Timestamp;
+
 
 public final class AdsbDemodulator {
-    private final InputStream sampleStream;
-    private PowerWindow powerWindow;
-    private
+    private final PowerWindow powerWindow;
+    private static final int STANDARD_WINDOW_SIZE = 1200;
+    private static final int ADS_B_BYTE_SIZE = 14;
     public AdsbDemodulator(InputStream samplesStream) throws IOException {
-        this.sampleStream = samplesStream;
-        powerWindow = new PowerWindow(samplesStream, 1200);
+        powerWindow = new PowerWindow(samplesStream, STANDARD_WINDOW_SIZE);
     }
+
 
     public RawMessage nextMessage() throws IOException {
 
-        byte[] bytes = new byte[120];
-        int previousPSum = pSum(powerWindow, 1, -1);
-        int actualPSum = pSum(powerWindow, 1, 0);
-        int actualVSum =  vSum(powerWindow, 1);
-        int nextPSum = pSum(powerWindow, 1, 1);
-        for (int i = 1; i < powerWindow.size() - 1; i++) {
-            if (powerWindow.get(i) == -1) {
-                return null;
-            }
-//            previousPSum = pSum(powerWindow, i, -1);
-//            actualPSum = pSum(powerWindow, i, 0);
-//            actualVSum = vSum(powerWindow, i);
-//            nextPSum = pSum(powerWindow, i, 1);
+        byte[] bytes;
 
-            if( previousPSum < actualPSum
-                    && actualPSum > nextPSum
-                    && actualPSum >= 2 * actualVSum ) {
-                for (int j = 0; j < bytes.length; j++) {
-                    bytes[j] = (byte) (powerWindow.get(80 + 10 * i) < powerWindow.get(85 + 10 * i) ? 0 : 1);
-                }
-            }
+        int previousPSum;
+        int actualPSum = 0;
+        int nextPSum = 0;
+        int actualVSum;
+
+        while (powerWindow.isFull()) {
+
+
+            powerWindow.advance();
+
             previousPSum = actualPSum;
             actualPSum = nextPSum;
-            nextPSum = pSum(powerWindow, i, 1);
-            powerWindow.advance();
-        }
-        ByteString byteString = new ByteString(bytes);
-        long DF = byteString.bytesInRange(0, 0) & 0x11111;
-        if (DF != (long) 17) {
-            // TODO: 16.03.23 Reccurence relation usefull ? Legitimate ?
-            return nextMessage();
-        }
-        long ICAO = byteString.bytesInRange(1, 3);
-        long ME = byteString.bytesInRange(4, 10);
-        long CRC = byteString.bytesInRange(11, 13);
-        Crc24 crc24 = new Crc24(Crc24.GENERATOR);
-        if (crc24.crc(bytes) == CRC) {
-            return new RawMessage(Timestamp, byteString);
+            actualVSum = vSum();
+            nextPSum = pSum();
+
+            if( previousPSum < actualPSum && actualPSum > nextPSum && (actualPSum >= (2 * actualVSum))){
+
+                bytes = new byte[ADS_B_BYTE_SIZE];
+                for (int j = 0; j < ADS_B_BYTE_SIZE; j++) {
+                    int tempByte = 0;
+                    for (int k = 0; k < Byte.SIZE; k++) {
+                        tempByte = (tempByte << 1);
+                        tempByte |= (powerWindow.get(80 * (j + 1) + 10 * k) < powerWindow.get(85 + 80 * j + 10 * k) ? 0 : 1);
+                    }
+                    bytes[j] = (byte)tempByte;
+                }
+                if (RawMessage.size(bytes[0]) != 0) {
+
+                    RawMessage m = RawMessage.of(powerWindow.position() * 100, bytes);
+                     if(m != null) {
+                         powerWindow.advanceBy(STANDARD_WINDOW_SIZE);
+                         return m;
+                     }
+
+                }
+            }
         }
         return null;
     }
 
-    private int pSum(PowerWindow pw, int i, int shift) throws IllegalArgumentException {
-        if(shift >= -1 && shift <= 1) {throw new IllegalArgumentException("SHIFT OUTSIDE OF POSSIBLES VALUES = {-1, 0, 1");}
-        return pw.get(i + shift) + pw.get(i + shift + 10) + pw.get(i + shift + 35) + pw.get(i + shift + 45);
+    private int pSum() {
+        return powerWindow.get(1) + powerWindow.get(11) + powerWindow.get(36) + powerWindow.get(46);
     }
-    private int vSum(PowerWindow pw, int i)  {
-        return pw.get(i + 5) + pw.get(i + 15) + pw.get(i + 20) + pw.get(i + 25) + pw.get(i + 30) + pw.get(i + 40);
+    private int vSum()  {
+        return powerWindow.get(5) + powerWindow.get(15) + powerWindow.get(20) + powerWindow.get(25) + powerWindow.get(30) + powerWindow.get(40);
     }
 }
