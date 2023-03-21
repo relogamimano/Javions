@@ -1,14 +1,9 @@
 package ch.epfl.javions.demodulation;
 
-import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.adsb.RawMessage;
-import com.sun.jdi.PrimitiveValue;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import static ch.epfl.javions.Units.Time.SECOND;
-
 
 public final class AdsbDemodulator {
     private final PowerWindow powerWindow;
