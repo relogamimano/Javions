@@ -6,6 +6,8 @@ import ch.epfl.javions.Crc24;
 import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
+import java.util.HexFormat;
+
 /**
  * Raw ADS-B message
  * @param timeStampNs time at wich the message was received, expressed in nanoseconds
@@ -73,7 +75,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return Icao Address
      */
     public IcaoAddress icaoAddress(){
-        String address = Long.toHexString(bytes.bytesInRange(1,4)).toUpperCase();
+        String address = HexFormat.of().withUpperCase().toHexDigits(bytes.bytesInRange(1,4),6);
         return new IcaoAddress(address);
     }
 

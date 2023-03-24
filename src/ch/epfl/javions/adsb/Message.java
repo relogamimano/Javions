@@ -2,6 +2,10 @@ package ch.epfl.javions.adsb;
 
 import ch.epfl.javions.aircraft.IcaoAddress;
 
+/**
+ * @author: Sofia Henriques Garfo (346298)
+ * @author: Romeo Maignal (360568)
+ */
 public interface Message {
     /**
      * Return the timestamp of the message in nanoseconds
