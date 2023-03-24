@@ -99,22 +99,22 @@ public class CprDecoder {
 
     private static GeoPos getGeoPos(int mostRecent, double lat0, double lat1, double long0, double long1) {
         if (mostRecent == 0) {
-            return new GeoPos((int) Units.convert(recenter(long0), Units.Angle.TURN, Units.Angle.T32),
-                    (int) Units.convert(recenter(lat0), Units.Angle.TURN, Units.Angle.T32));
+            return new GeoPos((int) rint(Units.convert(recenter(long0), Units.Angle.TURN, Units.Angle.T32)),
+                    (int) rint(Units.convert(recenter(lat0), Units.Angle.TURN, Units.Angle.T32)));
         } else {
-            return new GeoPos((int) Units.convert(recenter(long1), Units.Angle.RADIAN, Units.Angle.T32),
-                    (int) Units.convert(recenter(lat1), Units.Angle.RADIAN, Units.Angle.T32));
+            return new GeoPos((int) rint(Units.convert(recenter(long1), Units.Angle.TURN, Units.Angle.T32)),
+                    (int) rint(Units.convert(recenter(lat1), Units.Angle.TURN, Units.Angle.T32)));
         }
     }
 
     //recentre les angles
     private static double recenter (double i){
         if( i >= 0.5){
-            return i - 1;
+            return  i - 1;
         } else return i;
     }
 
-        // calcule le cos 
+        // calcule le cos
     private static double a(double lat){
         lat = convertFrom(lat, Units.Angle.TURN);
         return Math.acos(1 - ((1 - cos((2 * Math.PI) * (widthLatEven))) / Math.pow(cos(lat),2)));

@@ -55,8 +55,8 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         }
 
 
-        int x = (int) Math.scalb(cprLatitude, - 17);
-        int y = (int) Math.scalb(cprLongitude, - 17);
+        int x = (int) Math.scalb((double)cprLatitude, - 17);
+        int y = (int) Math.scalb((double)cprLongitude, - 17);
 
         return new AirbornePositionMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), decodedAlt, format, x, y);
     }
