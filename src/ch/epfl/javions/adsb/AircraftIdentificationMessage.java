@@ -18,21 +18,17 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
     static String data = "?ABCDEFGHIJKLMNOPQRSTUVWXYZ????? ???????????????0123456789???????????????????";
     public static AircraftIdentificationMessage of(RawMessage rawMessage) {
         StringBuilder string = new StringBuilder();
-
-        for (int i = 0; i < IDENTIFIER_LENGTH; i++) {
-
+        for (int i = IDENTIFIER_LENGTH - 1; i >= 0 ; i--) {
             char identifierCharacter = data.charAt(Bits.extractUInt(rawMessage.payload(), i * IDENTIFIER_CHAR_LENGTH, IDENTIFIER_CHAR_LENGTH));
             string.append(identifierCharacter);
         }
         if (string.toString().contains("?")) {
             return null;
         }
-
+        //method trim() used to remove string of zeros at the end and the beginning of instance string
+        String callSignString = string.toString().trim();
         int category =( ((14 - rawMessage.typeCode()) << 4) | Bits.extractUInt(rawMessage.payload(), 48, 3) ) & 0xff;
-        if (category == 177) {
-            return null;
-        }
-        return new AircraftIdentificationMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), category, new CallSign(string.reverse().toString().trim()));
+        return new AircraftIdentificationMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), category, new CallSign(callSignString));
     }
 
 }
