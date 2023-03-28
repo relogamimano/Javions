@@ -11,7 +11,7 @@ public interface AircraftStateSetter {
      * Change the timestamp of the last message received by from the airplane to the given value in argument
      * @param timeStampsNs the timestamp of the last message
      */
-    void setLastMessageTimeStampsNs(long timeStampsNs);
+    void setLastMessageTimeStampNs(long timeStampsNs);
 
     /**
      * Change the category of the airplane to the given value passed as an argument that follows
@@ -23,7 +23,7 @@ public interface AircraftStateSetter {
      * Change the call sign of the airplane to the given value
      * @param callsSign the call sign of the airplane
      */
-    void setCallsSign(CallSign callsSign);
+    void setCallSign(CallSign callsSign);
 
     /**
      * Modify the geographic position of the airplane to the given value
