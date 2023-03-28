@@ -29,7 +29,6 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         if (altBit4 == 1) {
             decodedAlt = ( (altitude & 0xFE0) >>> 1 ) | (altitude & 0xF);
             decodedAlt = - 1000 + 25 * decodedAlt;
-            decodedAlt *= Units.Length.FOOT;
         } else {
             //  Left bit set (C & A)  ||     Right bit set (B & D)
             //  C1 A1 C2 A2 C4 A4     ||     B1 D1 B2 D2 B4 D4
@@ -57,8 +56,8 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
                 feet100Multiple = 6 - feet100Multiple;
             }
             decodedAlt = -1300 + feet100Multiple * 100 + feet500Multiple * 500;
-            decodedAlt *= Units.Length.FOOT;
         }
+        decodedAlt = Units.convertFrom(decodedAlt, Units.Length.FOOT);
 
         double normalizedX = Math.scalb(cprLatitude, - 17);
         double normalizedY = Math.scalb(cprLongitude, - 17);
