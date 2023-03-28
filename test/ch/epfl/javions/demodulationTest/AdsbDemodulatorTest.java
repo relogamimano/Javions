@@ -1,10 +1,9 @@
 package ch.epfl.javions.demodulationTest;
 
-import ch.epfl.javions.demodulation.AdsbDemodulator;
 import ch.epfl.test.TestRandomizer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
+import ch.epfl.javions.demodulation.AdsbDemodulator;
 import java.io.*;
 import java.util.Base64;
 import java.util.List;
@@ -542,7 +541,7 @@ class AdsbDemodulatorTest {
     @Test
     void adsbDemodulatorNextMessageWorksOnGivenSamples() throws IOException {
         var expectedIt = EXPECTED_RAW_MESSAGE_DATA.iterator();
-        try (var s = new FileInputStream("resources/samples_0304/samples_20230304_1442.bin")) {
+        try (var s = new FileInputStream("resources/samples_20230304_1442.bin")) {
             var demodulator = new AdsbDemodulator(s);
             while (expectedIt.hasNext()) {
                 var expected = expectedIt.next();
