@@ -1,6 +1,8 @@
 package ch.epfl.javions.adsb;
 
+import ch.epfl.javions.Bits;
 import ch.epfl.javions.Preconditions;
+import ch.epfl.javions.Units;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
 
@@ -15,16 +17,19 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
                 && (0 <= y && y < 1)
         );
     }
-    public AirbornePositionMessage of(RawMessage rawMessage) {
+    public static AirbornePositionMessage of(RawMessage rawMessage) {
         // TODO: 23.03.23 magic numbers
-        int altitude = (int) (rawMessage.payload() >>> 36 & 0xFFF);
-        byte altBit4 = (byte) (altitude >>> 5 & 0x1);
-        int format = (int) (rawMessage.payload() >>> 34 & 0x1);
-        int cprLatitude = (int) (rawMessage.payload() >>> 17 & 0x1FFFF);
-        int cprLongitude = (int) (rawMessage.payload() & 0x1FFFF);
-        int decodedAlt;
+
+        int altitude = Bits.extractUInt(rawMessage.payload(),36, 12);
+        byte altBit4 = (byte) Bits.extractUInt(altitude, 4, 1);
+        int format = Bits.extractUInt(rawMessage.payload(), 34, 1);
+        int cprLatitude = Bits.extractUInt(rawMessage.payload(), 17, 17);
+        int cprLongitude = Bits.extractUInt(rawMessage.payload(), 0, 17);
+        double decodedAlt;
         if (altBit4 == 1) {
             decodedAlt = ( (altitude & 0xFE0) >>> 1 ) | (altitude & 0xF);
+            decodedAlt = - 1000 + 25 * decodedAlt;
+            decodedAlt *= Units.Length.FOOT;
         } else {
             //  Left bit set (C & A)  ||     Right bit set (B & D)
             //  C1 A1 C2 A2 C4 A4     ||     B1 D1 B2 D2 B4 D4
@@ -52,16 +57,16 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
                 feet100Multiple = 6 - feet100Multiple;
             }
             decodedAlt = -1300 + feet100Multiple * 100 + feet500Multiple * 500;
+            decodedAlt *= Units.Length.FOOT;
         }
 
+        double normalizedX = Math.scalb(cprLatitude, - 17);
+        double normalizedY = Math.scalb(cprLongitude, - 17);
 
-        int x = (int) Math.scalb((double)cprLatitude, - 17);
-        int y = (int) Math.scalb((double)cprLongitude, - 17);
-
-        return new AirbornePositionMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), decodedAlt, format, x, y);
+        return new AirbornePositionMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), decodedAlt, format, normalizedX, normalizedY);
     }
 
-    private int grayDecoder(int encodedGray) {
+    private static int grayDecoder(int encodedGray) {
         int decodedGray = encodedGray;
         while (encodedGray > 0) {
             encodedGray >>= 1;
@@ -70,7 +75,7 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         return decodedGray;
     }
 
-    private byte permute(byte b) {
+    private static byte permute(byte b) {
         Preconditions.checkArgument(b >>> 6 == 0b00);
         byte newByte = 0;
         newByte |= b        & 0b1;
