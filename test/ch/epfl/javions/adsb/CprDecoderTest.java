@@ -1,52 +1,96 @@
 package ch.epfl.javions.adsb;
 
-import ch.epfl.javions.GeoPos;
-import ch.epfl.javions.Units;
+import ch.epfl.javions.adsb.CprDecoder;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static java.lang.Math.scalb;
+import static java.lang.Math.toDegrees;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class CprDecoderTest {
+class CprDecoderTest {
+    private static double cpr(double cpr) {
+        return scalb(cpr, -17);
+    }
 
-    @Test
-    public void cpr() {
-        double x0 = Math.scalb(111600d, -17);
-        double y0 = Math.scalb(94445d, -17);
-        double x1 = Math.scalb(108865d, -17);
-        double y1 = Math.scalb(77558d, -17);
-        GeoPos geo;
-        System.out.println(geo = CprDecoder.decodePosition(x0, y0, x1, y1, 0));
-        System.out.println("lat32:" + geo.latitudeT32());
-        System.out.println("lat:" + geo.latitude());
-        System.out.println("long32:" + geo.longitudeT32());
+    void checkDecodePosition(int cprX0,
+                             int cprY0,
+                             int cprX1,
+                             int cprY1,
+                             int mostRecent,
+                             double expectedLonDeg,
+                             double expectedLatDeg,
+                             double delta) {
+        var x0 = cpr(cprX0);
+        var x1 = cpr(cprX1);
+        var y0 = cpr(cprY0);
+        var y1 = cpr(cprY1);
+        var p = CprDecoder.decodePosition(x0, y0, x1, y1, mostRecent);
+        assertNotNull(p);
+        assertEquals(expectedLonDeg, toDegrees(p.longitude()), delta);
+        assertEquals(expectedLatDeg, toDegrees(p.latitude()), delta);
     }
 
     @Test
-    void decodePosition() {
-        double x0 = Math.scalb(111600d, -17);
-        double y0 = Math.scalb(94445d, -17);
-        double x1 = Math.scalb(108865d, -17);
-        double y1 = Math.scalb(77558d, -17);
-        GeoPos p = CprDecoder.decodePosition(x0, y0, x1, y1, 0);
-        System.out.println(p);
-        System.out.println(p.longitudeT32());
-        System.out.println(p.latitudeT32());
-        assertEquals((89192898), p.longitudeT32());
-        assertEquals((552659081), p.latitudeT32());
-        GeoPos pos = CprDecoder.decodePosition(0.62, 0.42, 0.6200000000000000001, 0.4200000000000000001, 0);
-        System.out.println(pos);
-        GeoPos pos1 = CprDecoder.decodePosition(0.3, 0.3, 0.3, 0.3, 1);
-        GeoPos pos2 = CprDecoder.decodePosition(0.3, 0.3, 0.3, 0.3, 0);
-        System.out.println(pos1);
-        System.out.println(pos2);
-        assertEquals(1.862068958580494, (Units.convert(pos1.longitudeT32(), Units.Angle.T32, Units.Angle.DEGREE)),1e-6);
-        assertEquals(1.8305084947496653, (Units.convert(pos1.latitudeT32(), Units.Angle.T32, Units.Angle.DEGREE)),1e-6);
-        assertEquals(1.7999999597668648, (Units.convert(pos2.latitudeT32(), Units.Angle.T32, Units.Angle.DEGREE)),1e-6);
+    void cprDecoderDecodePositionWorksOnKnownExamples() {
+        // Example given in stage 5
+        var delta = 1e-6;
+        checkDecodePosition(111600, 94445, 108865, 77558, 0, 7.476062, 46.323349, delta);
 
-        assertEquals(1.8305084947496653, (Units.convert((pos2).longitudeT32(), Units.Angle.T32, Units.Angle.DEGREE)),1e-6);
-        assertEquals(1.8305084947496653, (Units.convert(pos2.longitudeT32(), Units.Angle.T32, Units.Angle.DEGREE)),1e-6);
+        // Example from https://mode-s.org/decode/content/ads-b/3-airborne-position.html#decoding-example
+        checkDecodePosition(0b01100100010101100, 0b10110101101001000, 0b01100010000010010, 0b10010000110101110, 0, 3.919373, 52.257202, delta);
 
+        // Examples from https://github.com/flightaware/dump1090/blob/master/cprtests.c
+        checkDecodePosition(9432, 80536, 9192, 61720, 0, 0.700156, 51.686646, delta);
+        checkDecodePosition(9432, 80536, 9192, 61720, 1, 0.701294, 51.686763, delta);
+        checkDecodePosition(9413, 80534, 9144, 61714, 0, 0.698745, 51.686554, delta);
+        checkDecodePosition(9413, 80534, 9144, 61714, 1, 0.697632, 51.686484, delta);
+    }
 
+    @Test
+    void cprDecoderDecodePositionWorksWithOnlyOneLatitudeBand() {
+        checkDecodePosition(2458, 92843, 2458, 60712, 0, 6.75, 88.25, 1e-2);
+        checkDecodePosition(2458, 92843, 2458, 60712, 1, 6.75, 88.25, 1e-2);
+    }
+
+    @Test
+    void cprDecoderDecodePositionWorksWithPositiveAndNegativeCoordinates() {
+        for (var i = 0; i <= 1; i += 1) {
+            checkDecodePosition(94663, 43691, 101945, 47332, i, -20d, -10d, 1e-4);
+            checkDecodePosition(94663, 87381, 101945, 83740, i, -20d, 10d, 1e-4);
+            checkDecodePosition(36409, 43691, 29127, 47332, i, 20d, -10d, 1e-4);
+            checkDecodePosition(36409, 87381, 29127, 83740, i, 20d, 10d, 1e-4);
+        }
+    }
+
+    @Test
+    void cprDecoderDecodePositionReturnsNullWhenLatitudeIsInvalid() {
+        assertNull(CprDecoder.decodePosition(0, 0, 0, cpr(34776), 0));
+        assertNull(CprDecoder.decodePosition(0, 0, 0, cpr(34776), 1));
+        assertNull(CprDecoder.decodePosition(0, cpr(5), 0, cpr(66706), 0));
+        assertNull(CprDecoder.decodePosition(0, cpr(5), 0, cpr(66706), 1));
+    }
+
+    @Test
+    void cprDecoderDecodePositionReturnsNullWhenSwitchingLatitudeBands() {
+        var args = new int[][]{
+                // Random values
+                {43253, 99779, 122033, 118260},
+                {67454, 100681, 123802, 124315},
+                {129578, 70001, 82905, 105074},
+                {30966, 110907, 122716, 79872},
+                // Real values
+                {85707, 77459, 81435, 60931},
+                {100762, 106328, 98304, 89265},
+                {104941, 106331, 104905, 89210},
+        };
+
+        for (var as : args) {
+            var x0 = cpr(as[0]);
+            var y0 = cpr(as[1]);
+            var x1 = cpr(as[2]);
+            var y1 = cpr(as[3]);
+            assertNull(CprDecoder.decodePosition(x0, y0, x1, y1, 0));
+            assertNull(CprDecoder.decodePosition(x0, y0, x1, y1, 1));
+        }
     }
 }
-
