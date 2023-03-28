@@ -1,10 +1,9 @@
 package ch.epfl.javions.demodulationTest;
 
-import ch.epfl.javions.demodulation.AdsbDemodulator;
 import ch.epfl.test.TestRandomizer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
+import ch.epfl.javions.demodulation.AdsbDemodulator;
 import java.io.*;
 import java.util.Base64;
 import java.util.List;
