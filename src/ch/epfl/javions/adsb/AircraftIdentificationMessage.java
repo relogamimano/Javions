@@ -1,5 +1,6 @@
 package ch.epfl.javions.adsb;
 
+import ch.epfl.javions.Bits;
 import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
@@ -14,20 +15,24 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         Objects.requireNonNull(icaoAddress);
         Preconditions.checkArgument(timeStampNs >= 0);
     }
-    public AircraftIdentificationMessage of(RawMessage rawMessage) {
+    static String data = "?ABCDEFGHIJKLMNOPQRSTUVWXYZ????? ???????????????0123456789???????????????????";
+    public static AircraftIdentificationMessage of(RawMessage rawMessage) {
         StringBuilder string = new StringBuilder();
+
         for (int i = 0; i < IDENTIFIER_LENGTH; i++) {
-            char identifierCharacter = (char) (rawMessage.payload() >>> (i * IDENTIFIER_CHAR_LENGTH) & 0x3f);
-            //todo how to remove those magic numbers ?
-            if ( (27 <= identifierCharacter && identifierCharacter <= 31)
-            || ( 33 <= identifierCharacter && identifierCharacter <= 47)
-            || 58 <= identifierCharacter) {
-                return null;
-            } else {
-                string.append(identifierCharacter);
-            }
+
+            char identifierCharacter = data.charAt(Bits.extractUInt(rawMessage.payload(), i * IDENTIFIER_CHAR_LENGTH, IDENTIFIER_CHAR_LENGTH));
+            string.append(identifierCharacter);
         }
-        return new AircraftIdentificationMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), rawMessage.typeCode(), new CallSign(string.toString()));
+        if (string.toString().contains("?")) {
+            return null;
+        }
+
+        int category =( ((14 - rawMessage.typeCode()) << 4) | Bits.extractUInt(rawMessage.payload(), 48, 3) ) & 0xff;
+        if (category == 177) {
+            return null;
+        }
+        return new AircraftIdentificationMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), category, new CallSign(string.reverse().toString().trim()));
     }
 
 }
