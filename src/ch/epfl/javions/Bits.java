@@ -11,10 +11,11 @@ public class Bits {
     private Bits() {}
     /**
      *
-     * Public static methode which extracts from the 64-bit vector value the range of size bits starting at the index bit start,
-     * which it interprets as an unsigned value
+     * Public static methode which extracts from the 64-bit vector value the range of size bits starting at the index
+     * bit start, which it interprets as an unsigned value
      * @throws IllegalArgumentException if the size is not strictly greater than 0 and strictly less than 32
-     * @throws IndexOutOfBoundsException if the range described by start and size is not completely between 0 (inclusive) and 64 (exclusive),
+     * @throws IndexOutOfBoundsException if the range described by start and size is not completely between 0 (inclusive)
+     * and 64 (exclusive),
      *
      * @param value     (long)
      * @param start     (int)

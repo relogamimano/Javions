@@ -9,11 +9,13 @@ import ch.epfl.javions.aircraft.IcaoAddress;
 import java.util.HexFormat;
 
 /**
- * Raw ADS-B message
+ * Raw ADS-B message consinsting in 14 bytes ( 112 bits). First byte(0) represent the downlink format of the message,
+ * bytes 1-3 represent the Icao adrees, bytes 4-10 contain the ME and finally bytes 11-13 contain the CRC24.
  * @param timeStampNs time at wich the message was received, expressed in nanoseconds
  * @param bytes bytes of the message
  */
 public record RawMessage(long timeStampNs, ByteString bytes) {
+
     /**
      * Size of the byte ADS-B message
      */

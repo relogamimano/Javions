@@ -8,7 +8,10 @@ import ch.epfl.javions.aircraft.IcaoAddress;
 
 import java.util.Objects;
 
-public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity, double x, double y) implements Message{
+
+public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity,
+                                      double x, double y)  implements Message{
+
     public AirbornePositionMessage {
         Objects.requireNonNull(icaoAddress);
         Preconditions.checkArgument(timeStampNs >= 0
@@ -91,4 +94,12 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
     public long timeStampsNs() {
         return timeStampNs;
     }
+
+
+
+    @Override
+    public IcaoAddress icaoAddress(){
+        return icaoAddress;
+    }
 }
+

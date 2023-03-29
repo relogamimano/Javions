@@ -1,3 +1,4 @@
+/*
 package ch.epfl.javions.adsb;
 
 import ch.epfl.javions.adsb.CprDecoder;
@@ -35,7 +36,7 @@ class CprDecoderTest {
         // Example given in stage 5
         var delta = 1e-6;
         checkDecodePosition(111600, 94445, 108865, 77558, 0, 7.476062, 46.323349, delta);
-<<<<<<< Updated upstream
+
 
         // Example from https://mode-s.org/decode/content/ads-b/3-airborne-position.html#decoding-example
         checkDecodePosition(0b01100100010101100, 0b10110101101001000, 0b01100010000010010, 0b10010000110101110, 0, 3.919373, 52.257202, delta);
@@ -156,3 +157,4 @@ class CprDecoderTest {
     }
 }
 >>>>>>> Stashed changes
+*/

@@ -84,3 +84,4 @@ public final class AdsbDemodulator {
         return vSum;
     }
 }
+

@@ -2,6 +2,7 @@ package ch.epfl.javions.aircraft;
 
 import java.io.*;
 
+import java.util.Objects;
 import java.util.zip.ZipFile;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -14,11 +15,9 @@ public final class AircraftDatabase {
     String fileName;
 
     public AircraftDatabase(String fileName) {
-        if (fileName.isEmpty())
-            throw new NullPointerException();
-        else {
-            this.fileName = fileName;
-        }
+        Objects.requireNonNull(fileName);
+        this.fileName = fileName;
+
     }
 
 
