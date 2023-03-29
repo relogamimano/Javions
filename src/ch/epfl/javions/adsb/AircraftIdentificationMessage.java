@@ -7,7 +7,7 @@ import ch.epfl.javions.aircraft.IcaoAddress;
 import java.util.Objects;
 
 
-public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAddress, int category, CallSign callSign) {
+public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAddress, int category, CallSign callSign) implements Message {
     private static final int IDENTIFIER_LENGTH = 8;
     private static final int IDENTIFIER_CHAR_LENGTH = 6;
     public AircraftIdentificationMessage {
@@ -31,4 +31,8 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         return new AircraftIdentificationMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), category, new CallSign(callSignString));
     }
 
+    @Override
+    public long timeStampsNs() {
+        return timeStampNs;
+    }
 }
