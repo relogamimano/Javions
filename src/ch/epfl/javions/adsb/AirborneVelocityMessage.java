@@ -10,18 +10,20 @@ import java.util.Objects;
 
 import static ch.epfl.javions.Units.*;
 
-public record AirborneVelocityMessage(long timeStampNS, IcaoAddress icaoAddress, double speed, double trackOrHeading)
+public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress, double speed, double trackOrHeading)
         implements Message {
 
 
     public AirborneVelocityMessage{
         Objects.requireNonNull(icaoAddress);
-        Preconditions.checkArgument( timeStampNS >= 0 && speed >= 0 && trackOrHeading>= 0 );
+        Preconditions.checkArgument( timeStampNs >= 0 && speed >= 0 && trackOrHeading>= 0 );
     }
 
+
+
     @Override
-    public long timeStampsNs() {
-        return timeStampNS;
+    public long timeStampNs() {
+        return timeStampNs;
     }
 
     @Override

@@ -35,7 +35,7 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
     }
 
     @Override
-    public long timeStampsNs() {
+    public long timeStampNs() {
         return timeStampNs;
     }
 

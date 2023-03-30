@@ -91,11 +91,9 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
 
 
     @Override
-    public long timeStampsNs() {
+    public long timeStampNs() {
         return timeStampNs;
     }
-
-
 
     @Override
     public IcaoAddress icaoAddress(){
