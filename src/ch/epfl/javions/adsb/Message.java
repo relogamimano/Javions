@@ -11,7 +11,7 @@ public interface Message {
      * Return the timestamp of the message in nanoseconds
      * @return the timestamp of the message in nanoseconds
      */
-    long timeStampsNs();
+    long timeStampNs();
 
     /**
      * Return the ICAO address of the message's sender
