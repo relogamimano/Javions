@@ -9,9 +9,9 @@ import ch.epfl.javions.GeoPos;
 public interface AircraftStateSetter {
     /**
      * Change the timestamp of the last message received by from the airplane to the given value in argument
-     * @param timeStampsNs the timestamp of the last message
+     * @param timeStampNs the timestamp of the last message
      */
-    void setLastMessageTimeStampNs(long timeStampsNs);
+    void setLastMessageTimeStampNs(long timeStampNs);
 
     /**
      * Change the category of the airplane to the given value passed as an argument that follows
