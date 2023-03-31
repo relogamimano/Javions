@@ -10,7 +10,7 @@ import ch.epfl.javions.Units;
  */
 public class AircraftStateAccumulator<T extends AircraftStateSetter>  {
     private static final long TIMESTAMP_DIFF = 10;
-    private T stateSetter;
+    private final T stateSetter;
     public AircraftStateAccumulator(T stateSetter) throws NullPointerException {
         Preconditions.checkArgument(stateSetter != null);
         this.stateSetter = stateSetter;
