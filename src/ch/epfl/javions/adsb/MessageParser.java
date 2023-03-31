@@ -6,7 +6,9 @@ public class MessageParser {
 
     private MessageParser(){}
 
+
     static public Message parse(RawMessage rawMessage){
+
         int typeCode = rawMessage.typeCode();
 
         if ( typeCode == 19 ){

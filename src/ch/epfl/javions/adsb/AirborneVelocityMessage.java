@@ -38,14 +38,11 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
         if ( rawMessage.typeCode() != 19 ){
             return null;
         }
-        switch (st){
-            case 1 : case 2 :
-                return groundSpeed(rawMessage, st);
-            case 3 : case 4 :
-                return airSpeed(rawMessage, st);
-            default:
-                return null;
-        }
+        return switch (st) {
+            case 1, 2 -> groundSpeed(rawMessage, st);
+            case 3, 4 -> airSpeed(rawMessage, st);
+            default -> null;
+        };
 
     }
 
@@ -64,15 +61,16 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
         int vy;
 
         if ( st == 2 ){
-            vx = ( dew == 1? 1: -1)*4*(vew -1);
-            vy = ( dns == 1? 1: -1)*4*(vns -1);
+            vx = ( dew == 1? -1: 1)*4*(vew -1);
+            vy = ( dns == 1? -1: 1)*4*(vns -1);
         } else {
             vx = ( dew == 1? -1: 1)*(vew - 1 );
             vy = ( dns == 1? -1: 1)*(vns - 1 );
         }
 
         double speed = Math.hypot(vx,vy);
-        double angle = Math.atan2(vy,vx);
+        double angle = Math.atan2(vx,vy);
+        System.out.println("angle = " + angle);
         if ( angle <0 ){
             angle = angle+2*Math.PI;
         }
