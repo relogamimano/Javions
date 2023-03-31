@@ -4,6 +4,10 @@ import ch.epfl.javions.GeoPos;
 import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.Units;
 
+/**
+ * @author: Sofia Henriques Garfo (346298)
+ * @author: Romeo Maignal (360568)
+ */
 public class AircraftStateAccumulator<T extends AircraftStateSetter>  {
     private static final long TIMESTAMP_DIFF = 10;
     private T stateSetter;
@@ -11,6 +15,11 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter>  {
         Preconditions.checkArgument(stateSetter != null);
         this.stateSetter = stateSetter;
     }
+
+    /**
+     * Getter that return the state setter, of an Airplane, given as parameter in the constructor
+     * @return airplane's state setter
+     */
     public T stateSetter() {
         return stateSetter;
     }
@@ -18,8 +27,8 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter>  {
     private AirbornePositionMessage lastEvenPositionMessage;
 
     /**
-     *
-     * @param message
+     * Methode that keep up to date the state setter depending on what kind of ADSB-Message as been given in parameter
+     * @param message ADSB-Message
      */
     public void update(Message message) {
         stateSetter.setLastMessageTimeStampNs(message.timeStampNs());
