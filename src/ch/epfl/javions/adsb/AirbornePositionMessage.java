@@ -62,8 +62,8 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         }
         decodedAlt = Units.convertFrom(decodedAlt, Units.Length.FOOT);
 
-        double normalizedX = Math.scalb(cprLatitude, - 17);
-        double normalizedY = Math.scalb(cprLongitude, - 17);
+        double normalizedX = Math.scalb(cprLongitude, - 17);
+        double normalizedY = Math.scalb(cprLatitude, - 17);
 
         return new AirbornePositionMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), decodedAlt, format, normalizedX, normalizedY);
     }
