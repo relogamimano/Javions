@@ -10,6 +10,7 @@ import java.io.InputStream;
  *  * @author: Romeo Maignal (360568)
  */
 public class SamplesDecoder {
+    private static final int BIAS = 2048;
     private final byte[] sampleTab;
     private final InputStream sampleStream;
     private int byteNumber;
@@ -47,8 +48,8 @@ public class SamplesDecoder {
             int j = i*2;
             short mostSignificantBits = (short)(sampleTab[j + 1] & 0xf);
             short leastSignificantBits = sampleTab[j] ;
-            short uncenteredSample = (short) ((mostSignificantBits << 8)  + (leastSignificantBits & 0xff));
-            batch[i] = (short)(uncenteredSample - (short)2048);
+            short uncenteredSample = (short) ((mostSignificantBits << Byte.SIZE)  + (leastSignificantBits & 0xff));
+            batch[i] = (short)(uncenteredSample - (short)BIAS);
         }
         return readBytes/2;
     }
