@@ -5,8 +5,9 @@ import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.Units;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
-
 import java.util.Objects;
+
+import static ch.epfl.javions.Bits.extractUInt;
 
 
 public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity,
@@ -30,6 +31,18 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
     private static final int FOOT_FACTOR_100 = 100;
     private static final int FOOT_FACTOR_500 = 500;
 
+    /**
+     * AirbornePositionMessage's compact constructor throws NullPointerException if icaoAddress is null,
+     * or IllegalArgumentException if timeStamp is strictly less than 0,
+     * or parity is different from 0 or 1, or x or y are not between 0 (inclusive) and 1 (excluded).
+     *
+     * @param timeStampNs Message's time stamp
+     * @param icaoAddress Airplane's ICAO address
+     * @param altitude Airplane's altitude
+     * @param parity Message's parity
+     * @param x Airplane's normalized longitude
+     * @param y Airplane's normalized latitude
+     */
     public AirbornePositionMessage {
         Objects.requireNonNull(icaoAddress);
         Preconditions.checkArgument(timeStampNs >= 0
@@ -46,16 +59,16 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
      * @return  Position message containing the coordinates and the altitude of the plane
      */
     public static AirbornePositionMessage of(RawMessage rawMessage) {
-        int altitude = Bits.extractUInt(rawMessage.payload(),ALT_START, ALT_SIZE);
-        byte altBit4 = (byte) Bits.extractUInt(altitude, Q_INDEX, 1);
-        int format = Bits.extractUInt(rawMessage.payload(), FORMAT_START, FORMAT_SIZE);
-        int cprLatitude = Bits.extractUInt(rawMessage.payload(), LAT_START, COORD_SIZE);
-        int cprLongitude = Bits.extractUInt(rawMessage.payload(), LON_START, COORD_SIZE);
+        int altitude = extractUInt(rawMessage.payload(),ALT_START, ALT_SIZE);
+        byte altBit4 = (byte) extractUInt(altitude, Q_INDEX, 1);
+        int format = extractUInt(rawMessage.payload(), FORMAT_START, FORMAT_SIZE);
+        int cprLatitude = extractUInt(rawMessage.payload(), LAT_START, COORD_SIZE);
+        int cprLongitude = extractUInt(rawMessage.payload(), LON_START, COORD_SIZE);
         double decodedAlt;
         if (altBit4 == 1) {
 
-            decodedAlt = ( Bits.extractUInt(altitude, Q_INDEX + 1 , ALT_SIZE - Q_INDEX - 1) << Q_INDEX )
-                    | (Bits.extractUInt(altitude, 0, Q_INDEX));
+            decodedAlt = ( extractUInt(altitude, Q_INDEX + 1 , ALT_SIZE - Q_INDEX - 1) << Q_INDEX )
+                    | (extractUInt(altitude, 0, Q_INDEX));
             decodedAlt = - Q1_ALT_BASE + FOOT_FACTOR_25 * decodedAlt;
         } else {
             //  Left bit set (C & A)  ||     Right bit set (B & D)
