@@ -9,8 +9,7 @@ public final class Units {
     private Units() {}
 
     public static final double CENTI = 1e-2;
-
-
+    public static final double NANO = 1e-9;
     public static final double KILO = 1e3;
     // … autre(s) préfixe(s) SI utile(s) au projet
 
