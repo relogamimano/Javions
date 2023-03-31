@@ -11,6 +11,13 @@ import ch.epfl.javions.Units;
 public class AircraftStateAccumulator<T extends AircraftStateSetter>  {
     private static final long TIMESTAMP_DIFF = 10;
     private final T stateSetter;
+
+    /**
+     * Returns an aircraft state accumulator associated with the given mutable state, or throws NullPointerException if null.
+     *
+     * @param stateSetter state setter
+     * @throws NullPointerException
+     */
     public AircraftStateAccumulator(T stateSetter) throws NullPointerException {
         Preconditions.checkArgument(stateSetter != null);
         this.stateSetter = stateSetter;
