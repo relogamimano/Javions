@@ -1,7 +1,6 @@
 package ch.epfl.javions.adsb;
 
 import ch.epfl.javions.GeoPos;
-import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.Units;
 
 /**
@@ -19,7 +18,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter>  {
      * @throws NullPointerException
      */
     public AircraftStateAccumulator(T stateSetter) throws NullPointerException {
-        Preconditions.checkArgument(stateSetter != null);
+        if(stateSetter == null) throw new NullPointerException();
         this.stateSetter = stateSetter;
     }
 
