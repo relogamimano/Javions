@@ -1,6 +1,5 @@
 package ch.epfl.javions.adsb;
 
-import ch.epfl.javions.Bits;
 import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.Units;
 import ch.epfl.javions.aircraft.IcaoAddress;
@@ -11,11 +10,12 @@ import static ch.epfl.javions.Bits.extractUInt;
 
 
 public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity,
-                                      double x, double y)  implements Message{
+                                               double x, double y)  implements Message{
     private static final int COORD_SIZE = 17;
     private static final int FORMAT_SIZE = 1;
     private static final int TIME_SIZE = 1;
     private static final int ALT_SIZE = 12;
+    private static final int ABCD_TRIO_SIZE = 3;// len( A A A ) --> 3
     static private final int LON_START = 0;
     private static final int LAT_START = LON_START + COORD_SIZE;
     private static final int FORMAT_START = LAT_START + COORD_SIZE;//                  (Q)
@@ -73,21 +73,22 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         } else {
             //  Left bit set (C & A)  ||     Right bit set (B & D)
             //  C1 A1 C2 A2 C4 A4     ||     B1 D1 B2 D2 B4 D4
-            byte CA = (byte) (altitude >>> ALT_SIZE/2 & 0x3F);
-            byte BD = (byte) (altitude & 0x3F);
+            byte CACACA = (byte) extractUInt(altitude, ALT_SIZE/2, ALT_SIZE/2); // ALT_SIZE = 12
+            byte BDBDBD = (byte) extractUInt(altitude, 0, ALT_SIZE/2);
             //  CA bit set            ||     BD bit set
             //  C1 C2 C4 A1 A2 A4     ||     B1 B2 B4 D1 D2 D4
-            byte CABitStr = permute(CA);
-            byte BDBitStr = permute(BD);
+            byte CCCAAA = permute(CACACA);
+            byte BBBDDD = permute(BDBDBD);
             // D set     ||  A set     ||  B set     ||  C set
             // D1 D2 D4  ||  A1 A2 A4  ||  B1 B2 B4  ||  C1 C2 C4
-            byte D = (byte) (BDBitStr & 0b111);
-            byte A = (byte) (CABitStr & 0b111);
-            byte B = (byte) (BDBitStr >>> 3 & 0b111);
-            byte C = (byte) (CABitStr >>> 3 & 0b111);
+            byte D = (byte) extractUInt(BBBDDD, 0, ABCD_TRIO_SIZE);
+            byte A = (byte) extractUInt(CCCAAA, 0, ABCD_TRIO_SIZE);
+            byte B = (byte) extractUInt(BBBDDD, ABCD_TRIO_SIZE, ABCD_TRIO_SIZE);
+            byte C = (byte) extractUInt(CCCAAA, ABCD_TRIO_SIZE, ABCD_TRIO_SIZE); // ABCD_TRIO_LEN = 3
+
             int feetMultiple100 = grayDecoder(C);// multiple of 100 feet composed of the LSB  ( CCC )
             //  multiple of 500 feet composed of the MSB  ( DDD AAA BBB ),
-            //  hence the shifting of the byte D by 6 (= 12 /2), and the shifting of the byte A by 3 (= 12 /2 /2 = 12/4)
+            //  hence the shifting of the byte D by 6, and the shifting of the byte A by 3
             int feetMultiple500 = grayDecoder((D << 6) | (A << 3) | B);// multiple of 500 feet
 
             for (int i: INCORRECT_VALUES) {
@@ -104,7 +105,7 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
                 feetMultiple100 = (MAXIMUM_VALUE - 1) - feetMultiple100;
             }
 
-            decodedAlt = -Q2_ALT_BASE + feetMultiple100 * FOOT_FACTOR_100 + feetMultiple500 * FOOT_FACTOR_500;
+            decodedAlt = - Q2_ALT_BASE + feetMultiple100 * FOOT_FACTOR_100 + feetMultiple500 * FOOT_FACTOR_500;
         }
         decodedAlt = Units.convertFrom(decodedAlt, Units.Length.FOOT);
 
