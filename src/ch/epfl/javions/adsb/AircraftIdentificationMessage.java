@@ -54,7 +54,8 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         //The category is obtained by combining the 3 bits of the CA field with the type code.
         // These two values are combined into a single 8-bit value,
         // of which the 4 MSB are 14 minus the type code, and the 4 LSB are the CA field.
-        int category =( ((14 - rawMessage.typeCode()) << CA_SIZE + 1) | extractUInt(rawMessage.payload(), CA_START, CA_SIZE) ) & 0xff;
+        int category =( ((14 - rawMessage.typeCode()) << CA_SIZE + 1)
+                | extractUInt(rawMessage.payload(), CA_START, CA_SIZE) ) & 0xff;
         return new AircraftIdentificationMessage(
                 rawMessage.timeStampNs(),
                 rawMessage.icaoAddress(),
