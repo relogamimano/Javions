@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  * @author: Romeo Maignal (360568)            =
  */
 public record CallSign (String string) {
-    private static Pattern pattern = Pattern.compile("[A-Z0-9 ]{0,8}");
+    private static final Pattern pattern = Pattern.compile("[A-Z0-9 ]{0,8}");
 
 
     /**
