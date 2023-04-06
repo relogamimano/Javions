@@ -2,8 +2,6 @@ package ch.epfl.javions.aircraft;
 
 /**
  * Category of turbulence
- */
-/**
  * * @author: Sofia Henriques Garfo (346298)
  *  * @author: Romeo Maignal (360568)
  */
