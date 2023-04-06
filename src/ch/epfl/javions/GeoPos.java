@@ -12,8 +12,8 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
     /**
      * Checks if the given geographical coordinates are valid
      * @throws IllegalArgumentException if the coordinates aren't valid
-     * @param longitudeT32
-     * @param latitudeT32
+     * @param longitudeT32 longitude expressed in T32
+     * @param latitudeT32 latitude expressed in T32
      */
     public GeoPos {
         Preconditions.checkArgument(isValidLatitudeT32(latitudeT32));
@@ -21,7 +21,7 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
 
     /**
      * Checks if the latitude is expressed in T32, by verifying if it's greater than -2^30 and less than 2^30
-     * @param latitudeT32
+     * @param latitudeT32 latitude expressed in T32
      * @return true if the latitude is valid
      */
     public static boolean isValidLatitudeT32(int latitudeT32) {
