@@ -8,6 +8,7 @@ import java.util.zip.ZipFile;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
+ * Reprensents the database for the different aircrafts information
  * @author: Sofia Henriques Garfo (346298)
  * @author: Romeo Maignal (360568)
  */
@@ -22,7 +23,7 @@ public final class AircraftDatabase {
 
 
     /**
-     * Searches the data base for the aicraft information that matches the given Icao address
+     * Searches the database for the aicraft information that matches the given Icao address
      *
      * @param address (IcaoAddress)
      * @return (AircraftData)

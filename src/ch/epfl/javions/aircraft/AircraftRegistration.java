@@ -5,6 +5,7 @@ import ch.epfl.javions.Preconditions;
 import java.util.Objects;
 import java.util.regex.Pattern;
 /**
+ * Aircraft registration 
  * @author: Sofia Henriques Garfo (346298)
  * @author: Romeo Maignal (360568)
  */
