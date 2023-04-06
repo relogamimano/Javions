@@ -13,8 +13,9 @@ import java.io.InputStream;
 public final class AdsbDemodulator {
     private final PowerWindow powerWindow;
     private static final int STANDARD_WINDOW_SIZE = 1200;
-    private static final int ADS_B_BYTE_SIZE = 14;
+    private static final int ADS_B_BYTE_SIZE = RawMessage.LENGTH;
     private static final int SIGNAL_MULTIPLICATOR = 10;
+    private static final int GAIN_FACTOR = 100;
     private static final double[] PREAMBLE_PEAK_PULSES = new double[]{0.0, 1.0, 3.5, 4.5};// in nanoseconds
     private static final double[] PREAMBLE_VALLEY_PULSES = new double[]{0.5, 1.5, 2.0, 2.5, 3.0, 4.0};// in nanoseconds
     private static final double PREAMBLE_LENGTH = 8.0;// in nanoseconds
@@ -72,7 +73,7 @@ public final class AdsbDemodulator {
                 }
                 if (RawMessage.size(bytes[0]) != 0) {
 
-                    RawMessage m = RawMessage.of(powerWindow.position() * 100, bytes);
+                    RawMessage m = RawMessage.of(powerWindow.position() * GAIN_FACTOR, bytes);
                     if (m != null) {
                         powerWindow.advanceBy(STANDARD_WINDOW_SIZE);
                         return m;
