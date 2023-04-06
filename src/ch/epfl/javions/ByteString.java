@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.HexFormat;
 import java.util.Objects;
 /** ByteString public and final class, represents a string of bytes.
- * * @author: Sofia Henriques Garfo (346298)
- * * @author: Romeo Maignal (360568)
+ * @author: Sofia Henriques Garfo (346298)
+ * @author: Romeo Maignal (360568)
  */
 public final class ByteString {
     private final byte[] byteString;
