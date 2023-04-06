@@ -6,7 +6,6 @@ import ch.epfl.javions.Units;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
 
-import java.lang.invoke.DelegatingMethodHandle$Holder;
 import java.util.Objects;
 
 import static ch.epfl.javions.Units.*;
@@ -125,7 +124,7 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
             cap = convert(Bits.extractUInt(rawMessage.payload(), EW_VELOCITY,VELOCITY_SIZE)/Math.pow(2,10),
                     Angle.TURN, Angle.RADIAN);
             as = ( st == 3 ? 1 : 4)*(Bits.extractUInt(rawMessage.payload(), VNS_START, VELOCITY_SIZE) - 1);
-            if ( as == 0 ){
+            if ( as <= 0 ){
                 return null;
             } else return new AirborneVelocityMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(),
                     convertFrom(as, Speed.KNOT), cap);
