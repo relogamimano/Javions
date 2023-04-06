@@ -29,7 +29,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
     private static final int CRC_START = ME_START + ME_BYTE_SIZE;
     private static final int CRC_BYTE_SIZE = 3;
 
-    private static final int LENGTH = CRC_START + CRC_BYTE_SIZE;
+    public static final int LENGTH = CRC_START + CRC_BYTE_SIZE;
 
     // length in bits
     private static final int CA_START = START;
