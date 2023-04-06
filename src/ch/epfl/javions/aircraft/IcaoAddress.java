@@ -6,11 +6,11 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 /**
  * Aicraft ICAO address
- * * @author: Sofia Henriques Garfo (346298)
- *  * @author: Romeo Maignal (360568)
+ * @author: Sofia Henriques Garfo (346298)
+ * @author: Romeo Maignal (360568)
  */
 public record IcaoAddress(String string) {
-    private static Pattern pattern = Pattern.compile("[0-9A-F]{6}");
+    private static final Pattern pattern = Pattern.compile("[0-9A-F]{6}");
 
 /**
  * Verifies that the ICAO address is valid : [0-9A-F]{6}
