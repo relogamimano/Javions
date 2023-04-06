@@ -19,7 +19,27 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
     /**
      * Size of the byte ADS-B message
      */
-    public static final int LENGTH = 14;
+    // length in bytes
+    private static final int START = 0;
+    private static final int DFCA_BYTE_SIZE = 1;
+    private static final int ICAO_START = START + DFCA_BYTE_SIZE;
+    private static final int ICAO_BYTE_SIZE = 3;
+    private static final int ME_START = ICAO_START + ICAO_BYTE_SIZE;
+    private static final int ME_BYTE_SIZE = 7;
+    private static final int CRC_START = ME_START + ME_BYTE_SIZE;
+    private static final int CRC_BYTE_SIZE = 3;
+
+    private static final int LENGTH = CRC_START + CRC_BYTE_SIZE;
+
+    // length in bits
+    private static final int CA_START = START;
+    private static final int CA_BIT_SIZE = 3;
+    private static final int DF_START = CA_START + CA_BIT_SIZE;
+    private static final int DF_BIT_SIZE = 5;
+
+
+
+
 
     /**
      * Checks that the given time stamp is valid (positive) and checks that the byte size is valid
@@ -44,9 +64,14 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
         } else return new RawMessage(timeStamps, new ByteString(bytes));
     }
 
-
+    /**
+     * Method which returns the size of a message whose first byte is the given one,
+     * and which is LENGTH if the DF attribute contained in this first byte is 17, and 0 otherwise
+     * @param byte0 first byte
+     * @return size
+     */
     public static int size(byte byte0) {
-        int df = Bits.extractUInt(byte0, 3, 5);
+        int df = Bits.extractUInt(byte0, DF_START, DF_BIT_SIZE);
         if (df == 17) {
             return LENGTH;
         } else return 0;
@@ -58,7 +83,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return type code
      */
     public static int typeCode(long payload){
-        return Bits.extractUInt(payload, 51, 5);
+        return Bits.extractUInt(payload, ME_BYTE_SIZE * Byte.SIZE - DF_BIT_SIZE, DF_BIT_SIZE);
     }
 
     /**
@@ -66,7 +91,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return link format
      */
     public int downLinkFormat(){
-        return Bits.extractUInt(bytes.byteAt(0),3,5);
+        return Bits.extractUInt(bytes.byteAt(START),DF_START, DF_BIT_SIZE);
 
     }
 
@@ -75,7 +100,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return Icao Address
      */
     public IcaoAddress icaoAddress(){
-        String address = HexFormat.of().withUpperCase().toHexDigits(bytes.bytesInRange(1,4),6);
+        String address = HexFormat.of().withUpperCase().toHexDigits(bytes.bytesInRange(ICAO_START, ME_START),6);
         return new IcaoAddress(address);
     }
 
@@ -84,7 +109,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return payload (long)
      */
     public long payload(){
-        return bytes.bytesInRange(4,11);
+        return bytes.bytesInRange(ME_START, CRC_START);
     }
 
     /**
