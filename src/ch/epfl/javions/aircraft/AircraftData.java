@@ -4,16 +4,11 @@ import java.util.Objects;
 
 /**
  * Fixed data for a plane
- * @param registration
- *          numéro d'immatriculation
- * @param typeDesignator
- *          indicateur type
- * @param model
- *          modèle
- * @param description
- *          description
- * @param wakeTurbulenceCategory
- *          catégorie de turbulence de sillage
+ * @param registration registration number
+ * @param typeDesignator type indicator
+ * @param model aircraft model
+ * @param description aircraft description
+ * @param wakeTurbulenceCategory turbulence caregory
  */
 /**
  * * @author: Sofia Henriques Garfo (346298)

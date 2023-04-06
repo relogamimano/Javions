@@ -3,6 +3,7 @@ package ch.epfl.javions.adsb;
 import ch.epfl.javions.GeoPos;
 
 /**
+ * Represents all types of states of the aircraft
  * @author: Sofia Henriques Garfo (346298)
  * @author: Romeo Maignal (360568)
  */

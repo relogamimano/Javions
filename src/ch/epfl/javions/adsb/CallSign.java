@@ -5,7 +5,7 @@ import ch.epfl.javions.Preconditions;
 import java.util.regex.Pattern;
 
 /**
- * Call sign of the airceaft
+ * Call sign of the aircraft
  * @param string call string@author:
  * @author : Sofia Henriques Garfo (346298)
  * @author: Romeo Maignal (360568)            =

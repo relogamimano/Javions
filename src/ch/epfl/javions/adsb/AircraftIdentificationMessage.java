@@ -22,13 +22,13 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
     private static final String data = "?ABCDEFGHIJKLMNOPQRSTUVWXYZ????? ???????????????0123456789???????????????????";
 
     /**
-     * Constructor that throws NullPointerException if icaoAddress or callSign is null,
-     * and IllegalArgumentException if timeStampNs is strictly less than 0.
-     *
+     * Constructor that  checks if the preconditions are verified.
      * @param timeStampNs time stamp
      * @param icaoAddress ICAO address
      * @param category category
      * @param callSign call sign
+     * @throws NullPointerException if the ICAO address or the call sign is null
+     * @throws IllegalArgumentException if time stamps are negative
      */
     public AircraftIdentificationMessage {
         Objects.requireNonNull(callSign);
@@ -38,9 +38,8 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
 
     /**
      * Returns the identification message corresponding to the given raw message,
-     * or null if at least one of the callsign characters it contains is invalid
      * @param rawMessage Raw message
-     * @return Identification message
+     * @return Identification message  or null if at least one of the callsign characters it contains is invalid
      */
     public static AircraftIdentificationMessage of(RawMessage rawMessage) {
         StringBuilder string = new StringBuilder();

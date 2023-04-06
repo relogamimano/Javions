@@ -8,8 +8,8 @@ import java.util.zip.ZipFile;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * * @author: Sofia Henriques Garfo (346298)
- *  * @author: Romeo Maignal (360568)
+ * @author: Sofia Henriques Garfo (346298)
+ * @author: Romeo Maignal (360568)
  */
 public final class AircraftDatabase {
     String fileName;

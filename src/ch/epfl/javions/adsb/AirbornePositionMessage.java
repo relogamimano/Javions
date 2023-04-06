@@ -8,7 +8,17 @@ import java.util.Objects;
 
 import static ch.epfl.javions.Bits.extractUInt;
 
-
+/**
+ * ABDS-Messages that contain information on the aircraft's airborne position
+ * @param timeStampNs time stamp
+ * @param icaoAddress ICAO address
+ * @param altitude plain altitude in meters
+ * @param parity parity of the message ( 0 even, 1 odd)
+ * @param x local normalised longitude
+ * @param y local normalised latitude
+ * @author: Sofia Henriques Garfo (346298)
+ * @author: Romeo Maignal (360568)
+ */
 public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity,
                                                double x, double y)  implements Message{
     private static final int COORD_SIZE = 17;
@@ -32,16 +42,17 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
     private static final int FOOT_FACTOR_500 = 500;
 
     /**
-     * AirbornePositionMessage's compact constructor throws NullPointerException if icaoAddress is null,
-     * or IllegalArgumentException if timeStamp is strictly less than 0,
-     * or parity is different from 0 or 1, or x or y are not between 0 (inclusive) and 1 (excluded).
+     * AirbornePositionMessage's compact constructor that verifies that all preconditions are met.
      *
      * @param timeStampNs Message's time stamp
      * @param icaoAddress Airplane's ICAO address
      * @param altitude Airplane's altitude
-     * @param parity Message's parity
+     * @param parity Message's parity ( 0 odd, 1 even)
      * @param x Airplane's normalized longitude
      * @param y Airplane's normalized latitude
+     * @throws IllegalArgumentException if time same are negative, parity isn't valid, or x and y aren't greater
+     * than 0 (included or strictly smaller than (1)
+     * @throws
      */
     public AirbornePositionMessage {
         Objects.requireNonNull(icaoAddress);
@@ -53,10 +64,10 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
     }
 
     /**
-     * Returns the in-flight positioning message corresponding to the given raw message,
-     * or null if the altitude it contains is invalid.
+     * Returns the in-flight positioning message corresponding to the given raw message
      * @param rawMessage    Raw adsb-message
-     * @return  Position message containing the coordinates and the altitude of the plane
+     * @return  Position message containing the coordinates and the altitude of the plane, null if the altitude
+     * is invalid
      */
     public static AirbornePositionMessage of(RawMessage rawMessage) {
         int altitude = extractUInt(rawMessage.payload(),ALT_START, ALT_SIZE);

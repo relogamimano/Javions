@@ -4,6 +4,7 @@ import ch.epfl.javions.GeoPos;
 import ch.epfl.javions.Units;
 
 /**
+ * Collects ADS-B messages of one aircraft in order to have its state over time
  * @author: Sofia Henriques Garfo (346298)
  * @author: Romeo Maignal (360568)
  */
@@ -15,7 +16,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter>  {
      * Returns an aircraft state accumulator associated with the given mutable state, or throws NullPointerException if null.
      *
      * @param stateSetter state setter
-     * @throws NullPointerException
+     * @throws NullPointerException if the state is null
      */
     public AircraftStateAccumulator(T stateSetter) throws NullPointerException {
         if(stateSetter == null) throw new NullPointerException();
@@ -51,8 +52,10 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter>  {
                     lastOddPositionMessage = aim;
                 }
                 if (lastOddPositionMessage != null && lastEvenPositionMessage != null
-                        && Math.abs(lastEvenPositionMessage.timeStampNs() - lastOddPositionMessage.timeStampNs() ) <= Units.convertTo(TIMESTAMP_DIFF, Units.NANO)) {
-                    GeoPos m = CprDecoder.decodePosition(lastEvenPositionMessage.x(), lastEvenPositionMessage.y(), lastOddPositionMessage.x(),
+                        && Math.abs(lastEvenPositionMessage.timeStampNs() - lastOddPositionMessage.timeStampNs() )
+                        <= Units.convertTo(TIMESTAMP_DIFF, Units.NANO)) {
+                    GeoPos m = CprDecoder.decodePosition(lastEvenPositionMessage.x(),
+                            lastEvenPositionMessage.y(), lastOddPositionMessage.x(),
                             lastOddPositionMessage.y(), aim.parity());
                     if (m != null) {
                         stateSetter.setPosition(m);
