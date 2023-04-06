@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * * @author: Sofia Henriques Garfo (346298)
- *  * @author: Romeo Maignal (360568)
+ * The public and final SamplesDecoder class represents an object capable
+ * of transforming bytes coming from the AirSpy into signed 12-bit samples.
+ * @author: Sofia Henriques Garfo (346298)
+ * @author: Romeo Maignal (360568)
  */
 public class SamplesDecoder {
     private static final int BIAS = 2048;
@@ -41,7 +43,7 @@ public class SamplesDecoder {
         int readBytes = sampleStream.readNBytes(sampleTab, 0, byteNumber);
         Preconditions.checkArgument(batch.length == byteNumber/2);
         if ( readBytes != byteNumber ){
-            byteNumber = (int) Math.floor( readBytes/2);
+            byteNumber = (int) Math.floor( ( (double)readBytes )/2);
         }
 
         for (int i = 0; i < batch.length; i++ ) {
