@@ -19,7 +19,7 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
     /**
      * Constructor that throws NullPointerException if icaoAddress or callSign is null,
      * and IllegalArgumentException if timeStampNs is strictly less than 0.
-     *
+     /TODO: @throws
      * @param timeStampNs time stamp
      * @param icaoAddress ICAO address
      * @param category category

@@ -10,29 +10,56 @@ import java.util.Objects;
 
 import static ch.epfl.javions.Units.*;
 
+/**
+ * Velocity message of the flight
+ * @param timeStampNs message time stamps
+ * @param icaoAddress ICAO address
+ * @param speed speed of the aircraft
+ * @param trackOrHeading direction of the aircraft
+ * @author: Sofia Henriques Garfo (346298)
+ * @author: Romeo Maignal (360568)
+ */
 public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress, double speed, double trackOrHeading)
         implements Message {
 
 
+    /**
+     * Constructor that verifies that all arguments are valid
+     * @param timeStampNs message time stamps
+     * @param icaoAddress ICAO address
+     * @param speed speed of the aircraft
+     * @param trackOrHeading direction of the aircraft
+     * @throws IllegalArgumentException if the time stamps, the speed or the direction are negative
+     * @throws NullPointerException Icao address is null
+     */
     public AirborneVelocityMessage{
         Objects.requireNonNull(icaoAddress);
         Preconditions.checkArgument( timeStampNs >= 0 && speed >= 0 && trackOrHeading>= 0 );
     }
 
 
-
+    /**
+     *
+     * @return message time stapms
+     */
     @Override
     public long timeStampNs() {
         return timeStampNs;
     }
 
+    /**
+     * @return ICAO address
+     */
     @Override
     public IcaoAddress icaoAddress(){
         return icaoAddress;
     }
 
-    //qui retourne le message de vitesse en vol correspondant au message brut donné, ou null si le sous-type est invalide,
-    //ou si la vitesse ou la direction de déplacement ne peuvent pas être déterminés.
+    /**
+     * Extracts the velocity message from the raw message
+     * @param rawMessage
+     * @return velocity message
+     */
     public static AirborneVelocityMessage of(RawMessage rawMessage){
         int st = Bits.extractUInt(rawMessage.payload(), 48 , 3);
         if ( rawMessage.typeCode() != 19 ){
@@ -45,6 +72,7 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
         };
 
     }
+
 
     private static AirborneVelocityMessage groundSpeed(RawMessage rawMessage, int st){
         int vns =  Bits.extractUInt(rawMessage.payload(), 21, 10);
@@ -70,13 +98,12 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
 
         double speed = Math.hypot(vx,vy);
         double angle = Math.atan2(vx,vy);
-        System.out.println("angle = " + angle);
         if ( angle <0 ){
             angle = angle+2*Math.PI;
         }
 
         return new AirborneVelocityMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(),
-                convert(speed, Units.Speed.KNOT, Speed.KILOMETER_PER_HOUR)* (Length.KILOMETER/3600),
+                convertFrom(speed, Units.Speed.KNOT),
                 angle);
     }
 
@@ -90,7 +117,7 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
             if ( as == 0 ){
                 return null;
             } else return new AirborneVelocityMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(),
-                    convert(as, Speed.KNOT, Speed.KILOMETER_PER_HOUR)*((Length.KILOMETER)/3600),
+                    convertFrom(as, Speed.KNOT),
                     cap);
         } else {
             return null;

@@ -14,7 +14,7 @@ public class AirVelocityMessageTest {
 
     @Test
     void messageB() {
-        System.out.println(AirborneVelocityMessage.of(RawMessage.of(100, HexFormat.of().parseHex("8DA05F219B06B6AF189400CBC33F"))));
+        System.out.println(AirborneVelocityMessage.of(RawMessage.of(100, HexFormat.of().parseHex("8D485020994409940838175B284F"))));
     }
 
     @Test
