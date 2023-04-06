@@ -8,6 +8,7 @@ import java.io.InputStream;
 /**
  * The public and final SamplesDecoder class represents an object capable
  * of transforming bytes coming from the AirSpy into signed 12-bit samples.
+ *
  * @author: Sofia Henriques Garfo (346298)
  * @author: Romeo Maignal (360568)
  */
