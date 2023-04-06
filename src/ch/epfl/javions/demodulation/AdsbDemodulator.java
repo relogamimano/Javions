@@ -5,6 +5,11 @@ import ch.epfl.javions.adsb.RawMessage;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * The AdsbDemodulator public and final class, represents an ADS-B message demodulator.
+ * @author: Sofia Henriques Garfo (346298)
+ * @author: Romeo Maignal (360568)
+ */
 public final class AdsbDemodulator {
     private final PowerWindow powerWindow;
     private static final int STANDARD_WINDOW_SIZE = 1200;
@@ -17,11 +22,22 @@ public final class AdsbDemodulator {
     private static final int SIGNAL_START = (int) (PREAMBLE_LENGTH * SIGNAL_MULTIPLICATOR);
     private static final int SIGNAL_END = (int) ((PREAMBLE_LENGTH + PULSE_LENGTH) * SIGNAL_MULTIPLICATOR);
 
+    /**
+     * Method which returns a demodulator that obtains the bytes containing the samples of the flow passed in argument
+     * @param samplesStream flow of samples
+     * @throws IOException if an I/O error occurs while creating the object of type PowerWindow.
+     */
     public AdsbDemodulator(InputStream samplesStream) throws IOException {
         powerWindow = new PowerWindow(samplesStream, STANDARD_WINDOW_SIZE);
     }
 
-
+    /**
+     * The method that returns the next ADS-B message from the sample stream passed to the constructor,
+     * or null if there are none.
+     *
+     * @return next ADS-B message
+     * @throws IOException in case of input/output error.
+     */
     public RawMessage nextMessage() throws IOException {
 
         byte[] bytes;
@@ -48,7 +64,7 @@ public final class AdsbDemodulator {
                     int tempByte = 0;
                     for (int k = 0; k < Byte.SIZE; k++) {
                         tempByte = (tempByte << 1);
-                        int lowerSample = powerWindow.get(SIGNAL_START * (j + 1) + 10 * k);
+                        int lowerSample = powerWindow.get(SIGNAL_START * (j + 1) + SIGNAL_MULTIPLICATOR * k);
                         int upperSample = powerWindow.get(SIGNAL_END + SIGNAL_START * j + SIGNAL_MULTIPLICATOR * k);
                         tempByte |= lowerSample < upperSample ? 0 : 1;
                     }
@@ -61,7 +77,6 @@ public final class AdsbDemodulator {
                         powerWindow.advanceBy(STANDARD_WINDOW_SIZE);
                         return m;
                     }
-
                 }
             }
         }
