@@ -1,12 +1,12 @@
 package ch.epfl.javions.adsb;
 
-import ch.epfl.javions.Bits;
-import ch.epfl.javions.ByteString;
-import ch.epfl.javions.Crc24;
-import ch.epfl.javions.Preconditions;
+import ch.epfl.javions.*;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
 import java.util.HexFormat;
+
+import static ch.epfl.javions.Bits.extractUInt;
+import static ch.epfl.javions.Units.convertFrom;
 
 /**
  *
@@ -33,14 +33,13 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
     private static final int CRC_BYTE_SIZE = 3;
 
     public static final int LENGTH = CRC_START + CRC_BYTE_SIZE;
+    private static final int HEX_ICAO_SIZE = 6;
 
     // length in bits
     private static final int CA_START = START;
     private static final int CA_BIT_SIZE = 3;
     private static final int DF_START = CA_START + CA_BIT_SIZE;
     private static final int DF_BIT_SIZE = 5;
-
-
 
 
 
@@ -74,7 +73,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return size
      */
     public static int size(byte byte0) {
-        int df = Bits.extractUInt(byte0, DF_START, DF_BIT_SIZE);
+        int df = extractUInt(byte0, DF_START, DF_BIT_SIZE);
         if (df == 17) {
             return LENGTH;
         } else return 0;
@@ -86,7 +85,9 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return type code
      */
     public static int typeCode(long payload){
-        return Bits.extractUInt(payload, ME_BYTE_SIZE * Byte.SIZE - DF_BIT_SIZE, DF_BIT_SIZE);
+        return extractUInt(payload,
+                (int) (convertFrom(ME_BYTE_SIZE, Byte.SIZE) - DF_BIT_SIZE),
+                DF_BIT_SIZE);
     }
 
     /**
@@ -94,7 +95,9 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return link format
      */
     public int downLinkFormat(){
-        return Bits.extractUInt(bytes.byteAt(START),DF_START, DF_BIT_SIZE);
+        return extractUInt(
+                bytes.byteAt(START),
+                DF_START, DF_BIT_SIZE);
 
     }
 
@@ -103,7 +106,10 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return Icao Address
      */
     public IcaoAddress icaoAddress(){
-        String address = HexFormat.of().withUpperCase().toHexDigits(bytes.bytesInRange(ICAO_START, ME_START),6);
+        String address = HexFormat.of()
+                .withUpperCase().
+                toHexDigits(
+                        bytes.bytesInRange(ICAO_START, ME_START), HEX_ICAO_SIZE);
         return new IcaoAddress(address);
     }
 
