@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  *  * @author: Romeo Maignal (360568)
  */
 public record AircraftTypeDesignator(String string) {
-    private static Pattern pattern = Pattern.compile("[A-Z0-9]{2,4}");
+    private static final Pattern pattern = Pattern.compile("[A-Z0-9]{2,4}");
     /**
      * Verifies that the aircraft designator is valid : [A-Z0-9]{2,4}
      * @param string aircraft type designator
