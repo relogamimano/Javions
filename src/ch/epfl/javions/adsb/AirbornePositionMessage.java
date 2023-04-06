@@ -138,7 +138,7 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
 
     private static byte permute(byte b) {
         Preconditions.checkArgument(b >>> ALT_SIZE/2 == 0b00);
-        // { C1 A1 C2 A2 C4 A4 B1 D1 B2 D2 B4 D4 } ---> { D1 D2 D4 A1 A2 A4 B1 B2 B4 C1 C2 C4 }
+        // { C1 A1 C2 A2 C4 A4 } ---> { C1 C2 C3 A1 A2 A3 }
         byte newByte = 0;
         newByte |= b        & 0b1;
         newByte |= b >>> 1  & 0b10;
