@@ -10,6 +10,13 @@ import java.util.regex.Pattern;
  */
 public record IcaoAddress(String string) {
     private static Pattern pattern = Pattern.compile("[0-9A-F]{6}");
+
+/**
+ * Verifies that the ICAO address is valid : [0-9A-F]{6}
+ * @param string aircraft type designator
+ * @throws IllegalArgumentException if the address isn't valid
+ * @throws NullPointerException if the string is null
+ **/
     public IcaoAddress {
         Preconditions.checkArgument(pattern.matcher(string).matches());
         Objects.requireNonNull(string);

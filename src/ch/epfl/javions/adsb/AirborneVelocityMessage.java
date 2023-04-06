@@ -6,6 +6,7 @@ import ch.epfl.javions.Units;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
 
+import java.lang.invoke.DelegatingMethodHandle$Holder;
 import java.util.Objects;
 
 import static ch.epfl.javions.Units.*;
@@ -22,7 +23,16 @@ import static ch.epfl.javions.Units.*;
 public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress, double speed, double trackOrHeading)
         implements Message {
 
-
+    private static final int PAY_LOAD = 19;
+    private static final int SUB_TYPE_START = 48;
+    private static final int VNS_START = 21;
+    private static final int SH_START= 42;
+    private static final int DIRECTION_SIZE = 1;
+    private static final int VELOCITY_SIZE = 10;
+    private static final int DNS_START = VNS_START+VELOCITY_SIZE;
+    private static final int EW_VELOCITY = DNS_START+DIRECTION_SIZE;
+    private static final int EW_DIRECTION = EW_VELOCITY + VELOCITY_SIZE;
+    
     /**
      * Constructor that verifies that all arguments are valid
      * @param timeStampNs message time stamps
@@ -61,8 +71,8 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
      * @return velocity message
      */
     public static AirborneVelocityMessage of(RawMessage rawMessage){
-        int st = Bits.extractUInt(rawMessage.payload(), 48 , 3);
-        if ( rawMessage.typeCode() != 19 ){
+        int st = Bits.extractUInt(rawMessage.payload(), SUB_TYPE_START , 3);
+        if ( rawMessage.typeCode() != PAY_LOAD ){
             return null;
         }
         return switch (st) {
@@ -75,16 +85,16 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
 
 
     private static AirborneVelocityMessage groundSpeed(RawMessage rawMessage, int st){
-        int vns =  Bits.extractUInt(rawMessage.payload(), 21, 10);
-        int vew = Bits.extractUInt(rawMessage.payload(), 32, 10);
+        int vns =  Bits.extractUInt(rawMessage.payload(),VNS_START, VELOCITY_SIZE);
+        int vew = Bits.extractUInt(rawMessage.payload(), EW_VELOCITY, VELOCITY_SIZE);
 
 
         if ( vns == 0 || vew == 0 ){
             return null;
         }
 
-        int dns = Bits.extractUInt(rawMessage.payload(),31,1);
-        int dew = Bits.extractUInt(rawMessage.payload(), 42, 1);
+        int dns = Bits.extractUInt(rawMessage.payload(),DNS_START,DIRECTION_SIZE);
+        int dew = Bits.extractUInt(rawMessage.payload(), EW_DIRECTION, DIRECTION_SIZE);
         int vx;
         int vy;
 
@@ -108,17 +118,17 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
     }
 
     private static AirborneVelocityMessage airSpeed( RawMessage rawMessage, int st){
-        int sh = Bits.extractUInt(rawMessage.payload(), 42, 1 );
+        int sh = Bits.extractUInt(rawMessage.payload(), SH_START, DIRECTION_SIZE );
         double cap;
         double as = 0;
         if ( sh == 1 ){
-            cap = convert(Bits.extractUInt(rawMessage.payload(), 32,10)/Math.pow(2,10), Angle.TURN, Angle.RADIAN);
-            as = ( st == 3 ? 1 : 4)*(Bits.extractUInt(rawMessage.payload(), 21, 10) - 1);
+            cap = convert(Bits.extractUInt(rawMessage.payload(), EW_VELOCITY,VELOCITY_SIZE)/Math.pow(2,10),
+                    Angle.TURN, Angle.RADIAN);
+            as = ( st == 3 ? 1 : 4)*(Bits.extractUInt(rawMessage.payload(), VNS_START, VELOCITY_SIZE) - 1);
             if ( as == 0 ){
                 return null;
             } else return new AirborneVelocityMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(),
-                    convertFrom(as, Speed.KNOT),
-                    cap);
+                    convertFrom(as, Speed.KNOT), cap);
         } else {
             return null;
     }

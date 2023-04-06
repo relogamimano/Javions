@@ -17,13 +17,12 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
     private static final String data = "?ABCDEFGHIJKLMNOPQRSTUVWXYZ????? ???????????????0123456789???????????????????";
 
     /**
-     * Constructor that throws NullPointerException if icaoAddress or callSign is null,
-     * and IllegalArgumentException if timeStampNs is strictly less than 0.
-     /TODO: @throws
+     * Constructor that verifies if preconditions are met.
      * @param timeStampNs time stamp
      * @param icaoAddress ICAO address
      * @param category category
-     * @param callSign call sign
+     * @throws NullPointerException if icaoaddress or callsign is null
+     * @throws IllegalArgumentException if timeStampNs is negative
      */
     public AircraftIdentificationMessage {
         Objects.requireNonNull(callSign);

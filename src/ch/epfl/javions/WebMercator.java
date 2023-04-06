@@ -1,7 +1,7 @@
 package ch.epfl.javions;
 
 /**
- * Projections of the geographical coordinates accordint to the WebMercator projection
+ * Projections of the geographical coordinates according to the WebMercator projection
  * @author: Sofia Henriques Garfo (346298)
  * @author: Romeo Maignal (360568)
  */

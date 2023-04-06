@@ -20,7 +20,6 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * Size of the byte ADS-B message
      */
     public static final int LENGTH = 14;
-    public static ByteString byteString;
 
     /**
      * Checks that the given time stamp is valid (positive) and checks that the byte size is valid

@@ -8,7 +8,13 @@ import java.util.regex.Pattern;
  *  * @author: Romeo Maignal (360568)
  */
 public record AircraftDescription(String string) {
-    private static Pattern pattern = Pattern.compile("[ABDGHLPRSTV-][0123468][EJPT-]");;
+    private static Pattern pattern = Pattern.compile("[ABDGHLPRSTV-][0123468][EJPT-]");
+
+    /**
+     * Verifies that the aircraft description is valid : [ABDGHLPRSTV-][0123468][EJPT-]
+     * @param string aircraft description
+     * @throws IllegalArgumentException if aircraft description not valid
+     */
     public AircraftDescription {
         Preconditions.checkArgument(pattern.matcher(string).matches() || string.isEmpty());
     }

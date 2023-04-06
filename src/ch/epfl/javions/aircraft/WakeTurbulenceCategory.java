@@ -1,7 +1,7 @@
 package ch.epfl.javions.aircraft;
 
 /**
- * Répresente la catégorie de turbulence d'un aéronef
+ * Category of turbulence
  */
 /**
  * * @author: Sofia Henriques Garfo (346298)
@@ -11,11 +11,10 @@ public enum WakeTurbulenceCategory {
     LIGHT, MEDIUM , HEAVY, UNKNOWN;
 
     /**
-     * Converts les valeurs de turbulance de la base de données
-     * @param s
-     *          valeur dans la base de données
-     * @return
-     *          turbulence en type énuméré
+     * Converts the turbulence  information of the data base
+     * @param s value on the data base
+     * @return enum turbulence
+     *
      */
     public static WakeTurbulenceCategory of(String s){
         switch (s){

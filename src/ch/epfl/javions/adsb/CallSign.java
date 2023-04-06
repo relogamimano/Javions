@@ -6,7 +6,9 @@ import java.util.regex.Pattern;
 
 /**
  * Call sign of the airceaft
- * @param string call string
+ * @param string call string@author:
+ * @author : Sofia Henriques Garfo (346298)
+ * @author: Romeo Maignal (360568)            =
  */
 public record CallSign (String string) {
     private static Pattern pattern = Pattern.compile("[A-Z0-9 ]{0,8}");

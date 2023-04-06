@@ -99,12 +99,12 @@ public class CprDecoder {
 
     }
 
-    //recentre les angles
+    //to recenter the angles
     private static double recenter(double i) {
         return i>= 0.5 ?  i-1 :  i;
     }
 
-    // calcule le cos
+    // acos calculation
     private static double a(double lat) {
         lat = convertFrom(lat, Units.Angle.TURN);
         return Math.acos( 1 - ((1 - cos( ( 2 * Math.PI ) * ( WIDTH_LAT_EVEN ))) / Math.pow(cos(lat), 2)));
