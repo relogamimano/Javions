@@ -1,4 +1,7 @@
 package ch.epfl.javions;
+
+import static ch.epfl.javions.Bits.extractUInt;
+
 /**
  * Crc24 class, public, final and immutable, represents a 24-bit CRC calculator.
  * * @author: Sofia Henriques Garfo (346298)
@@ -37,12 +40,13 @@ final public class Crc24 {
     public int crc(byte[] bytes) {
         int crc = 0;
         for (byte b: bytes) {
-            crc = ((crc << BYTE_LENGTH) | Byte.toUnsignedInt(b)) ^ intTable[Bits.extractUInt(crc, N-BYTE_LENGTH,BYTE_LENGTH)];
+            crc = ((crc << BYTE_LENGTH) | Byte.toUnsignedInt(b))
+                    ^ intTable[extractUInt(crc, N-BYTE_LENGTH,BYTE_LENGTH)];
         }
         for (int i = 0; i < N/BYTE_LENGTH; i++) {
-            crc = (crc << BYTE_LENGTH) ^ intTable[Bits.extractUInt(crc, N- BYTE_LENGTH, BYTE_LENGTH)];
+            crc = (crc << BYTE_LENGTH) ^ intTable[extractUInt(crc, N- BYTE_LENGTH, BYTE_LENGTH)];
         }
-        return Bits.extractUInt(crc, 0, N);
+        return extractUInt(crc, 0, N);
     }
 
 
@@ -51,12 +55,12 @@ final public class Crc24 {
         int crc = 0;
         for (byte b : message) {
             for (int j = BYTE_LENGTH - 1; j >= 0; j--) {
-                crc = ((crc << 1) | Bits.extractUInt(b, j, 1)) ^ table[Bits.extractUInt(crc, N - 1, 1)];
+                crc = ((crc << 1) | extractUInt(b, j, 1)) ^ table[extractUInt(crc, N - 1, 1)];
             }
         }
         for (int i = 0; i < N; i++) {
-            crc = (crc << 1) ^ table[Bits.extractUInt(crc, N-1, 1)];
+            crc = (crc << 1) ^ table[extractUInt(crc, N-1, 1)];
         }
-        return Bits.extractUInt(crc,0,N);
+        return extractUInt(crc,0,N);
     }
 }
