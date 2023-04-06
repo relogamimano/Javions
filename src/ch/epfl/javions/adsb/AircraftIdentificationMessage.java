@@ -6,7 +6,11 @@ import java.util.Objects;
 
 import static ch.epfl.javions.Bits.extractUInt;
 
-
+/**
+ * AircraftIdentificationMessage public, represents an ADS-B identification message
+ * @author: Sofia Henriques Garfo (346298)
+ * @author: Romeo Maignal (360568)
+ */
 public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAddress, int category, CallSign callSign) implements Message{
 
     private static final int ID_LEN = 8;
@@ -14,15 +18,17 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
     private static final int CA_LEN = 3;
     private static final int ME_LEN = 4;
     private static final int CA_START = 48;
+    //Re-arranged ASCII table containing only the Capital Alphabet and every digit
     private static final String data = "?ABCDEFGHIJKLMNOPQRSTUVWXYZ????? ???????????????0123456789???????????????????";
 
     /**
-     * Constructor that verifies if preconditions are met.
+     * Constructor that throws NullPointerException if icaoAddress or callSign is null,
+     * and IllegalArgumentException if timeStampNs is strictly less than 0.
+     *
      * @param timeStampNs time stamp
      * @param icaoAddress ICAO address
      * @param category category
-     * @throws NullPointerException if icaoaddress or callsign is null
-     * @throws IllegalArgumentException if timeStampNs is negative
+     * @param callSign call sign
      */
     public AircraftIdentificationMessage {
         Objects.requireNonNull(callSign);
@@ -64,4 +70,3 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
     }
 
 }
-

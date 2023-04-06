@@ -77,8 +77,7 @@ public final class Units {
 
     /**
      * Converts units
-     * @param value
-     *
+     * @param value value
      * @param fromUnit unit of value
      * @param toUnit desired unit
      * @return  converted value
@@ -90,8 +89,8 @@ public final class Units {
 
     /**
      * Convert from a given Unit to the base Unit
-     * @param value
-     * @param fromUnit
+     * @param value value
+     * @param fromUnit actual unit of the value
      * @return converted value
      */
     public static double convertFrom(double value, double fromUnit) {
@@ -101,7 +100,7 @@ public final class Units {
     /**
      * Converts a given value expressed in base unit to the desired unit
      * @param value expressed in base value
-     * @param toUnit
+     * @param toUnit next unit of the value
      * @return converted value
      */
     public static double convertTo(double value, double toUnit) {

@@ -11,7 +11,7 @@ public class WebMercator {
 
     /**
      * Returns the x coordinate at the given longitude according to the zoom level
-     * @param zoomLevel
+     * @param zoomLevel zoom level
      * @param longitude in radians
      * @return x coordinate
      */
@@ -21,7 +21,7 @@ public class WebMercator {
 
     /**
      * returns the y coordinate at the given latitude according to the zoom level
-     * @param zoomLevel
+     * @param zoomLevel zoom level 
      * @param latitude in radians
      * @return y coordinate
      */

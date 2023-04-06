@@ -3,6 +3,8 @@ package ch.epfl.javions;
 import java.util.Objects;
 
 /**
+ * The Bits public and not instantiable class,
+ * contains methods to extract a subset of the 64 bits from a value of type long
  * @author: Sofia Henriques Garfo (346298)
  * @author: Romeo Maignal (360568)
  */

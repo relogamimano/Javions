@@ -1,6 +1,7 @@
 package ch.epfl.javions;
 
 /**
+ * Useful method to complete the existing Java Math library
  * @author: Sofia Henriques Garfo (346298)
  * @author: Romeo Maignal (360568)
  */
@@ -20,16 +21,12 @@ public final class Math2 {
         Preconditions.checkArgument(min <= max);
         if (v < min) {
             return min;
-        } else if (v > max) {
-            return max;
-        } else {
-            return v;
-        }
+        } else return Math.min(v, max);
     }
 
     /**
      * Calculates the hyperbolic sinus of x
-     * @param x
+     * @param x x
      * @return hyperbolic sinus
      */
     public static double asinh(double x) {
