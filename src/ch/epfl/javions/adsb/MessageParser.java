@@ -12,8 +12,8 @@ public class MessageParser {
     private static final List<Integer> ID_TYPE_CODES = List.of(1,2, 3, 4);
     private static final int FROM = 0;
     private static final int TO = 1;
-    private static final int[] POS_CODES1 = new int[]{9, 18};
-    private static final int[] POS_CODES2 = new int[]{20, 22};
+    private static final int[] POS_TYPE_CO1 = new int[]{9, 18};
+    private static final int[] POS_TYPE_CO2 = new int[]{20, 22};
     private MessageParser(){}
 
     /**
@@ -31,8 +31,8 @@ public class MessageParser {
         } else if (ID_TYPE_CODES.contains(typeCode)){
             return AircraftIdentificationMessage.of(rawMessage);
 
-        } else if ( ( typeCode >= POS_CODES1[FROM] && typeCode <= POS_CODES1[TO] )
-                || (typeCode >= POS_CODES2[FROM] && typeCode <= POS_CODES2[TO])){
+        } else if ( ( typeCode >= POS_TYPE_CO1[FROM] && typeCode <= POS_TYPE_CO1[TO] )
+                || (typeCode >= POS_TYPE_CO2[FROM] && typeCode <= POS_TYPE_CO2[TO])){
             return AirbornePositionMessage.of(rawMessage);
         }
         return null;
