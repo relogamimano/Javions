@@ -1,5 +1,6 @@
 package ch.epfl.javions;
 /**
+ * Crc24 class, public, final and immutable, represents a 24-bit CRC calculator.
  * * @author: Sofia Henriques Garfo (346298)
  *  * @author: Romeo Maignal (360568)
  */
@@ -13,7 +14,7 @@ final public class Crc24 {
 
     /**
      * Return a CRC24 calculator using the generator of which the 24 LSB are the ones from the generator parameter
-     * @param generator
+     * @param generator generator
      */
 
     public Crc24(int generator) {
