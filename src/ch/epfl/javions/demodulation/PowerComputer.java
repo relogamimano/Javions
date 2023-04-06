@@ -6,8 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * * @author: Sofia Henriques Garfo (346298)
- *  * @author: Romeo Maignal (360568)
+ * The PowerComputer class, public and final, represents a "power calculator",
+ * i.e. an object capable of calculating the signal power samples from the signed samples produced by a sample decoder.
+ *
+ * @author: Sofia Henriques Garfo (346298)
+ * @author: Romeo Maignal (360568)
  */
 public final class PowerComputer {
     private final short[] sample;
