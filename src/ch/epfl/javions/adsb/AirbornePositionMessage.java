@@ -52,7 +52,6 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
      * @param y Airplane's normalized latitude
      * @throws IllegalArgumentException if time same are negative, parity isn't valid, or x and y aren't greater
      * than 0 (included or strictly smaller than (1)
-     * @throws
      */
     public AirbornePositionMessage {
         Objects.requireNonNull(icaoAddress);

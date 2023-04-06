@@ -66,7 +66,6 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
 
     /**
      * Extracts the velocity message from the raw message
-     * @param rawMessage
      * @return velocity message
      */
     public static AirborneVelocityMessage of(RawMessage rawMessage){
@@ -119,7 +118,7 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
     private static AirborneVelocityMessage airSpeed( RawMessage rawMessage, int st){
         int sh = Bits.extractUInt(rawMessage.payload(), SH_START, DIRECTION_SIZE );
         double cap;
-        double as = 0;
+        double as;
         if ( sh == 1 ){
             cap = convert(Bits.extractUInt(rawMessage.payload(), EW_VELOCITY,VELOCITY_SIZE)/Math.pow(2,10),
                     Angle.TURN, Angle.RADIAN);

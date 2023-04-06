@@ -70,7 +70,6 @@ public class CprDecoder {
             if (longZonesEven0 == 1) {
                 long0 = x0;
                 long1 = x1;
-                return getGeoPos(mostRecent, lat0, lat1, long0, long1);
             } else {
                 double longZonesOdd = longZonesEven0 - 1;
                 double longZones = rint(x0 * longZonesOdd - x1 * longZonesEven0);
@@ -84,8 +83,8 @@ public class CprDecoder {
                 long1 = 1 / longZonesOdd * (xOdd + x1);
                 long0 = 1 / longZonesEven0 * (xEven + x0);
 
-                return getGeoPos(mostRecent, lat0, lat1, long0, long1);
             }
+            return getGeoPos(mostRecent, lat0, lat1, long0, long1);
         }
 
     }

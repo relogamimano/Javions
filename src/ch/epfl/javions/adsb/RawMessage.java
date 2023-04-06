@@ -32,8 +32,8 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
 
     /**
      * Returns the Raw message for the given time stamp and bytes
-     * @param timeStamps
-     * @param bytes
+     * @param timeStamps time stamp
+     * @param bytes bytes
      * @return 0 if the CRC24 isn't 0
      *         else returns the RawMesseage
      */
@@ -66,8 +66,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return link format
      */
     public int downLinkFormat(){
-        int df = Bits.extractUInt(bytes.byteAt(0),3,5);
-        return df;
+        return Bits.extractUInt(bytes.byteAt(0),3,5);
 
     }
 

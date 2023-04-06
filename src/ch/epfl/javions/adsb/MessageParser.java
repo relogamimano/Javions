@@ -13,7 +13,7 @@ public class MessageParser {
 
     /**
      * decodes the raw message
-     * @param rawMessage
+     * @param rawMessage raw message
      * @return a velocity, position or identification message 
      */
     static public Message parse(RawMessage rawMessage){
