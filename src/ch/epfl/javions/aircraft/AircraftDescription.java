@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  *  * @author: Romeo Maignal (360568)
  */
 public record AircraftDescription(String string) {
-    private static Pattern pattern = Pattern.compile("[ABDGHLPRSTV-][0123468][EJPT-]");
+    private static final Pattern pattern = Pattern.compile("[ABDGHLPRSTV-][0123468][EJPT-]");
 
     /**
      * Verifies that the aircraft description is valid : [ABDGHLPRSTV-][0123468][EJPT-]

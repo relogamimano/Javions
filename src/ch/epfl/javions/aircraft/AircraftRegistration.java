@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  * @author: Romeo Maignal (360568)
  */
 public record AircraftRegistration(String string) {
-    private static Pattern pattern  = Pattern.compile("[A-Z0-9 .?/_+-]+");
+    private static final Pattern pattern  = Pattern.compile("[A-Z0-9 .?/_+-]+");
 
     /**
      * Verifies that the Aircraft registritation is not null and valid [A-Z0-9 .?/_+-]+
