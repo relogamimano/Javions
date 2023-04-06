@@ -13,10 +13,9 @@ import static ch.epfl.javions.Bits.extractUInt;
  */
 public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAddress, int category, CallSign callSign) implements Message{
 
-    private static final int ID_LEN = 8;
-    private static final int ID_CHAR_LEN = 6;
-    private static final int CA_LEN = 3;
-    private static final int ME_LEN = 4;
+    private static final int ID_SIZE = 8;
+    private static final int ID_CHAR_SIZE = 6;
+    private static final int CA_SIZE = 3;
     private static final int CA_START = 48;
     //Re-arranged ASCII table containing only the Capital Alphabet and every digit
     private static final String data = "?ABCDEFGHIJKLMNOPQRSTUVWXYZ????? ???????????????0123456789???????????????????";
@@ -43,8 +42,8 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
      */
     public static AircraftIdentificationMessage of(RawMessage rawMessage) {
         StringBuilder string = new StringBuilder();
-        for (int i = ID_LEN - 1; i >= 0 ; i--) {
-            char identifierCharacter = data.charAt(extractUInt(rawMessage.payload(), i * ID_CHAR_LEN, ID_CHAR_LEN));
+        for (int i = ID_SIZE - 1; i >= 0 ; i--) {
+            char identifierCharacter = data.charAt(extractUInt(rawMessage.payload(), i * ID_CHAR_SIZE, ID_CHAR_SIZE));
             string.append(identifierCharacter);
         }
         if (string.toString().contains("?")) {
@@ -55,7 +54,7 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         //The category is obtained by combining the 3 bits of the CA field with the type code.
         // These two values are combined into a single 8-bit value,
         // of which the 4 MSB are 14 minus the type code, and the 4 LSB are the CA field.
-        int category =( ((14 - rawMessage.typeCode()) << ME_LEN) | extractUInt(rawMessage.payload(), CA_START, CA_LEN) ) & 0xff;
+        int category =( ((14 - rawMessage.typeCode()) << CA_SIZE + 1) | extractUInt(rawMessage.payload(), CA_START, CA_SIZE) ) & 0xff;
         return new AircraftIdentificationMessage(
                 rawMessage.timeStampNs(),
                 rawMessage.icaoAddress(),
