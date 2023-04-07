@@ -94,7 +94,7 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
             byte D = (byte) extractUInt(BBBDDD, 0, ABCD_TRIO_SIZE);
             byte A = (byte) extractUInt(CCCAAA, 0, ABCD_TRIO_SIZE);
             byte B = (byte) extractUInt(BBBDDD, ABCD_TRIO_SIZE, ABCD_TRIO_SIZE);
-            byte C = (byte) extractUInt(CCCAAA, ABCD_TRIO_SIZE, ABCD_TRIO_SIZE); // ABCD_TRIO_LEN = 3
+            byte C = (byte) extractUInt(CCCAAA, ABCD_TRIO_SIZE, ABCD_TRIO_SIZE); // ABCD_TRIO_SIZE = 3
 
             int feetMultiple100 = grayDecoder(C);// multiple of 100 feet composed of the LSB  ( CCC )
             //  multiple of 500 feet composed of the MSB  ( DDD AAA BBB ),
@@ -110,7 +110,7 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
                 feetMultiple100 = REPLACING_VALUE;
             }
             //if MSB group (feetMultiple500) is odd, then the LSB grp (feetMultiple100) is reflected.
-            // i.e. replaced by 6 (= 7-1) minus its original value
+            // i.e. replaced by 6 (= 7-1)  minus its original value
             if (feetMultiple500 % 2 != 0) {
                 feetMultiple100 = (MAXIMUM_VALUE - 1) - feetMultiple100;
             }
