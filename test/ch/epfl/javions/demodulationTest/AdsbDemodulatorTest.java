@@ -535,6 +535,7 @@ class AdsbDemodulatorTest {
         try (var s = new ByteArrayInputStream(samples)) {
             var demodulator = new AdsbDemodulator(s);
             assertNull(demodulator.nextMessage());
+
         }
     }
 

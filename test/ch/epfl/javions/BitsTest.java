@@ -3,9 +3,12 @@ package ch.epfl.javions;
 import ch.epfl.javions.aircraft.IcaoAddress;
 import org.junit.jupiter.api.Test;
 
+import java.awt.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class BitsTest {
+
     @Test
     void bitsExtractUIntThrowsIfSizeIsInvalid() {
         assertThrows(IllegalArgumentException.class, () -> Bits.extractUInt(0, 0, -1));
