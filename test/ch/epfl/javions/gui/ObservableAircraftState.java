@@ -16,23 +16,7 @@ import static javafx.collections.FXCollections.unmodifiableObservableList;
 
 public final class ObservableAircraftState implements AircraftStateSetter {
 
-    /*observable, beans javafx
-       proprietes :
-       lastMessageTimeStampsNs long
-       category,
-       call sign,
-       -position ( longitude et latitude en radians):Une propriété contenant un objet, qui sera une instance de
-       l'enregistrement représentant une position (GeoPos)
-       -trackOrheading,
-       - altitude metres,
-       - velocity metre pr s,
-       - trajectory: (liste observable) NON MODIFIABLE, positions occupes depuis le premier message, pair longitude
-        et latitude + altitude,Ici la référence vers la liste ne change pas, seul son contenu change, donc il n'est pas
-        nécessaire d'utiliser une ListProperty (prévue pour le cas où la référence vers la liste change).
-         Quant aux deux attributs, leur contenu est toujours identique, mais l'un (qui reste privé) est la liste,
-         qui est modifiable, l'autre (qui est visible de l'extérieur) est une vue non modifiable sur cette liste.
 
-        */
     private long lastTimeStamp ;
     private final IcaoAddress icaoAddress;
     private final AircraftData aircraftData;
@@ -46,6 +30,14 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     private ObservableList<AirbornePos> trajectoryList = observableArrayList();
     private ObservableList<AirbornePos> unmodifiableTrajectoryList = unmodifiableObservableList(trajectoryList); //final?
 
+    public ObservableList<AirbornePos> trajectoryPropriety(){
+        return unmodifiableTrajectoryList;
+    }
+
+    public ObservableList<AirbornePos> getTrajectoryList(){
+        return trajectoryList;
+    }
+    
     public IcaoAddress getIcaoAddress(){
         return icaoAddress;
     }
