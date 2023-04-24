@@ -30,14 +30,14 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     private ObservableList<AirbornePos> trajectoryList = observableArrayList();
     private ObservableList<AirbornePos> unmodifiableTrajectoryList = unmodifiableObservableList(trajectoryList); //final?
 
-    public ObservableList<AirbornePos> trajectoryPropriety(){
+    public ObservableList<AirbornePos> trajectoryProperty(){
         return unmodifiableTrajectoryList;
     }
 
     public ObservableList<AirbornePos> getTrajectoryList(){
         return trajectoryList;
     }
-    
+
     public IcaoAddress getIcaoAddress(){
         return icaoAddress;
     }
@@ -46,7 +46,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         return aircraftData;
     }
 
-    public ReadOnlyIntegerProperty categoryPropriety(){
+    public ReadOnlyIntegerProperty categoryProperty(){
         return category;
     }
 
@@ -59,7 +59,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.category.set(category);
     }
 
-    public ReadOnlyLongProperty callSignsPropriety(){
+    public ReadOnlyLongProperty callSignsProperty(){
         return timeSampsNs;
     }
 
@@ -74,7 +74,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     }
 
 
-    public ReadOnlyObjectProperty<GeoPos> positionPropriety(){
+    public ReadOnlyObjectProperty<GeoPos> positionProperty(){
         return position;
     }
 
@@ -98,7 +98,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
 
 
-    public ReadOnlyDoubleProperty trackOrHeadingPropriety(){
+    public ReadOnlyDoubleProperty trackOrHeadingProperty(){
         return trackOrHeading;
     }
 
@@ -111,7 +111,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.trackOrHeading.set(trackOrHeading);
     }
 
-    public ReadOnlyDoubleProperty altitudePropriety(){
+    public ReadOnlyDoubleProperty altitudeProperty(){
         return altitude;
     }
     public double getAltitude(){
@@ -124,14 +124,14 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         if( trajectoryList.isEmpty()){
             add( getPosition(), altitude);
         }
-        else if ( lastTimeStamp == getTimeStampNs()){  // in setAltitude and setPosition ou juste dans alt??????
+        else if ( lastTimeStamp == getTimeStampNs()){  // in setAltitude and setPosition ou juste dans alt??????, est que ca va pas se repeter
             trajectoryList.remove( trajectoryList.size()-1);
             add(getPosition(), altitude);
         }
 
     }
 
-    public ReadOnlyDoubleProperty velocityPropriety(){
+    public ReadOnlyDoubleProperty velocityProperty(){
         return velocity;
     }
 
@@ -144,7 +144,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.velocity.set(velocity);
     }
 
-    public ReadOnlyLongProperty timeStampNsPropriety(){
+    public ReadOnlyLongProperty timeStampNsProperty(){
         return timeSampsNs;
     }
     public long getTimeStampNs(){
