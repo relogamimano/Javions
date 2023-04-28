@@ -1,13 +1,9 @@
 package ch.epfl.javions.gui;
 
-import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.adsb.AircraftStateAccumulator;
 import ch.epfl.javions.adsb.Message;
-import ch.epfl.javions.aircraft.AircraftData;
 import ch.epfl.javions.aircraft.AircraftDatabase;
 import ch.epfl.javions.aircraft.IcaoAddress;
-import com.sun.javafx.collections.ObservableSetWrapper;
-import javafx.beans.property.SetProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 
@@ -19,10 +15,11 @@ import java.util.*;
  * @author: Sofia Henriques Garfo (346298)
  * @author: Romeo Maignal (360568)
  */
-public final class AircraftStateManager {
+public class AircraftStateManager {
     private final Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> table;
     private final ObservableSet<ObservableAircraftState> observableStates;
-    private AircraftDatabase aircraftDatabase;
+    private final AircraftDatabase aircraftDatabase;
+    private long timeStamp = 0;
 
     public AircraftStateManager(AircraftDatabase aircraftDatabase) {
         table = new HashMap<>();
@@ -35,39 +32,34 @@ public final class AircraftStateManager {
     }
 
     public void updateWithMessage(Message message) throws IOException {
-        IcaoAddress address = message.icaoAddress();
-        if (table.get(address) == null) {
-            table.put( address,
-                    new AircraftStateAccumulator<>(
-                            new ObservableAircraftState( address,
-                                    aircraftDatabase.get( address ) ) ) );
+
+        if (message != null) {
+            this.timeStamp = message.timeStampNs();
+            IcaoAddress address = message.icaoAddress();
+            if (table.get(address) == null) {
+                table.put( address,
+                        new AircraftStateAccumulator<>(
+                                new ObservableAircraftState( address,
+                                        aircraftDatabase.get( address ) ) ) );
+            }
+            table.get(address).update(message);
+            if(table.get(address)
+                    .stateSetter()
+                    .getPosition() != null) {
+                observableStates.add(table.get(address).stateSetter());
+            }
         }
-        table.get(address).update(message);
-        if(table.get(address)
-                .stateSetter()
-                .getPosition() != null) {
-            observableStates.add(table.get(address).stateSetter());
-        }
-
-
-
     }
 
     public void purge() {
-//        Iterator i = observableStates.iterator();
-//        while (i.hasNext()) {
-//
-//        }
-//        for (:
-//             ) {
-//
-//        }
-        observableStates.clear();
+        Iterator<AircraftStateAccumulator<ObservableAircraftState>> i = table.values().iterator();
+        while (i.hasNext()) {
+            if ( ( i.next().stateSetter().getTimeStampNs() - timeStamp ) > (60 * 10e-9) ) {
+                i.remove();
+                observableStates.remove(i.next().stateSetter());
+            }
+        }
+
     }
 
-    public void printSet() {    if (this.observableStates.isEmpty())
-        return;
-        System.out.printf("| %-6s | %-8s | %-6s | %-15s | %-6s | %-7s | %-5s | %-8s |%n", "OACI", "Indicatif", "Immat.", "Modèle", "Longitude", "Latitude", "Alt.", "Vit.");    this.purge();
-        for (ObservableAircraftState aircraft : this.observableStates)        System.out.printf("  %-6s   %-8s   %-6s   %-15s   %-6f   %-7f   %-5f   %-8f  %n", aircraft.getIcaoAddress().string(), "temp", aircraft.getCategory(), "temp", aircraft.getPosition().longitude() * 180/Math.PI, aircraft.getPosition().latitude() * 180/Math.PI, aircraft.getAltitude(), aircraft.getVelocity());
-    }
 }
