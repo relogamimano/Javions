@@ -7,17 +7,18 @@ import javafx.beans.property.*;
 public final class MapParameters {
 
     private static final int MAX_ZOOM = 19;
-    private static final int MIN_ZOOM = 6 ;
+    private static final int MIN_ZOOM = 6;
     private IntegerProperty zoom = new SimpleIntegerProperty(); // zoom level , 6 <= zoom level <= 19
     private DoubleProperty minX = new SimpleDoubleProperty(); // x value of the left hand top corner
     private DoubleProperty minY = new SimpleDoubleProperty(); // y value of the top left hand corner
 
-    public MapParameters(int zoom, double minX, double minY){
+    public MapParameters(int zoom, double minX, double minY) {
         Preconditions.checkArgument(zoom >= MIN_ZOOM && zoom <= MAX_ZOOM);
         this.zoom.set(zoom);
         this.minX.set(minX);
         this.minY.set(minY);
     }
+
     public ReadOnlyIntegerProperty zoomProperty() {
         return zoom;
     }
@@ -29,6 +30,7 @@ public final class MapParameters {
     public ReadOnlyDoubleProperty minXProperty() {
         return minX;
     }
+
     public double getMinX() {
         return this.minX.get();
     }
@@ -41,20 +43,18 @@ public final class MapParameters {
         return this.minY.get();
     }
 
-    public void scroll(int translateX, int translateY){
+    public void scroll(int translateX, int translateY) {
         this.minX.set(this.minX.get() + translateX);
         this.minY.set(this.minY.get() + translateY);
     }
 
 
-    public void changeZoomLevel (int deltaZoom ){
-         zoom.set(Math2.clamp(MIN_ZOOM, this.getZoomLevel() + deltaZoom, MAX_ZOOM));
-         minX.divide( 1 << deltaZoom);
-         minY.divide( 1 << deltaZoom);
+    public void changeZoomLevel(int deltaZoom) {
+        zoom.set(Math2.clamp(MIN_ZOOM, this.getZoomLevel() + deltaZoom, MAX_ZOOM));
+        minX.set(Math.scalb(minX.get(), deltaZoom) );
+        minY.set(Math.scalb(minY.get(), deltaZoom) );
 
     }
 
 
-
 }
-
