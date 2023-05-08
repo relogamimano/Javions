@@ -40,8 +40,8 @@ public final class TileManager {
          */
         public static boolean isValid(int zoom, int x, int y) {
             return ( 6 <= zoom && zoom <= 19 )
-                    && ( 0 <= x && x <= ( 1 << ( zoom + 1 ) ) )
-                    && ( 0 <= y && y <= ( 1 << ( zoom + 1 ) ) );
+                    && ( 0 <= x && x <= ( 1 << ( zoom - 1 ) ) )
+                    && ( 0 <= y && y <= ( 1 << ( zoom - 1 ) ) );
         }
     }
 
