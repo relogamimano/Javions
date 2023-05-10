@@ -22,7 +22,7 @@ public final class TileManager {
     private static final boolean LRU_ORDER = true;
     private final Path discCachePath;
     private final String serverAddress;
-    private final LinkedHashMap<TileId, Image> memoryCache = new LinkedHashMap<>(MAX_CAPACITY, LOAD_FACTOR, LRU_ORDER);
+    private final LinkedHashMap<TileId, Image> memoryCache = new LinkedHashMap<>(MAX_CAPACITY, LOAD_FACTOR, LRU_ORDER);;
 
     /**
      * Tile identity record
@@ -38,10 +38,14 @@ public final class TileManager {
          * @param y    ordinate index of the tile
          * @return  validity of the tile
          */
+        public TileId{
+            checkArgument(isValid(zoom, x, y));
+        }
         public static boolean isValid(int zoom, int x, int y) {
-            return ( 6 <= zoom && zoom <= 19 )
-                    && ( 0 <= x && x <= ( 1 << ( zoom + 1 ) ) )
-                    && ( 0 <= y && y <= ( 1 << ( zoom + 1 ) ) );
+            return (zoom>=0 && zoom<=19)
+                    && (x>=0 && x<=Math.scalb(1, zoom)-1)
+                    && (y>=0 && y<=Math.scalb(1, zoom)-1);
+
         }
     }
 
@@ -53,6 +57,7 @@ public final class TileManager {
     public TileManager(Path filePath, String serverAddress) {
         this.discCachePath = filePath;
         this.serverAddress = serverAddress;
+
     }
 
     /**
@@ -77,13 +82,14 @@ public final class TileManager {
             //if not, check in the disc cache if it contains the image
             if (Files.exists(globalPath)) {
                 //if so, put it in the memory cache et return it
-                FileInputStream fileIn = new FileInputStream(globalPath.toString());
-                Image image = new Image(fileIn);
+
                 Iterator<TileId> i = memoryCache.keySet().iterator();
-                if (memoryCache.size() == MAX_CAPACITY) {
+                if (memoryCache.size() >= MAX_CAPACITY) {
                     memoryCache.remove(i.next());
                     System.out.println("tile was removed from memory cache");
                 }
+                FileInputStream fileIn = new FileInputStream(globalPath.toString());
+                Image image = new Image(fileIn);
                 memoryCache.put(tileId, image);// TODO: 02.05.23 put ?
                 System.out.println("tile was extracted from the disc cache");
 

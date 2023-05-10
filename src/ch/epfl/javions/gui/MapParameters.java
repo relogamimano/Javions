@@ -43,16 +43,17 @@ public final class MapParameters {
         return this.minY.get();
     }
 
-    public void scroll(int translateX, int translateY) {
+    public void scroll(double translateX, double translateY) {
         this.minX.set(this.minX.get() + translateX);
         this.minY.set(this.minY.get() + translateY);
     }
 
 
     public void changeZoomLevel(int deltaZoom) {
+        int oldzoom = this.getZoomLevel();
         zoom.set(Math2.clamp(MIN_ZOOM, this.getZoomLevel() + deltaZoom, MAX_ZOOM));
-        minX.set(Math.scalb(minX.get(), deltaZoom) );
-        minY.set(Math.scalb(minY.get(), deltaZoom) );
+        minX.set(minX.get() * (getZoomLevel()-oldzoom) );
+        minY.set(minY.get() * (getZoomLevel()-oldzoom) );
 
     }
 
