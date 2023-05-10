@@ -27,8 +27,8 @@ public class AircraftStateManager {
 
         this.aircraftDatabase = Objects.requireNonNull(aircraftDatabase);
     }
-    public Set<ObservableAircraftState> states() {
-        return Collections.unmodifiableSet(observableStates);
+    public ObservableSet<ObservableAircraftState> states() {
+        return FXCollections.unmodifiableObservableSet(observableStates);
     }
 
     public void updateWithMessage(Message message) throws IOException {
