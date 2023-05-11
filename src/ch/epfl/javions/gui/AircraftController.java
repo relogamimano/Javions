@@ -1,10 +1,8 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.WebMercator;
-import ch.epfl.javions.aircraft.AircraftData;
-import ch.epfl.javions.aircraft.AircraftDescription;
-import ch.epfl.javions.aircraft.AircraftTypeDesignator;
-import ch.epfl.javions.aircraft.WakeTurbulenceCategory;
+import ch.epfl.javions.adsb.CallSign;
+import ch.epfl.javions.aircraft.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
@@ -115,21 +113,18 @@ public final class AircraftController {
         Text txt = new Text();
 
         Rectangle rect = new Rectangle();
-        ObservableBooleanValue velNotNull = createBooleanBinding(() -> state.velocityProperty() != null);
-        ObservableBooleanValue altNotNull = createBooleanBinding(() -> state.altitudeProperty() != null);
-        ObservableBooleanValue callSignNotNull = createBooleanBinding(() -> state.callSignsProperty() != null);
-        AircraftData data = state.getAircraftData();
+        ObservableBooleanValue velNotNull = createBooleanBinding(() -> state.velocityProperty() != null);// TODO: 11.05.23 is this right ???!!
+        ObservableBooleanValue altNotNull = createBooleanBinding(() -> state.altitudeProperty() != null);//
+        Optional<String> registration = Optional.ofNullable(state.getAircraftData().registration().string());
+        Optional<String> callSign = Optional.ofNullable(state.getCallSign().string());
+        Optional<String> address = Optional.ofNullable(state.getIcaoAddress().string());
         txt.textProperty().bind(// TODO: 09.05.23 is the following code correclty written and to implement de registration-callSign-icao label ?
                 Bindings.createStringBinding(() -> {
                             // TODO: 11.05.23 is there a better way to code this mess ?
-                    String label =
-                            data != null && data.registration() != null ? data.registration().string() :
-                            state.getCallSign() != null ? state.getCallSign().string() :
-                            state.getIcaoAddress() != null ? state.getIcaoAddress().string() : "?";
+                    String label = registration.orElse(callSign.orElse(address.orElse("")));
                             return String.format("%s\n%f\u2002km/h %f\u2002m",
                                     label, state.getVelocity(), state.getAltitude());
                         },
-                        state.callSignsProperty().when(callSignNotNull).orElse(Double.NaN),
                         state.velocityProperty().when(velNotNull).orElse(Double.NaN),
                         state.altitudeProperty().when(altNotNull).orElse(Double.NaN))
         );
