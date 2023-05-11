@@ -1,5 +1,6 @@
 package ch.epfl.javions.gui;
 
+import ch.epfl.javions.WebMercator;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
@@ -9,6 +10,7 @@ import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Group;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
@@ -18,51 +20,54 @@ import static javafx.beans.binding.Bindings.createBooleanBinding;
 
 public final class AircraftController {
     private static final int ALT_RANGE = 12000;
-    MapParameters mapParameters;
-    ObservableSet<ObservableAircraftState> set;
-    ObjectProperty<ObservableAircraftState> selectedState;
-    GridPane gridPane;
+    private final MapParameters mapParameters;
+    private final ObservableSet<ObservableAircraftState> states;
+    private final ObjectProperty<ObservableAircraftState> selectedState;
+    private final Pane pane;
 
-    public AircraftController(MapParameters mapParameter, ObservableSet<ObservableAircraftState> s, ObjectProperty<ObservableAircraftState> selectedState) {
+    public AircraftController(MapParameters mapParameter,
+                              ObservableSet<ObservableAircraftState> states,
+                              ObjectProperty<ObservableAircraftState> selectedState) {
         this.mapParameters = mapParameter;
-        this.set = s;
+        this.states = states;
         this.selectedState = selectedState;
-        this.gridPane = new GridPane();
+        this.pane = new Pane();
 
-        s.addListener((SetChangeListener<ObservableAircraftState>)
+        states.addListener((SetChangeListener<ObservableAircraftState>)
                 change -> {
             if (change.wasAdded()) {
-                //creation on new aircraft on the map
-
-                pane().add(annotatedAircraft(change.getElementAdded()), 0, 0);
-
+                pane().getChildren().add(annotatedAircraft(change.getElementAdded()));
 
             } else if (change.wasRemoved()) {
-                //removal of an absent aircraft
+                pane().getChildren().remove(change.getElementRemoved());
 
-                return;
             }
-
-
-                });
+        });
 
     }
 
-    public GridPane pane(){
-        int layoutX = 0;
-        int layoutY = 0;
-
-        Group airplaneGrp = new Group();
-//        airplaneGrp.getChildren().add(icon());
-//        airplaneGrp.getChildren().add(tag());
-        gridPane.add(airplaneGrp, 0, 0);
-        gridPane.add(trajectory(), 0, 0);
-        return gridPane;
+    public Pane pane(){
+        return pane;
     }
 
-    private Group annotatedAircraft(ObservableAircraftState state) {
-        Group infoGrp = new Group(tag(state), icon(state));
-        return new Group(trajectory(), infoGrp);
+    public Group annotatedAircraft(ObservableAircraftState state) {
+        Group aircraftCompound = new Group(tag(state), icon(state));
+        // TODO: 11.05.23 condition pour verifié que les positions peuvent belle et bien etre representées
+        aircraftCompound.layoutXProperty().bind(Bindings.createDoubleBinding(() ->
+                        WebMercator.x(mapParameters.getZoomLevel(),
+                                state.getPosition().longitude() - mapParameters.getMinX()),
+                state.positionProperty(),
+                mapParameters.minXProperty(),
+                mapParameters.zoomProperty()
+        ));
+        aircraftCompound.layoutYProperty().bind(Bindings.createDoubleBinding(() ->
+                        WebMercator.y(mapParameters.getZoomLevel(),
+                                state.getPosition().latitude() - mapParameters.getMinY()),
+                state.positionProperty(),
+                mapParameters.minYProperty(),
+                mapParameters.zoomProperty()
+        ));
+        return new Group(trajectory(), aircraftCompound);
     }
 
     private Group trajectory() {
@@ -75,7 +80,7 @@ public final class AircraftController {
                 state.getAircraftData().typeDesignator(),
                 state.getAircraftData().description(),
                 state.getCategory(),
-                state.getAircraftData().wakeTurbulenceCategory() );
+                state.getAircraftData().wakeTurbulenceCategory());
 
         ObjectProperty<AircraftIcon> aircraftIconProperty = new SimpleObjectProperty<>(aircraftIcon);
         svgPath.contentProperty().bind(
@@ -91,7 +96,7 @@ public final class AircraftController {
                         alt.map(
                                 b -> colorRamp.at(
                                         Math.cbrt( b.doubleValue() / ALT_RANGE ) ) ) );
-//        ObservableBooleanValue bool = createBooleanBinding( () -> state.equals(selectedState));
+
         return svgPath;
     }
 
