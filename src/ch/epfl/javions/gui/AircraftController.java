@@ -100,7 +100,6 @@ public final class AircraftController {
         svgPath.setRotate(aircraftIcon.canRotate()
                 ? state.trackOrHeadingProperty().doubleValue()
                 : 0.0);
-        svgPath.setContent(aircraftIcon.svgPath());
         ColorRamp colorRamp = ColorRamp.PLASMA;
         ReadOnlyDoubleProperty alt = state.altitudeProperty();
         svgPath.fillProperty().bind(
