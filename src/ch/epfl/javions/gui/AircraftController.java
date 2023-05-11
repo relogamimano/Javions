@@ -1,6 +1,10 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.WebMercator;
+import ch.epfl.javions.aircraft.AircraftData;
+import ch.epfl.javions.aircraft.AircraftDescription;
+import ch.epfl.javions.aircraft.AircraftTypeDesignator;
+import ch.epfl.javions.aircraft.WakeTurbulenceCategory;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
@@ -9,11 +13,13 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Group;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
+
+
+import java.util.Optional;
 
 import static javafx.beans.binding.Bindings.createBooleanBinding;
 
@@ -35,6 +41,7 @@ public final class AircraftController {
 
         states.addListener((SetChangeListener<ObservableAircraftState>)
                 change -> {
+
             if (change.wasAdded()) {
                 pane().getChildren().add(annotatedAircraft(change.getElementAdded()));
 
@@ -75,12 +82,16 @@ public final class AircraftController {
     }
 
     private SVGPath icon(ObservableAircraftState state) {
+        Optional<AircraftTypeDesignator> type = Optional.ofNullable(state.getAircraftData().typeDesignator());
+        Optional<AircraftDescription> descr = Optional.ofNullable(state.getAircraftData().description());
+        Optional<Integer> category = Optional.of(state.getCategory());
+        Optional<WakeTurbulenceCategory> turbCategory = Optional.ofNullable(state.getAircraftData().wakeTurbulenceCategory());
         SVGPath svgPath = new SVGPath();
         AircraftIcon aircraftIcon = AircraftIcon.iconFor(
-                state.getAircraftData().typeDesignator(),
-                state.getAircraftData().description(),
-                state.getCategory(),
-                state.getAircraftData().wakeTurbulenceCategory());
+                type.orElse(new AircraftTypeDesignator("")),
+                descr.orElse(new AircraftDescription("")),
+                category.orElse(0),
+                turbCategory.orElse(WakeTurbulenceCategory.UNKNOWN));
 
         ObjectProperty<AircraftIcon> aircraftIconProperty = new SimpleObjectProperty<>(aircraftIcon);
         svgPath.contentProperty().bind(
@@ -103,14 +114,23 @@ public final class AircraftController {
     private Group tag(ObservableAircraftState state) {
         Group grp = new Group();
         Text txt = new Text();
+
         Rectangle rect = new Rectangle();
         ObservableBooleanValue velNotNull = createBooleanBinding(() -> state.velocityProperty() != null);
         ObservableBooleanValue altNotNull = createBooleanBinding(() -> state.altitudeProperty() != null);
+        ObservableBooleanValue callSignNotNull = createBooleanBinding(() -> state.callSignsProperty() != null);
+        AircraftData data = state.getAircraftData();
         txt.textProperty().bind(// TODO: 09.05.23 is the following code correclty written and to implement de registration-callSign-icao label ?
-                Bindings.createStringBinding(() ->
-                        String.format("%o\u2002km/h %o\u2002m", state.getAircraftData().registration(),
-                                state.getVelocity(),
-                                state.getAltitude()),
+                Bindings.createStringBinding(() -> {
+                            // TODO: 11.05.23 is there a better way to code this mess ?
+                    String label =
+                            data != null && data.registration() != null ? data.registration().string() :
+                            state.getCallSign() != null ? state.getCallSign().string() :
+                            state.getIcaoAddress() != null ? state.getIcaoAddress().string() : "?";
+                            return String.format("%s\n%f\u2002km/h %f\u2002m",
+                                    label, state.getVelocity(), state.getAltitude());
+                        },
+                        state.callSignsProperty().when(callSignNotNull).orElse(Double.NaN),
                         state.velocityProperty().when(velNotNull).orElse(Double.NaN),
                         state.altitudeProperty().when(altNotNull).orElse(Double.NaN))
         );
