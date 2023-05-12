@@ -1,7 +1,6 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.WebMercator;
-import ch.epfl.javions.adsb.CallSign;
 import ch.epfl.javions.aircraft.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -11,12 +10,15 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
 
 
+import java.util.Iterator;
 import java.util.Optional;
 
 import static javafx.beans.binding.Bindings.createBooleanBinding;
@@ -36,22 +38,24 @@ public final class AircraftController {
         this.states = states;
         this.selectedState = selectedState;
         this.pane = new Pane();
-
         states.addListener((SetChangeListener<ObservableAircraftState>)
                 change -> {
-
-            if (change.wasAdded()) {
-                pane().getChildren().add(annotatedAircraft(change.getElementAdded()));
-
-            } else if (change.wasRemoved()) {
-                pane().getChildren().remove(change.getElementRemoved());
-
-            }
+                    System.out.println("abcd");
+                if (change.wasAdded()) {
+                    pane().getChildren().add(annotatedAircraft(change.getElementAdded()));
+                    System.out.println("witness");
+                } else if (change.wasRemoved()) {
+                    IcaoAddress add = change.getElementRemoved().getIcaoAddress();
+                    System.out.println(change.getElementRemoved().toString());
+                    pane().getChildren().removeIf((Node c) ->
+                        add.string().equals(c.getId())
+                    );
+                }
         });
 
     }
 
-    public Pane pane(){
+    public Pane pane() {
         return pane;
     }
 
@@ -76,6 +80,7 @@ public final class AircraftController {
     }
 
     private Group trajectory() {
+        Line line = new Line();
         return new Group();
     }
 
@@ -118,9 +123,9 @@ public final class AircraftController {
         Optional<String> registration = Optional.ofNullable(state.getAircraftData().registration().string());
         Optional<String> callSign = Optional.ofNullable(state.getCallSign().string());
         Optional<String> address = Optional.ofNullable(state.getIcaoAddress().string());
+
         txt.textProperty().bind(// TODO: 09.05.23 is the following code correclty written and to implement de registration-callSign-icao label ?
                 Bindings.createStringBinding(() -> {
-                            // TODO: 11.05.23 is there a better way to code this mess ?
                     String label = registration.orElse(callSign.orElse(address.orElse("")));
                             return String.format("%s\n%f\u2002km/h %f\u2002m",
                                     label, state.getVelocity(), state.getAltitude());
@@ -134,7 +139,7 @@ public final class AircraftController {
         rect.heightProperty().bind(
                 txt.layoutBoundsProperty().map(b -> b.getHeight() + 4));
 
-        rect.setVisible(state.equals(selectedState) &&  mapParameters.getZoomLevel() < 11);// TODO: 09.05.23 state.equals(selectedState) ou selectedState.equals(state)
+        rect.setVisible(selectedState.equals(state) &&  mapParameters.getZoomLevel() < 11);// TODO: 09.05.23 state.equals(selectedState) ou selectedState.equals(state)
 
         grp.getChildren().add(txt);
         grp.getChildren().add(rect);
