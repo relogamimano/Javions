@@ -1,6 +1,8 @@
 package ch.epfl.javions.gui;
 
+import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.WebMercator;
+import ch.epfl.javions.adsb.CallSign;
 import ch.epfl.javions.aircraft.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -18,7 +20,7 @@ import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
 
 
-import java.util.Iterator;
+import java.util.Objects;
 import java.util.Optional;
 
 import static javafx.beans.binding.Bindings.createBooleanBinding;
@@ -34,16 +36,15 @@ public final class AircraftController {
     public AircraftController(MapParameters mapParameter,
                               ObservableSet<ObservableAircraftState> states,
                               ObjectProperty<ObservableAircraftState> selectedState) {
+        Objects.requireNonNull(selectedState);
         this.mapParameters = mapParameter;
         this.states = states;
         this.selectedState = selectedState;
         this.pane = new Pane();
         states.addListener((SetChangeListener<ObservableAircraftState>)
                 change -> {
-                    System.out.println("abcd");
                 if (change.wasAdded()) {
                     pane().getChildren().add(annotatedAircraft(change.getElementAdded()));
-                    System.out.println("witness");
                 } else if (change.wasRemoved()) {
                     IcaoAddress add = change.getElementRemoved().getIcaoAddress();
                     System.out.println(change.getElementRemoved().toString());
@@ -56,7 +57,7 @@ public final class AircraftController {
     }
 
     public Pane pane() {
-        return pane;
+        return new Pane(pane);
     }
 
     public Group annotatedAircraft(ObservableAircraftState state) {
@@ -118,18 +119,17 @@ public final class AircraftController {
         Text txt = new Text();
 
         Rectangle rect = new Rectangle();
-        ObservableBooleanValue velNotNull = createBooleanBinding(() -> state.velocityProperty() != null);// TODO: 11.05.23 is this right ???!!
-        ObservableBooleanValue altNotNull = createBooleanBinding(() -> state.altitudeProperty() != null);//
-        Optional<String> registration = Optional.ofNullable(state.getAircraftData().registration().string());
-        Optional<String> callSign = Optional.ofNullable(state.getCallSign().string());
-        Optional<String> address = Optional.ofNullable(state.getIcaoAddress().string());
+        ObservableBooleanValue velNotNull = createBooleanBinding(() -> state.velocityProperty() != null);
+        ObservableBooleanValue altNotNull = createBooleanBinding(() -> state.altitudeProperty() != null);
+        Optional<String> registration = Optional.ofNullable(state.getAircraftData().registration()).map(AircraftRegistration::string);
+        Optional<String > callSign = Optional.ofNullable(state.getCallSign()).map(CallSign::string);
+        Optional<String> address = Optional.ofNullable(state.getIcaoAddress()).map(IcaoAddress::string);
 
-        txt.textProperty().bind(// TODO: 09.05.23 is the following code correclty written and to implement de registration-callSign-icao label ?
+        txt.textProperty().bind(
                 Bindings.createStringBinding(() -> {
                     String label = registration.orElse(callSign.orElse(address.orElse("")));
-                            return String.format("%s\n%f\u2002km/h %f\u2002m",
-                                    label, state.getVelocity(), state.getAltitude());
-                        },
+                    return String.format("%s\n%f\u2002km/h %f\u2002m", label, state.getVelocity(), state.getAltitude());
+                    },
                         state.velocityProperty().when(velNotNull).orElse(Double.NaN),
                         state.altitudeProperty().when(altNotNull).orElse(Double.NaN))
         );
