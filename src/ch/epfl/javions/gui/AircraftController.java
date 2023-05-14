@@ -13,23 +13,26 @@ import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
+import javafx.scene.shape.Sphere;
 import javafx.scene.text.Text;
+import jdk.jfr.Event;
 
 
 import java.util.Objects;
 import java.util.Optional;
 
 import static javafx.beans.binding.Bindings.createBooleanBinding;
+import static javafx.beans.binding.Bindings.subtract;
 
 
 public final class AircraftController {
     private static final int ALT_RANGE = 12000;
     private final MapParameters mapParameters;
-    private final ObservableSet<ObservableAircraftState> states;
     private final ObjectProperty<ObservableAircraftState> selectedState;
     private final Pane pane;
 
@@ -38,16 +41,19 @@ public final class AircraftController {
                               ObjectProperty<ObservableAircraftState> selectedState) {
         Objects.requireNonNull(selectedState);
         this.mapParameters = mapParameter;
-        this.states = states;
         this.selectedState = selectedState;
-        this.pane = new Pane();
+        pane  = new Pane();
+        pane.getStylesheets().add("resources/aircraft.css");
+
+
         states.addListener((SetChangeListener<ObservableAircraftState>)
                 change -> {
                 if (change.wasAdded()) {
+                    annotatedAircraft(change.getElementAdded()).setVisible(true);
                     pane().getChildren().add(annotatedAircraft(change.getElementAdded()));
+                    System.out.println("hello le vaud");
                 } else if (change.wasRemoved()) {
                     IcaoAddress add = change.getElementRemoved().getIcaoAddress();
-                    System.out.println(change.getElementRemoved().toString());
                     pane().getChildren().removeIf((Node c) ->
                         add.string().equals(c.getId())
                     );
@@ -57,10 +63,11 @@ public final class AircraftController {
     }
 
     public Pane pane() {
-        return new Pane(pane);
+        return pane;
     }
 
     public Group annotatedAircraft(ObservableAircraftState state) {
+        Objects.requireNonNull(state, "state est null frero");
         Group aircraftCompound = new Group(tag(state), icon(state));
         // TODO: 11.05.23 condition pour verifié que les positions peuvent belle et bien etre representées
         aircraftCompound.layoutXProperty().bind(Bindings.createDoubleBinding(() ->
@@ -86,11 +93,13 @@ public final class AircraftController {
     }
 
     private SVGPath icon(ObservableAircraftState state) {
-        Optional<AircraftTypeDesignator> type = Optional.ofNullable(state.getAircraftData().typeDesignator());
-        Optional<AircraftDescription> descr = Optional.ofNullable(state.getAircraftData().description());
+
+        Optional<AircraftTypeDesignator> type = Optional.ofNullable(state.getAircraftData()).map(AircraftData::typeDesignator);
+        Optional<AircraftDescription> descr = Optional.ofNullable(state.getAircraftData()).map(AircraftData::description);
         Optional<Integer> category = Optional.of(state.getCategory());
-        Optional<WakeTurbulenceCategory> turbCategory = Optional.ofNullable(state.getAircraftData().wakeTurbulenceCategory());
+        Optional<WakeTurbulenceCategory> turbCategory = Optional.ofNullable(state.getAircraftData()).map(AircraftData::wakeTurbulenceCategory);
         SVGPath svgPath = new SVGPath();
+        svgPath.getStyleClass().add("aircraft");
         AircraftIcon aircraftIcon = AircraftIcon.iconFor(
                 type.orElse(new AircraftTypeDesignator("")),
                 descr.orElse(new AircraftDescription("")),
@@ -115,13 +124,12 @@ public final class AircraftController {
     }
 
     private Group tag(ObservableAircraftState state) {
-        Group grp = new Group();
-        Text txt = new Text();
 
+        Text txt = new Text();
         Rectangle rect = new Rectangle();
         ObservableBooleanValue velNotNull = createBooleanBinding(() -> state.velocityProperty() != null);
         ObservableBooleanValue altNotNull = createBooleanBinding(() -> state.altitudeProperty() != null);
-        Optional<String> registration = Optional.ofNullable(state.getAircraftData().registration()).map(AircraftRegistration::string);
+        Optional<String> registration = Optional.ofNullable(state.getAircraftData()).map(AircraftData::registration).map(AircraftRegistration::string);
         Optional<String > callSign = Optional.ofNullable(state.getCallSign()).map(CallSign::string);
         Optional<String> address = Optional.ofNullable(state.getIcaoAddress()).map(IcaoAddress::string);
 
@@ -140,9 +148,8 @@ public final class AircraftController {
                 txt.layoutBoundsProperty().map(b -> b.getHeight() + 4));
 
         rect.setVisible(selectedState.equals(state) &&  mapParameters.getZoomLevel() < 11);// TODO: 09.05.23 state.equals(selectedState) ou selectedState.equals(state)
-
-        grp.getChildren().add(txt);
-        grp.getChildren().add(rect);
-        return grp;
+        Group tag = new Group(rect, txt);
+        tag.getStyleClass().add("label");
+        return tag;
     }
 }
