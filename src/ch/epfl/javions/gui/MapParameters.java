@@ -1,4 +1,4 @@
-ppackage ch.epfl.javions.gui;
+package ch.epfl.javions.gui;
 
 import ch.epfl.javions.Math2;
 import ch.epfl.javions.Preconditions;
@@ -50,14 +50,15 @@ public final class MapParameters {
 
 
     public void changeZoomLevel(int deltaZoom) {
-        int oldzoom = this.getZoomLevel();
         zoom.set(Math2.clamp(MIN_ZOOM, this.getZoomLevel() + deltaZoom, MAX_ZOOM));
-        minX.set(minX.get() * (getZoomLevel()-oldzoom) );
-        minY.set(minY.get() * (getZoomLevel()-oldzoom) );
+        minX.set(Math.scalb(minX.get(), deltaZoom));
+        minY.set(Math.scalb(minY.get() , deltaZoom));
 
     }
 
 
 }
+
+
 
 
