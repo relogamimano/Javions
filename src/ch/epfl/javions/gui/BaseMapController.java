@@ -71,18 +71,19 @@ public final class BaseMapController {
 
         });
 
-        pane.setOnMousePressed( e -> {
-                lastMousePosition = new Point2D(e.getX(),e.getY());    // mouse pressed handler
-                pane.setOnMouseDragged( d -> {
-                    ;
-                    double deltaX = lastMousePosition.getX() - e.getX();
-                    double deltaY = lastMousePosition.getY() - e.getY();
-                    mapParameters.scroll(deltaX, deltaY);
-                    lastMousePosition = lastMousePosition.subtract(deltaX, deltaY);
-                    redrawOnNextPulse();
-                });
-        }
+
+        pane.setOnMousePressed( e ->
+                lastMousePosition = new Point2D(e.getX(),e.getY())   // mouse pressed handler
+
         );
+        pane.setOnMouseDragged( e -> {
+            ;
+            double deltaX = lastMousePosition.getX() - e.getX();
+            double deltaY = lastMousePosition.getY() - e.getY();
+            mapParameters.scroll(deltaX, deltaY);
+            lastMousePosition = lastMousePosition.subtract(deltaX, deltaY);
+            redrawOnNextPulse();
+        });
         pane.setOnMouseReleased(e -> {
             double deltaX = lastMousePosition.getX() - e.getX();
             double deltaY = lastMousePosition.getY() - e.getY();
@@ -144,6 +145,15 @@ public final class BaseMapController {
 
 
         }
+
+    }
+
+}
+
+
+
+
+
 
     }
 
