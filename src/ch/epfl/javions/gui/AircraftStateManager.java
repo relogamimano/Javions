@@ -19,16 +19,17 @@ public class AircraftStateManager {
     private final Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> table;
     private final ObservableSet<ObservableAircraftState> observableStates;
     private final AircraftDatabase aircraftDatabase;
+    ObservableSet<ObservableAircraftState> states;
     private long timeStamp = 0;
 
     public AircraftStateManager(AircraftDatabase aircraftDatabase) {
         table = new HashMap<>();
         observableStates = FXCollections.observableSet();
-
+        states = FXCollections.unmodifiableObservableSet(observableStates);
         this.aircraftDatabase = Objects.requireNonNull(aircraftDatabase);
     }
     public ObservableSet<ObservableAircraftState> states() {
-        return FXCollections.unmodifiableObservableSet(observableStates);
+        return states;
     }
 
     public void updateWithMessage(Message message) throws IOException {
