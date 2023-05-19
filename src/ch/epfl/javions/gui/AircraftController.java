@@ -36,7 +36,6 @@ public final class AircraftController {
     private static final int MIN_TAG_ZOOM = 11;
     private static final int MARGIN_SIZE = 4;
     private final MapParameters mapParameters;
-    int zoom;
     private final ObjectProperty<ObservableAircraftState> selectedState;
     private final Pane pane;
 
@@ -45,7 +44,6 @@ public final class AircraftController {
                               ObjectProperty<ObservableAircraftState> selectedState) {
         Objects.requireNonNull(selectedState);
         this.mapParameters = mapParameter;
-        this.zoom = mapParameters.getZoomLevel();
         this.selectedState = selectedState;
         pane  = new Pane();
         pane.setPickOnBounds(false);
@@ -75,17 +73,19 @@ public final class AircraftController {
         Group aircraftCompound = new Group(tag(state), icon(state));
         aircraftCompound.setId(state.getIcaoAddress().string());
         aircraftCompound.layoutXProperty().bind(Bindings.createDoubleBinding(() ->
-                        x(zoom, state.getPosition().longitude()) - mapParameters.getMinX(),
+                        x(mapParameters.getZoomLevel(), state.getPosition().longitude()) - mapParameters.getMinX(),
                 mapParameters.zoomProperty(),
                 state.positionProperty(),
                 mapParameters.minXProperty()
         ));
         aircraftCompound.layoutYProperty().bind(Bindings.createDoubleBinding(() ->
-                        y(zoom, state.getPosition().latitude()) - mapParameters.getMinY(),
+                        y(mapParameters.getZoomLevel(), state.getPosition().latitude()) - mapParameters.getMinY(),
                 mapParameters.zoomProperty(),
                 state.positionProperty(),
                 mapParameters.minYProperty()
         ));
+        Group annotatedAircraft = new Group(trajectory(state), aircraftCompound);
+        annotatedAircraft.viewOrderProperty().bind(state.altitudeProperty().negate());
 
         return new Group(trajectory(state), aircraftCompound);
     }
@@ -119,10 +119,10 @@ public final class AircraftController {
                 Stop s2 = new Stop(1, COLOR_RAMP.at(Math.cbrt( list.get(i+1).altitude() / ALT_RANGE ) ));
                 LinearGradient linearGradient = new LinearGradient(0, 0, 1, 0, true, NO_CYCLE, s1, s2);
                 Line line = new Line();
-                line.startXProperty().bind(subtract(x(zoom, list.get(i).geopos().longitude()), mapParameters.minXProperty()));
-                line.startYProperty().bind(subtract(y(zoom, list.get(i).geopos().latitude()), mapParameters.minYProperty()));
-                line.endXProperty().bind(subtract(x(zoom, list.get(i+1).geopos().longitude()), mapParameters.minXProperty()));
-                line.endYProperty().bind(subtract(y(zoom, list.get(i+1).geopos().latitude()), mapParameters.minYProperty()));
+                line.startXProperty().bind(subtract(x(mapParameters.getZoomLevel(), list.get(i).geopos().longitude()), mapParameters.minXProperty()));
+                line.startYProperty().bind(subtract(y(mapParameters.getZoomLevel(), list.get(i).geopos().latitude()), mapParameters.minYProperty()));
+                line.endXProperty().bind(subtract(x(mapParameters.getZoomLevel(), list.get(i+1).geopos().longitude()), mapParameters.minXProperty()));
+                line.endYProperty().bind(subtract(y(mapParameters.getZoomLevel(), list.get(i+1).geopos().latitude()), mapParameters.minYProperty()));
                 line.setStroke(linearGradient);
                 line.setStrokeWidth(2);
                 trajectory.getChildren().add(line);
@@ -183,7 +183,7 @@ public final class AircraftController {
                             : String.valueOf((int)convertTo(state.getVelocity(), KM_PER_HOUR));
                     String altitude = Double.isNaN(state.getAltitude())
                             ? "?"
-                            : String.valueOf((int)convertTo(state.getAltitude(), KM_PER_HOUR));
+                            : String.valueOf((int)state.getAltitude());
                     return String.format("%s\n%s km/h\u2002%s m", label, velocity, altitude);
                     },
                         state.velocityProperty(),
