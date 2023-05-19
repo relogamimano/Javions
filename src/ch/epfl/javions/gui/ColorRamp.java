@@ -53,6 +53,7 @@ public final class ColorRamp {
      */
 
     public Color at(double x) {
+        var v = (colors.length-1) * x;
         int i = (int) (colors.length * x);
         if (x < 0) return colors[0];
         if (x > 1) return colors[colors.length - 1];

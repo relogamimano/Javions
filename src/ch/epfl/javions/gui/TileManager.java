@@ -46,6 +46,7 @@ public final class TileManager {
                     && (x>=0 && x<=Math.scalb(1, zoom)-1)
                     && (y>=0 && y<=Math.scalb(1, zoom)-1);
 
+
         }
     }
 
@@ -75,7 +76,7 @@ public final class TileManager {
 
         //check if image is already stored in memory cache
         if (memoryCache.containsKey(tileId)){// TODO: 02.05.23 contains ?
-            System.out.println("tile was extract from the memory cache");
+//            System.out.println("tile was extract from the memory cache");
 
             return memoryCache.get(tileId);
         } else {
@@ -86,12 +87,13 @@ public final class TileManager {
                 Iterator<TileId> i = memoryCache.keySet().iterator();
                 if (memoryCache.size() >= MAX_CAPACITY) {
                     memoryCache.remove(i.next());
-                    System.out.println("tile was removed from memory cache");
+
+
                 }
                 FileInputStream fileIn = new FileInputStream(globalPath.toString());
                 Image image = new Image(fileIn);
                 memoryCache.put(tileId, image);// TODO: 02.05.23 put ?
-                System.out.println("tile was extracted from the disc cache");
+//                System.out.println("tile was extracted from the disc cache");
 
                 return image;
             } else {
@@ -103,7 +105,7 @@ public final class TileManager {
                     Files.createDirectories( Path.of(globalPath.getParent() + "/"));
                     FileOutputStream fileOut = new FileOutputStream(globalPath.toString());
                     fileOut.write(i.readAllBytes());
-                    System.out.println("tile was extracted from the server");
+//                    System.out.println("tile was extracted from the server");
                     return new Image(new ByteArrayInputStream( i.readAllBytes() ) );
                 }
             }

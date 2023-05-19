@@ -88,6 +88,8 @@ public final class BaseMapController {
             redrawOnNextPulse();
         });
 
+
+
     }
 
     public Pane pane ( ){
@@ -139,7 +141,13 @@ public final class BaseMapController {
                 } catch (Exception ignored) {};
             }
 
+
         }
+
     }
+
 }
+
+
+
 
