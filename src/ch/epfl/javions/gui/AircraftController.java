@@ -2,6 +2,7 @@ package ch.epfl.javions.gui;
 
 import ch.epfl.javions.adsb.CallSign;
 import ch.epfl.javions.aircraft.*;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
@@ -91,15 +92,21 @@ public final class AircraftController {
 
     private Group trajectory(ObservableAircraftState state) {
         Group trajectory = new Group();
+        trajectory.visibleProperty().bind(selectedState.isEqualTo(state));
+        var l0 = (ListChangeListener<ObservableAircraftState.AirbornePos>) change ->
+            updateTrajectory(trajectory, state.getTrajectoryList());
 
-        selectedState.isEqualTo(state).addListener(ChangeListener -> {
-            state.getTrajectoryList().addListener((ListChangeListener<ObservableAircraftState.AirbornePos>) change -> {
-                updateTrajectory(trajectory, state.getTrajectoryList());
-            });
-            mapParameters.zoomProperty().addListener(ZoomChangeListener -> {
-                updateTrajectory(trajectory, state.getTrajectoryList());
-            });
-        });
+        var l1 = (InvalidationListener) change -> updateTrajectory(trajectory, state.getTrajectoryList());
+
+        trajectory.visibleProperty().addListener((o, oV, nV) -> {
+                    if (nV) {
+                        state.getTrajectoryList().addListener(l0);
+                        mapParameters.zoomProperty().addListener(l1);
+                    } else {
+                        state.getTrajectoryList().removeListener(l0);
+                        mapParameters.zoomProperty().removeListener(l1);
+                    }
+                });
 
         return trajectory;
     }
@@ -126,10 +133,7 @@ public final class AircraftController {
 
     private SVGPath icon(ObservableAircraftState state) {
         SVGPath svgPath = new SVGPath();
-        svgPath.setOnMouseClicked(e -> {
-            selectedState.set(state);
-
-        });
+        svgPath.setOnMouseClicked(e -> selectedState.set(state));
         svgPath.getStyleClass().add("aircraft");
         Optional<AircraftTypeDesignator> type = Optional.ofNullable(state.getAircraftData()).map(AircraftData::typeDesignator);
         Optional<AircraftDescription> descr = Optional.ofNullable(state.getAircraftData()).map(AircraftData::description);
@@ -151,7 +155,6 @@ public final class AircraftController {
                                 : 0.0,
                 state.trackOrHeadingProperty()
         ));
-
 
         ReadOnlyDoubleProperty alt = state.altitudeProperty();
         svgPath.fillProperty().bind(
