@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static ch.epfl.javions.Units.Angle.DEGREE;
-import static ch.epfl.javions.Units.Speed.KM_PER_HOUR;
+import static ch.epfl.javions.Units.Speed.KILOMETER_PER_HOUR;
 import static ch.epfl.javions.Units.convertTo;
 import static ch.epfl.javions.WebMercator.x;
 import static ch.epfl.javions.WebMercator.y;
@@ -204,7 +204,7 @@ public final class AircraftController {
                     String label = registration.orElse(callSign.orElse(address.orElse("")));
                     String velocity = Double.isNaN(state.getVelocity())
                             ? "?"
-                            : String.valueOf((int)convertTo(state.getVelocity(), KM_PER_HOUR));
+                            : String.valueOf((int)convertTo(state.getVelocity(), KILOMETER_PER_HOUR));
                     String altitude = Double.isNaN(state.getAltitude())
                             ? "?"
                             : String.valueOf((int)state.getAltitude());
