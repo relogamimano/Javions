@@ -62,6 +62,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="junit.jupiter" level="project" />
-    <orderEntry type="library" name="Open JFX20" level="application" />
+    <orderEntry type="library" name="OpenJFX 20" level="application" />
   </component>
 </module>
