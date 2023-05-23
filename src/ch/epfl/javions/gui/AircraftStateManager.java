@@ -1,5 +1,6 @@
 package ch.epfl.javions.gui;
 
+import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.AircraftStateAccumulator;
 import ch.epfl.javions.adsb.Message;
 import ch.epfl.javions.aircraft.AircraftDatabase;
@@ -9,6 +10,10 @@ import javafx.collections.ObservableSet;
 
 import java.io.IOException;
 import java.util.*;
+
+import static ch.epfl.javions.Units.NANO;
+import static ch.epfl.javions.Units.Time.MINUTE;
+import static ch.epfl.javions.Units.convertTo;
 
 /**
  * Class managing aircraft's current state
@@ -55,7 +60,7 @@ public class AircraftStateManager {
     public void purge() {
         Iterator<AircraftStateAccumulator<ObservableAircraftState>> i = table.values().iterator();
         while (i.hasNext()) {
-            if ( ( i.next().stateSetter().getTimeStampNs() - timeStamp ) > (60 * 10e-9) ) {
+            if ( ( i.next().stateSetter().getTimeStampNs() - timeStamp ) > convertTo(MINUTE, NANO)) {
                 i.remove();
                 observableStates.remove(i.next().stateSetter());
             }

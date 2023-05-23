@@ -69,7 +69,7 @@ public final class Units {
 
         public static final double KNOT = Length.NAUTICAL_MILE / Time.HOUR;
 
-        public static final double KM_PER_HOUR = Length.KILOMETER / Time.HOUR;
+        public static final double KILOMETER_PER_HOUR = Length.KILOMETER / Time.HOUR;
     }
 
     // … classes Time et Speed, méthodes de conversion
