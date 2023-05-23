@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HexFormat;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 

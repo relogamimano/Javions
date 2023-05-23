@@ -1,7 +1,6 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.GeoPos;
-import ch.epfl.javions.adsb.AircraftStateAccumulator;
 import ch.epfl.javions.adsb.AircraftStateSetter;
 import ch.epfl.javions.adsb.CallSign;
 import ch.epfl.javions.aircraft.AircraftData;
@@ -14,10 +13,16 @@ import javafx.collections.ObservableList;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.collections.FXCollections.unmodifiableObservableList;
 
+
+/**
+ * Represents the state of an aircraft
+ * @author Sofia Henriques Garfo (346298)
+ * @author Romeo Maignal (360568)
+ */
 public final class ObservableAircraftState implements AircraftStateSetter {
 
 
-    private long lastTimeStamp ;
+    private long lastTimeStamp ;  // time stamp of the last message
     private final IcaoAddress icaoAddress;
     private final AircraftData aircraftData;
     private final ObjectProperty<CallSign> callSign = new SimpleObjectProperty<>();
@@ -27,6 +32,8 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     private final IntegerProperty category = new SimpleIntegerProperty();
     private final DoubleProperty altitude = new SimpleDoubleProperty();
     private final DoubleProperty velocity = new SimpleDoubleProperty();
+
+    // list of the positions of the aircraft's position since the first timeStampsNs message
     private final ObservableList<AirbornePos> trajectoryList = observableArrayList();
     private final ObservableList<AirbornePos> unmodifiableTrajectoryList = unmodifiableObservableList(trajectoryList); //final?
 
@@ -59,8 +66,8 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.category.set(category);
     }
 
-    public ReadOnlyLongProperty callSignsProperty(){
-        return timeSampsNs;
+    public ReadOnlyObjectProperty<CallSign> callSignProperty(){
+        return callSign;
     }
 
 
@@ -156,9 +163,14 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.timeSampsNs.set(timeStampNs);
     }
 
+    /**
+     * Represents the position of the aircraft
+     * @param geopos aircraft's position
+     * @param altitude of the aircraft
+     */
     public record AirbornePos(GeoPos geopos, double altitude){
 
-    };
+    }
 
 
     public ObservableAircraftState(IcaoAddress address, AircraftData aircraftData){

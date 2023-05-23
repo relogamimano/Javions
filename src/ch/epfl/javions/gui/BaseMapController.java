@@ -2,7 +2,6 @@ package ch.epfl.javions.gui;
 
 import ch.epfl.javions.GeoPos;
 import ch.epfl.javions.WebMercator;
-import com.sun.glass.ui.Screen;
 import javafx.application.Platform;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
@@ -13,7 +12,6 @@ import javafx.scene.layout.Pane;
 import javafx.geometry.Point2D;
 
 
-import java.io.IOException;
 import java.util.Objects;
 
 public final class BaseMapController {
@@ -71,9 +69,12 @@ public final class BaseMapController {
 
         });
 
+
         pane.setOnMousePressed( e ->
-                lastMousePosition = new Point2D(e.getX(),e.getY()));    // mouse pressed handler
-        pane.setOnMouseDragged(e -> {
+                lastMousePosition = new Point2D(e.getX(),e.getY())   // mouse pressed handler
+
+        );
+        pane.setOnMouseDragged( e -> {
             double deltaX = lastMousePosition.getX() - e.getX();
             double deltaY = lastMousePosition.getY() - e.getY();
             mapParameters.scroll(deltaX, deltaY);
@@ -87,8 +88,6 @@ public final class BaseMapController {
             lastMousePosition = lastMousePosition.subtract(deltaX, deltaY);
             redrawOnNextPulse();
         });
-
-
 
     }
 
@@ -138,7 +137,9 @@ public final class BaseMapController {
                 try {
                     Image tileImage = tileManager.imageForTileAt(tileId);
                     this.context.drawImage(tileImage, (i-minIndexTileX)*TILE_SIZE - widthPadding, (j-minIndexTileY)*TILE_SIZE - heightPadding);
-                } catch (Exception ignored) {};
+                } catch (Exception ignored) {
+                    System.out.println("There's an exception");
+                }
             }
 
 
