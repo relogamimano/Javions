@@ -46,15 +46,15 @@ public final class ColorRamp {
     }
 
     /**
-     * Method to used to get either a specific color index by the ratio or a mix of two colors. If the ratio is under
-     * 0, then the color returned is the lowest one in the list. If the ration is above 1, then the color
+     * Method to used to get either a specific color index by the ratio or a mix of two colors. If the ratio is under 0,
+     * then the color returned is the lowest one in the list. If the ration is above 1, then the color
      * returned is the highest one in the list
      * @param x  normalized abscissa on the color spectre
      * @return  specific color or a mix of two
      */
 
     public Color at(double x) {
-        int i = (int) (colors.length * x);
+        int i = (int) ((colors.length-1) * x);
         if (x < 0) return colors[0];
         if (x > 1) return colors[colors.length - 1];
         Color c0 = colors[i];
