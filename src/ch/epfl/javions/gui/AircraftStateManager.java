@@ -25,7 +25,7 @@ public class AircraftStateManager {
     private final ObservableSet<ObservableAircraftState> observableStates;
     private final AircraftDatabase aircraftDatabase;
     ObservableSet<ObservableAircraftState> states;
-    private long timeStamp = 0;
+    private long lastTimeStamp = 0;
 
     public AircraftStateManager(AircraftDatabase aircraftDatabase) {
         table = new HashMap<>();
@@ -38,9 +38,8 @@ public class AircraftStateManager {
     }
 
     public void updateWithMessage(Message message) throws IOException {
-
         if (message != null) {
-            this.timeStamp = message.timeStampNs();
+            lastTimeStamp = message.timeStampNs();
             IcaoAddress address = message.icaoAddress();
             if (table.get(address) == null) {
                 table.put( address,
@@ -54,17 +53,37 @@ public class AircraftStateManager {
                     .getPosition() != null) {
                 observableStates.add(table.get(address).stateSetter());
             }
+
         }
+
     }
 
     public void purge() {
-        Iterator<AircraftStateAccumulator<ObservableAircraftState>> i = table.values().iterator();
-        while (i.hasNext()) {
-            if ( ( i.next().stateSetter().getTimeStampNs() - timeStamp ) > convertTo(MINUTE, NANO)) {
-                i.remove();
-                observableStates.remove(i.next().stateSetter());
+        Iterator<IcaoAddress> i = table.keySet().iterator();
+
+//        while (i.hasNext()) {
+//            var ii = i.next();
+//            if ( (timeStamp - table.get(ii).stateSetter().getTimeStampNs() ) > convertTo(MINUTE, NANO)) {
+////                var ii = i.next();
+//                table.remove(ii);
+//                System.out.println("witness");
+////                observableStates.remove(table.get(ii).stateSetter());
+//            }3586568700
+        //     66877933000
+
+        observableStates.removeIf(state -> {
+            var t            = lastTimeStamp;
+            var tt = state.getTimeStampNs();
+            var v = convertTo(MINUTE, NANO);
+            if (( lastTimeStamp - state.getTimeStampNs() ) > convertTo(MINUTE, NANO)) {
+                var ii = 0;
             }
-        }
+            return ( lastTimeStamp - state.getTimeStampNs() ) > convertTo(MINUTE, NANO);
+        });
+
+
+
+//        }
 
     }
 
