@@ -3,6 +3,7 @@ package ch.epfl.javions.gui;
 import ch.epfl.javions.Preconditions;
 import javafx.scene.paint.Color;
 
+
 /**
  * Immutable Color Ramp class
  * @author Sofia Henriques Garfo (346298)
@@ -53,7 +54,6 @@ public final class ColorRamp {
      */
 
     public Color at(double x) {
-        var v = (colors.length-1) * x;
         int i = (int) (colors.length * x);
         if (x < 0) return colors[0];
         if (x > 1) return colors[colors.length - 1];
