@@ -156,7 +156,9 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         this.timeSampsNs.set(timeStampNs);
     }
 
-    public record AirbornePos(GeoPos geopos, double altitude){ };
+    public record AirbornePos(GeoPos geopos, double altitude){
+
+    };
 
 
     public ObservableAircraftState(IcaoAddress address, AircraftData aircraftData){

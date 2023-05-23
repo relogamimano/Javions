@@ -71,13 +71,9 @@ public final class BaseMapController {
 
         });
 
-
         pane.setOnMousePressed( e ->
-                lastMousePosition = new Point2D(e.getX(),e.getY())   // mouse pressed handler
-
-        );
-        pane.setOnMouseDragged( e -> {
-            ;
+                lastMousePosition = new Point2D(e.getX(),e.getY()));    // mouse pressed handler
+        pane.setOnMouseDragged(e -> {
             double deltaX = lastMousePosition.getX() - e.getX();
             double deltaY = lastMousePosition.getY() - e.getY();
             mapParameters.scroll(deltaX, deltaY);
@@ -91,6 +87,8 @@ public final class BaseMapController {
             lastMousePosition = lastMousePosition.subtract(deltaX, deltaY);
             redrawOnNextPulse();
         });
+
+
 
     }
 
@@ -151,12 +149,5 @@ public final class BaseMapController {
 }
 
 
-
-
-
-
-    }
-
-}
 
 

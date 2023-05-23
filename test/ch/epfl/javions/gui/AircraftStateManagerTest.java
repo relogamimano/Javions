@@ -1,4 +1,4 @@
-package ch.epfl.javions.guiTest;
+package ch.epfl.javions.gui;
 
 import ch.epfl.javions.ByteString;
 import ch.epfl.javions.Units;

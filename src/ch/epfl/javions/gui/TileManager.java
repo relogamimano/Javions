@@ -42,9 +42,10 @@ public final class TileManager {
             checkArgument(isValid(zoom, x, y));
         }
         public static boolean isValid(int zoom, int x, int y) {
-            return (zoom>=6 && zoom<=19)
-                    &&  x >= 0 && x <= ( 1 << zoom)-1
-                    &&  y >= 0 && y <= ( 1 << zoom)-1;
+            return (zoom>=0 && zoom<=19)
+                    && (x>=0 && x<=Math.scalb(1, zoom)-1)
+                    && (y>=0 && y<=Math.scalb(1, zoom)-1);
+
 
         }
     }
@@ -86,7 +87,8 @@ public final class TileManager {
                 Iterator<TileId> i = memoryCache.keySet().iterator();
                 if (memoryCache.size() >= MAX_CAPACITY) {
                     memoryCache.remove(i.next());
-//                    System.out.println("tile was removed from memory cache");
+
+
                 }
                 FileInputStream fileIn = new FileInputStream(globalPath.toString());
                 Image image = new Image(fileIn);
