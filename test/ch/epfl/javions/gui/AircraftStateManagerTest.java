@@ -6,12 +6,10 @@ import ch.epfl.javions.adsb.*;
 import ch.epfl.javions.aircraft.AircraftDatabase;
 import ch.epfl.javions.gui.AircraftStateManager;
 import ch.epfl.javions.gui.ObservableAircraftState;
-import javafx.collections.ObservableSet;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.common.input.EOFException;
 
 import java.io.*;
-import java.sql.SQLOutput;
 import java.text.DecimalFormat;
 import java.util.*;
 

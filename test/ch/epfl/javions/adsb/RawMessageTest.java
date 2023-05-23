@@ -12,12 +12,10 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static ch.epfl.javions.Bits.extractUInt;
 import static ch.epfl.javions.adsb.RawMessage.size;
 import static ch.epfl.javions.adsb.RawMessage.typeCode;
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class RawMessageTest {
     //<editor-fold desc="Test messages">

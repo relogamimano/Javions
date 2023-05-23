@@ -8,9 +8,9 @@ public final class MapParameters {
 
     private static final int MAX_ZOOM = 19;
     private static final int MIN_ZOOM = 6;
-    private IntegerProperty zoom = new SimpleIntegerProperty(); // zoom level , 6 <= zoom level <= 19
-    private DoubleProperty minX = new SimpleDoubleProperty(); // x value of the left hand top corner
-    private DoubleProperty minY = new SimpleDoubleProperty(); // y value of the top left hand corner
+    private final IntegerProperty zoom = new SimpleIntegerProperty(); // zoom level , 6 <= zoom level <= 19
+    private final DoubleProperty minX = new SimpleDoubleProperty(); // x value of the left hand top corner
+    private final DoubleProperty minY = new SimpleDoubleProperty(); // y value of the top left hand corner
 
     public MapParameters(int zoom, double minX, double minY) {
         Preconditions.checkArgument(zoom >= MIN_ZOOM && zoom <= MAX_ZOOM);
@@ -50,14 +50,13 @@ public final class MapParameters {
 
 
     public void changeZoomLevel(int deltaZoom) {
-
         zoom.set(Math2.clamp(MIN_ZOOM, this.getZoomLevel() + deltaZoom, MAX_ZOOM));
         minX.set(Math.scalb(minX.get(), deltaZoom));
         minY.set(Math.scalb(minY.get() , deltaZoom));
-
 
     }
 
 
 }
+
 

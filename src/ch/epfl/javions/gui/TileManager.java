@@ -22,7 +22,7 @@ public final class TileManager {
     private static final boolean LRU_ORDER = true;
     private final Path discCachePath;
     private final String serverAddress;
-    private final LinkedHashMap<TileId, Image> memoryCache = new LinkedHashMap<>(MAX_CAPACITY, LOAD_FACTOR, LRU_ORDER);;
+    private final LinkedHashMap<TileId, Image> memoryCache = new LinkedHashMap<>(MAX_CAPACITY, LOAD_FACTOR, LRU_ORDER);
 
     /**
      * Tile identity record

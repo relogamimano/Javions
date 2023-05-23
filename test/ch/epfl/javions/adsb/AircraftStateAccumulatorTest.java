@@ -4,8 +4,6 @@ import ch.epfl.javions.GeoPos;
 import ch.epfl.javions.aircraft.IcaoAddress;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class AircraftStateAccumulatorTest {

@@ -12,11 +12,11 @@ import static ch.epfl.javions.Units.convertFrom;
  *
  * @author: Sofia Henriques Garfo (346298)
  * @author: Romeo Maignal (360568)
- *
  * The RawMessage public record represents a raw ADS-B message
  * @param timeStampNs time at wich the message was received, expressed in nanoseconds
  * @param bytes bytes of the message
  */
+@SuppressWarnings("JavadocBlankLines")
 public record RawMessage(long timeStampNs, ByteString bytes) {
 
     /**
