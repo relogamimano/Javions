@@ -6,8 +6,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static ch.epfl.javions.Preconditions.*;
 
@@ -20,9 +20,15 @@ public final class TileManager {
     private static final int MAX_CAPACITY = 100;
     private static final float LOAD_FACTOR = 0.75f;
     private static final boolean LRU_ORDER = true;
-    private final Path discCachePath;
+    private final Path discCache;
     private final String serverAddress;
-    private final LinkedHashMap<TileId, Image> memoryCache = new LinkedHashMap<>(MAX_CAPACITY, LOAD_FACTOR, LRU_ORDER);
+//    private final LinkedHashMap<TileId, Image> memoryCache = new LinkedHashMap<>(MAX_CAPACITY, LOAD_FACTOR, LRU_ORDER);
+    private final LinkedHashMap<Path, Image> memoryCache = new LinkedHashMap<>(MAX_CAPACITY, LOAD_FACTOR, LRU_ORDER) {
+        protected boolean removeEldestEntry(Map.Entry<Path, Image> eldest) {
+                return size() > MAX_CAPACITY;
+        }
+    };
+
 
     /**
      * Tile identity record
@@ -36,7 +42,6 @@ public final class TileManager {
          * @param zoom level of magnification
          * @param x    abscissa index of the tile
          * @param y    ordinate index of the tile
-         * @return  validity of the tile
          */
         public TileId{
             checkArgument(isValid(zoom, x, y));
@@ -54,7 +59,7 @@ public final class TileManager {
      * @param serverAddress     online server address
      */
     public TileManager(Path filePath, String serverAddress) {
-        this.discCachePath = filePath;
+        this.discCache = filePath;
         this.serverAddress = serverAddress;
     }
 
@@ -66,42 +71,64 @@ public final class TileManager {
      * @throws IOException if the input reading or the output writing fails
      */
     public Image imageForTileAt(TileId tileId) throws IOException {
+        Path dirPath = discCache.resolve(String.valueOf(tileId.zoom))
+                .resolve(String.valueOf(tileId.x));
         checkArgument(TileId.isValid(tileId.zoom(), tileId.x(), tileId.y()));
+        Path imagePath = dirPath.resolve(tileId.y+".png");
+        File imageFile = imagePath.toFile();
 
-        Path localPath = Path.of(tileId.zoom + "/" + tileId.x + "/" + tileId.y + ".png") ;
-        Path globalPath = Path.of(discCachePath + "/" + localPath);
+//        Path localPath = Path.of(tileId.zoom + "/" + tileId.x + "/" + tileId.y + ".png") ;
+//        Path globalPath = Path.of(discCache + "/" + localPath);
 
         //check if image is already stored in memory cache
-        if (memoryCache.containsKey(tileId)){// TODO: 02.05.23 contains ?
-            return memoryCache.get(tileId);
+        if (memoryCache.containsKey(imagePath)){// TODO: 02.05.23 contains ?
+            return memoryCache.get(imagePath);
         } else {
             //if not, check in the disc cache if it contains the image
-            if (Files.exists(globalPath)) {
+            if (Files.exists(imagePath)) {
                 //if so, put it in the memory cache et return it
 
-                Iterator<TileId> i = memoryCache.keySet().iterator();
-                if (memoryCache.size() >= MAX_CAPACITY) {
-                    memoryCache.remove(i.next());
-                }
-
-                FileInputStream fileIn = new FileInputStream(globalPath.toString());
+//                Iterator<TileId> i = memoryCache.keySet().iterator();
+//                if (memoryCache.size() >= MAX_CAPACITY) {
+//                    memoryCache.remove(i.next());
+//                }
+                FileInputStream fileIn = new FileInputStream(imagePath.toString());
                 Image image = new Image(fileIn);
-                memoryCache.put(tileId, image);// TODO: 02.05.23 put ?
+                memoryCache.put(imagePath, image);// TODO: 02.05.23 put ?
                 return image;
             } else {
                 //if not, get it from the server, put it in the memory and disc cache, and return it
-                URL u = new URL("https://" + serverAddress + "/" + localPath);
+//                URL u = new URL("https://" + serverAddress + "/" + localPath);
+//                URLConnection c = u.openConnection();
+//                c.setRequestProperty("User-Agent", "Javions");
+//                try (InputStream i = c.getInputStream();
+//                     FileOutputStream fileOut = new FileOutputStream(globalPath.toString())) {
+//                    Files.createDirectories( Path.of(globalPath.getParent() + "/"));
+//
+//                    fileOut.write(i.readAllBytes());
+//                    Image image = new Image(new ByteArrayInputStream( i.readAllBytes()));
+//                    memoryCache.put(tileId, image);
+//                    return image;
+//
+//                }
+                Files.createDirectories(dirPath);
+                String urlString = "https://"+serverAddress+"/"+tileId.zoom+"/"+tileId.x+"/"+tileId.y+".png";
+                URL u = new URL(urlString);
                 URLConnection c = u.openConnection();
-                c.setRequestProperty("User-Agent", "Javions");
-                try (InputStream i = c.getInputStream()) {
-                    Files.createDirectories( Path.of(globalPath.getParent() + "/"));
-                    FileOutputStream fileOut = new FileOutputStream(globalPath.toString());
-                    fileOut.write(i.readAllBytes());
-                    Image image = new Image(new ByteArrayInputStream( i.readAllBytes()));
-                    memoryCache.put(tileId, image);
-                    return image;
+                c.setRequestProperty("User-Agent", "JaVelo");
 
+
+                try (InputStream i = c.getInputStream(); OutputStream a =
+                        new FileOutputStream(imageFile)) {
+                    i.transferTo(a);
                 }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+                InputStream i = new FileInputStream(imageFile);
+                Image image = new Image(i);
+                memoryCache.put(imagePath,image);
+                return image;
             }
         }
     }
