@@ -2,6 +2,7 @@ package ch.epfl.javions.gui;
 
 
 import ch.epfl.javions.ByteString;
+import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.Message;
 import ch.epfl.javions.adsb.MessageParser;
 import ch.epfl.javions.adsb.RawMessage;
@@ -11,9 +12,9 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -27,6 +28,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 
+import static ch.epfl.javions.Units.*;
 import static java.nio.file.Path.of;
 
 public class Main extends Application {
@@ -64,15 +66,25 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage primaryStage) throws Exception {
+        long bootTime = System.nanoTime();
         List<String> raw = getParameters().getRaw();
         final String str = raw.isEmpty() ? null : raw.get(0);
-        Supplier<RawMessage> supplier = str == null
+        Supplier<RawMessage> supplier = (str == null)
                 ? airSpySupplier()
                 : defaultMessageSupplier(str);
 
         Thread messagesThread = new Thread(() -> {
             while(true) {
-                //bail du time stamp ici
+                long elapsedTime = System.nanoTime() - bootTime;
+                RawMessage rm = supplier.get();
+                if (Objects.isNull(rm)) continue;
+                if (rm.timeStampNs() > elapsedTime) {
+                    try {
+                        Thread.sleep((long) convertFrom(rm.timeStampNs() - elapsedTime, NANO / MILLI));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
                 queue.add(supplier.get());
             }
         });
@@ -91,11 +103,14 @@ public class Main extends Application {
         ObjectProperty<ObservableAircraftState> sap = new SimpleObjectProperty<>();
         BaseMapController bmc = new BaseMapController(tm, mp);
         AircraftController ac = new AircraftController(mp, asm.states(), sap);
-
+        AircraftTableController atc = new AircraftTableController(asm.states(), sap);
         StackPane aircraftView = new StackPane(bmc.pane(), ac.pane());
-        BorderPane aircraftConsole = new BorderPane(/*table, ligne d'etats*/);
-        SplitPane splitPane = new SplitPane(aircraftView, aircraftConsole);
-        primaryStage.setScene(new Scene(aircraftView));
+        StackPane table = new StackPane(atc.pane());
+//        BorderPane aircraftConsole = new SplitPane(atc.pane(), );
+
+        SplitPane splitPane = new SplitPane(aircraftView, table);
+        splitPane.setOrientation(Orientation.VERTICAL);
+        primaryStage.setScene(new Scene(splitPane));
         primaryStage.setTitle("Javions");
         primaryStage.setMinWidth(800);
         primaryStage.setMinHeight(600);
@@ -107,8 +122,7 @@ public class Main extends Application {
             @Override
             public void handle(long now) {
                 try {
-//                    while (!queue.isEmpty()) {
-                    for (int i = 0; i < 500; i++) {
+                    while (!queue.isEmpty()) {
                         RawMessage rawMessage = queue.poll();
                         Message m = Objects.isNull(rawMessage) ? null : MessageParser.parse(rawMessage);
                         if (m != null) {
