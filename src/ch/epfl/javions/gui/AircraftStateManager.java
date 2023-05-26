@@ -1,6 +1,5 @@
 package ch.epfl.javions.gui;
 
-import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.AircraftStateAccumulator;
 import ch.epfl.javions.adsb.Message;
 import ch.epfl.javions.aircraft.AircraftDatabase;
@@ -17,24 +16,24 @@ import static ch.epfl.javions.Units.convertTo;
 
 /**
  * Class managing aircraft's current state
- * @author: Sofia Henriques Garfo (346298)
- * @author: Romeo Maignal (360568)
+ * @author Sofia Henriques Garfo (346298)
+ * @author Romeo Maignal (360568)
  */
 public class AircraftStateManager {
     private final Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> table;
     private final ObservableSet<ObservableAircraftState> observableStates;
     private final AircraftDatabase aircraftDatabase;
-    ObservableSet<ObservableAircraftState> states;
     private long lastTimeStamp = 0;
+    private final ObservableSet<ObservableAircraftState> unmodifiableStates;
 
     public AircraftStateManager(AircraftDatabase aircraftDatabase) {
-        table = new HashMap<>();
-        observableStates = FXCollections.observableSet();
-        states = FXCollections.unmodifiableObservableSet(observableStates);
+        this.table = new HashMap<>();
+        this.observableStates = FXCollections.observableSet();
+        this.unmodifiableStates = FXCollections.unmodifiableObservableSet(observableStates);
         this.aircraftDatabase = Objects.requireNonNull(aircraftDatabase);
     }
     public ObservableSet<ObservableAircraftState> states() {
-        return states;
+        return unmodifiableStates;
     }
 
     public void updateWithMessage(Message message) throws IOException {
@@ -59,32 +58,15 @@ public class AircraftStateManager {
     }
 
     public void purge() {
-        Iterator<IcaoAddress> i = table.keySet().iterator();
-
-//        while (i.hasNext()) {
-//            var ii = i.next();
-//            if ( (timeStamp - table.get(ii).stateSetter().getTimeStampNs() ) > convertTo(MINUTE, NANO)) {
-////                var ii = i.next();
-//                table.remove(ii);
-//                System.out.println("witness");
-////                observableStates.remove(table.get(ii).stateSetter());
-//            }3586568700
-        //     66877933000
-
-        observableStates.removeIf(state -> {
-            var t            = lastTimeStamp;
-            var tt = state.getTimeStampNs();
-            var v = convertTo(MINUTE, NANO);
-            if (( lastTimeStamp - state.getTimeStampNs() ) > convertTo(MINUTE, NANO)) {
-                var ii = 0;
+        Iterator<AircraftStateAccumulator<ObservableAircraftState>> i = table.values().iterator();
+        while (i.hasNext()) {
+            var a = i.next();
+            if ( (lastTimeStamp - a.stateSetter().getTimeStampNs()) > convertTo(MINUTE, NANO)) {
+                System.out.println(a.stateSetter().getIcaoAddress());
+                observableStates.remove(a.stateSetter());
+                i.remove();
             }
-            return ( lastTimeStamp - state.getTimeStampNs() ) > convertTo(MINUTE, NANO);
-        });
-
-
-
-//        }
-
+        }
     }
 
 }
