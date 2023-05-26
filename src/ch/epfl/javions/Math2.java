@@ -2,8 +2,8 @@ package ch.epfl.javions;
 
 /**
  * Useful method to complete the existing Java Math library
- * @author: Sofia Henriques Garfo (346298)
- * @author: Romeo Maignal (360568)
+ * @author Sofia Henriques Garfo (346298)
+ * @author Romeo Maignal (360568)
  */
 public final class Math2 {
     private Math2() {}
@@ -19,9 +19,7 @@ public final class Math2 {
      */
     public static int clamp(int min, int v, int max) {
         Preconditions.checkArgument(min <= max);
-        if (v < min) {
-            return min;
-        } else return Math.min(v, max);
+        return Math.max(min, Math.min(v, max));
     }
 
     /**
