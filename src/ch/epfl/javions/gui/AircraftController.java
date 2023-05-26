@@ -50,7 +50,7 @@ public final class AircraftController {
         Objects.requireNonNull(selectedState);
         this.mapParameters = mapParameter;
         this.selectedState = selectedState;
-        pane  = new Pane();
+        pane = new Pane();
         pane.setPickOnBounds(false);
         pane.getStylesheets().add("aircraft.css");
 
@@ -59,10 +59,8 @@ public final class AircraftController {
                 if (change.wasAdded()) {
                     pane().getChildren().add(annotatedAircraft(change.getElementAdded()));
                 } else if (change.wasRemoved()) {
-                    IcaoAddress add = change.getElementRemoved().getIcaoAddress();
-                    pane().getChildren().removeIf((Node c) ->
-                        add.string().equals(c.getId())
-                    );
+                    pane().getChildren().removeIf(p ->
+                            change.getElementRemoved().getIcaoAddress().string().equals(p.getId()));
                 }
         });
     }
@@ -78,14 +76,14 @@ public final class AircraftController {
     private Group annotatedAircraft(ObservableAircraftState state) {
         Group annotatedAircraft = new Group(trajectory(state), aircraftCompound(state));
         annotatedAircraft.viewOrderProperty().bind(state.altitudeProperty().negate());
-
+        annotatedAircraft.setId(state.getIcaoAddress().string());
         return annotatedAircraft;
     }
 
     private Group aircraftCompound(ObservableAircraftState state) {
         Objects.requireNonNull(state, "state est null frero");
         Group aircraftCompound = new Group(tag(state), icon(state));
-        aircraftCompound.setId(state.getIcaoAddress().string());
+
         aircraftCompound.layoutXProperty().bind(Bindings.createDoubleBinding(() ->
                         x(mapParameters.getZoomLevel(), state.getPosition().longitude())
                                 - mapParameters.getMinX(),
