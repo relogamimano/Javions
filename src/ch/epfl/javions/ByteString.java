@@ -23,14 +23,7 @@ public final class ByteString {
      */
     public static ByteString ofHexadecimalString(String hexString) {
         Preconditions.checkArgument(hexString.length() % 2 == 0);
-        for (int i = 0; i < hexString.length(); i++) {
-            if(!HexFormat.isHexDigit(hexString.charAt(i))) {
-                char ch = hexString.charAt(i);
-                System.out.println(ch);
-                throw new NumberFormatException();
-            }
-        }
-        byte[] bytes = hf.parseHex(hexString); // identique à bytes
+        byte[] bytes = hf.parseHex(hexString);
         return new ByteString(bytes);
     }
 
@@ -48,7 +41,6 @@ public final class ByteString {
      * @return the specific byte at a given index
      */
     public int byteAt(int index) {
-        Objects.checkIndex(index, this.size());
         return Byte.toUnsignedInt(byteString[index]);
     }
 
