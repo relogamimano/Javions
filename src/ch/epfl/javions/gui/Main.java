@@ -2,7 +2,6 @@ package ch.epfl.javions.gui;
 
 
 import ch.epfl.javions.ByteString;
-import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.Message;
 import ch.epfl.javions.adsb.MessageParser;
 import ch.epfl.javions.adsb.RawMessage;
@@ -36,8 +35,7 @@ public class Main extends Application {
 
     public static void main(String[] args) {launch(args);}
 
-    static List<RawMessage> readAllMessages(String fileName)
-            throws IOException {
+    static List<RawMessage> readAllMessages(String fileName) throws IOException {
         List<RawMessage> list = new ArrayList<>();
         try (DataInputStream s = new DataInputStream(
                 new BufferedInputStream(
@@ -78,6 +76,7 @@ public class Main extends Application {
                 long elapsedTime = System.nanoTime() - bootTime;
                 RawMessage rm = supplier.get();
                 if (Objects.isNull(rm)) continue;
+                //Condition makes the process (of placing an aircraft on map) wait for the right moment according to its real time chronology
                 if (rm.timeStampNs() > elapsedTime) {
                     try {
                         Thread.sleep((long) convertFrom(rm.timeStampNs() - elapsedTime, NANO / MILLI));
@@ -91,6 +90,7 @@ public class Main extends Application {
         messagesThread.setDaemon(true);
         messagesThread.start();
 
+        //Set up of the graphic user interface
         Path tileCache = of("tile-cache");
         TileManager tm = new TileManager(tileCache, "tile.openstreetmap.org");
         MapParameters mp = new MapParameters(8, 33530, 23070);
@@ -138,12 +138,16 @@ public class Main extends Application {
         }.start();
     }
 
+    // Supplier methode represents a supplier of results from the raw messages.
+    // Its sole purpose is to supply (or provide) values dynamically upon request.
     private Supplier<RawMessage> defaultMessageSupplier(String str) throws IOException {
         List<RawMessage> l = readAllMessages(str);
         Iterator<RawMessage> it = l.iterator();
         return it::next;
     }
 
+    // Supplier methode represents a supplier of results from the AirSpy2 machine that does not accept any arguments.
+    // Its sole purpose is to supply (or provide) values dynamically upon request.
     private Supplier<RawMessage> airSpySupplier() throws IOException {
         AdsbDemodulator adsbDemodulator = new AdsbDemodulator(System.in);
         return () -> {
