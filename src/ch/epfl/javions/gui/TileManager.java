@@ -48,8 +48,8 @@ public final class TileManager {
         }
         public static boolean isValid(int zoom, int x, int y) {
             return (zoom>=0 && zoom<=19)
-                    && (x>=0 && x<=Math.scalb(1, zoom)-1)
-                    && (y>=0 && y<=Math.scalb(1, zoom)-1);
+                    && (x>=0 && x<=(1<<zoom)-1)
+                    && (y>=0 && y<=(1<<zoom)-1);
         }
     }
 
@@ -77,9 +77,6 @@ public final class TileManager {
         Path imagePath = dirPath.resolve(tileId.y+".png");
         File imageFile = imagePath.toFile();
 
-//        Path localPath = Path.of(tileId.zoom + "/" + tileId.x + "/" + tileId.y + ".png") ;
-//        Path globalPath = Path.of(discCache + "/" + localPath);
-
         //check if image is already stored in memory cache
         if (memoryCache.containsKey(imagePath)){// TODO: 02.05.23 contains ?
             return memoryCache.get(imagePath);
@@ -88,35 +85,17 @@ public final class TileManager {
             if (Files.exists(imagePath)) {
                 //if so, put it in the memory cache et return it
 
-//                Iterator<TileId> i = memoryCache.keySet().iterator();
-//                if (memoryCache.size() >= MAX_CAPACITY) {
-//                    memoryCache.remove(i.next());
-//                }
                 FileInputStream fileIn = new FileInputStream(imagePath.toString());
                 Image image = new Image(fileIn);
                 memoryCache.put(imagePath, image);// TODO: 02.05.23 put ?
                 return image;
             } else {
                 //if not, get it from the server, put it in the memory and disc cache, and return it
-//                URL u = new URL("https://" + serverAddress + "/" + localPath);
-//                URLConnection c = u.openConnection();
-//                c.setRequestProperty("User-Agent", "Javions");
-//                try (InputStream i = c.getInputStream();
-//                     FileOutputStream fileOut = new FileOutputStream(globalPath.toString())) {
-//                    Files.createDirectories( Path.of(globalPath.getParent() + "/"));
-//
-//                    fileOut.write(i.readAllBytes());
-//                    Image image = new Image(new ByteArrayInputStream( i.readAllBytes()));
-//                    memoryCache.put(tileId, image);
-//                    return image;
-//
-//                }
                 Files.createDirectories(dirPath);
                 String urlString = "https://"+serverAddress+"/"+tileId.zoom+"/"+tileId.x+"/"+tileId.y+".png";
                 URL u = new URL(urlString);
                 URLConnection c = u.openConnection();
                 c.setRequestProperty("User-Agent", "JaVelo");
-
 
                 try (InputStream i = c.getInputStream(); OutputStream a =
                         new FileOutputStream(imageFile)) {
