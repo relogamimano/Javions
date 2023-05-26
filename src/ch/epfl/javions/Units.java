@@ -2,12 +2,13 @@ package ch.epfl.javions;
 
 /**
  * Definition of the SI Units
- * @author: Sofia Henriques Garfo (346298)
- * @author: Romeo Maignal (360568)
+ * @author Sofia Henriques Garfo (346298)
+ * @author Romeo Maignal (360568)
  */
 public final class Units {
     private Units() {}
 
+    public static final double MILLI = 1e-3;
     public static final double CENTI = 1e-2;
     public static final double NANO = 1e-9;
     public static final double KILO = 1e3;
