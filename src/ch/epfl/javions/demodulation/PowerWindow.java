@@ -9,14 +9,14 @@ import java.io.InputStream;
  * The PowerWindow class, public and final, represents a window of fixed size
  * over a sequence of power samples produced by a power calculator.
  *
- * @author: Sofia Henriques Garfo (346298)
- * @author: Romeo Maignal (360568)
+ * @author Sofia Henriques Garfo (346298)
+ * @author Romeo Maignal (360568)
  */
 public class PowerWindow {
     private final PowerComputer powerComputer;
     private int[] firstBatch;
     private int[] secondBatch;
-    private final int BATCHSIZE = (int) Math.scalb(1,16); // TAILLE DES LOTS ENCHANTILLON DE PUISSANCE
+    private final int BATCHSIZE = 1 << 16; // TAILLE DES LOTS ENCHANTILLON DE PUISSANCE
     private final int windowSize; // position pr au debut du flot
     private int windowPosition;
 
