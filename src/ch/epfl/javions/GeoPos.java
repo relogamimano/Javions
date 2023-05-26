@@ -3,6 +3,7 @@ package ch.epfl.javions;
 import static ch.epfl.javions.Units.Angle.DEGREE;
 import static ch.epfl.javions.Units.Angle.T32;
 import static ch.epfl.javions.Units.convert;
+import static ch.epfl.javions.Units.convertFrom;
 
 /**
  * Represent the geographical coordinates expressed in T32 and stocked as int
@@ -38,7 +39,7 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
      */
     public double longitude() {
 
-        return Units.convertFrom(longitudeT32, T32);
+        return convertFrom(longitudeT32, T32);
     }
 
     /**
@@ -47,7 +48,7 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
      */
     public double latitude () {
 
-        return Units.convertFrom(latitudeT32, T32);
+        return convertFrom(latitudeT32, T32);
     }
 
 
