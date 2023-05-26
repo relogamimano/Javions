@@ -5,6 +5,7 @@ import ch.epfl.javions.aircraft.*;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
@@ -161,24 +162,22 @@ public final class AircraftController {
                 .map(AircraftData::description);
         Optional<WakeTurbulenceCategory> turbCategory = Optional.ofNullable(state.getAircraftData())
                 .map(AircraftData::wakeTurbulenceCategory);
-        Optional<Integer> category = Optional.of(state.getCategory());
 
-        AircraftIcon aircraftIcon = AircraftIcon.iconFor(
+        ObservableValue<AircraftIcon> aircraftIcon = state.categoryProperty().map(c -> AircraftIcon.iconFor(
                 type.orElse(new AircraftTypeDesignator("")),
                 descr.orElse(new AircraftDescription("")),
-                category.orElse(0),
-                turbCategory.orElse(WakeTurbulenceCategory.UNKNOWN));
+                c.intValue(),
+                turbCategory.orElse(WakeTurbulenceCategory.UNKNOWN)));
 
-        ObjectProperty<AircraftIcon> aircraftIconProperty = new SimpleObjectProperty<>(aircraftIcon);
         svgPath.contentProperty().bind(
-                aircraftIconProperty.map(AircraftIcon::svgPath));
+                aircraftIcon.map(AircraftIcon::svgPath));
+
         svgPath.rotateProperty().bind(createDoubleBinding(() ->
-                        aircraftIcon.canRotate()
+                        aircraftIcon.getValue().canRotate()
                                 ? convertTo(state.getTrackOrHeading(), DEGREE)
                                 : 0.0,
                 state.trackOrHeadingProperty()
         ));
-
         ReadOnlyDoubleProperty alt = state.altitudeProperty();
         svgPath.fillProperty().bind(
                         alt.map(b -> COLOR_RAMP.at(
@@ -201,7 +200,9 @@ public final class AircraftController {
 
         txt.textProperty().bind(
                 createStringBinding(() -> {
-                    String label = registration.orElse(callSign.orElse(address.orElse("")));
+                            // TODO: 23.05.23 reg/callSign/address
+//                    String label = registration.orElse(callSign.orElse(address.orElse("")));
+                    String label = callSign.orElse(registration.orElse(address.orElse("?")));
                     String velocity = Double.isNaN(state.getVelocity())
                             ? "?"
                             : String.valueOf((int)convertTo(state.getVelocity(), KILOMETER_PER_HOUR));
