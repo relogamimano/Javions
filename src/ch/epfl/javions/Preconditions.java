@@ -1,10 +1,10 @@
 package ch.epfl.javions;
 /**
  * Assure the valid progress of the running program
- * @author: Sofia Henriques Garfo (346298)
- * @author: Romeo Maignal (360568)
+ * @author Sofia Henriques Garfo (346298)
+ * @author Romeo Maignal (360568)
  */
-public class Preconditions {
+final public class Preconditions {
     private Preconditions() {}
 
     /**
