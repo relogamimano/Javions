@@ -11,7 +11,6 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
@@ -81,7 +80,6 @@ public final class AircraftController {
     }
 
     private Group aircraftCompound(ObservableAircraftState state) {
-        Objects.requireNonNull(state, "state est null frero");
         Group aircraftCompound = new Group(tag(state), icon(state));
 
         aircraftCompound.layoutXProperty().bind(Bindings.createDoubleBinding(() ->
@@ -189,18 +187,17 @@ public final class AircraftController {
         Group tag = new Group(rect, txt);
         tag.getStyleClass().add("label");
 
-        Optional<String> registration = Optional.ofNullable(state.getAircraftData())
-                .map(AircraftData::registration).map(AircraftRegistration::string);
-        Optional<String> callSign = Optional.ofNullable(state.getCallSign())
-                .map(CallSign::string);
         Optional<String> address = Optional.ofNullable(state.getIcaoAddress())
                 .map(IcaoAddress::string);
 
         txt.textProperty().bind(
                 createStringBinding(() -> {
-                            // TODO: 23.05.23 reg/callSign/address
-//                    String label = registration.orElse(callSign.orElse(address.orElse("")));
-                    String label = callSign.orElse(registration.orElse(address.orElse("?")));
+                    String label = state.getAircraftData() != null
+                            ? state.getAircraftData().registration().string()
+                            :  Bindings.when(state.callSignProperty().isNotNull())
+                            .then(Bindings.convert(state.callSignProperty().map(CallSign::string)))
+                            .otherwise(address.orElse("")).get();
+
                     String velocity = Double.isNaN(state.getVelocity())
                             ? "?"
                             : String.valueOf((int)convertTo(state.getVelocity(), KILOMETER_PER_HOUR));
@@ -209,9 +206,11 @@ public final class AircraftController {
                             : String.valueOf((int)state.getAltitude());
                     return String.format("%s\n%s km/h\u2002%s m", label, velocity, altitude);
                     },
+                        state.callSignProperty(),
                         state.velocityProperty(),
                         state.altitudeProperty())
         );
+
 
         rect.widthProperty().bind(
                 txt.layoutBoundsProperty().map(b -> b.getWidth() + MARGIN_SIZE));
