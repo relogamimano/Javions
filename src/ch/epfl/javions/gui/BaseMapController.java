@@ -5,14 +5,17 @@ import ch.epfl.javions.WebMercator;
 import javafx.application.Platform;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
+import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
-import javafx.geometry.Point2D;
+import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 
-
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Objects;
+
 
 public final class BaseMapController {
     private final TileManager tileManager;
@@ -25,9 +28,10 @@ public final class BaseMapController {
 
     private Point2D lastMousePosition = new Point2D(0d,0d) ;
 
-    public BaseMapController(TileManager tileManager,MapParameters mapParameters){
+
+    public BaseMapController(TileManager tileManager, MapParameters mapParams) {
         this.tileManager = tileManager;
-        this.mapParameters = mapParameters;
+        this.mapParameters = mapParams;
         canvas = new Canvas();
         pane  = new Pane(canvas);
 
@@ -36,12 +40,11 @@ public final class BaseMapController {
 
         redrawNeeded = true;
 
+        context = canvas.getGraphicsContext2D();
+
         installListeners();
         installHandlers();
-
-        context = canvas.getGraphicsContext2D();
     }
-
     private void installListeners(){
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
@@ -54,67 +57,42 @@ public final class BaseMapController {
 
     private void installHandlers(){
         LongProperty minScrollTime = new SimpleLongProperty();
-        pane.setOnScroll(e -> {                                //Scroll Handler
+        pane.setOnScroll(e -> {
             int zoomDelta = (int) Math.signum(e.getDeltaY());
-            if (zoomDelta == 0) return;
+            if (zoomDelta == 0)
+                return;
 
             long currentTime = System.currentTimeMillis();
-            if (currentTime < minScrollTime.get()) return;
+            if (currentTime < minScrollTime.get())
+                return;
+
             minScrollTime.set(currentTime + 200);
 
             mapParameters.scroll(e.getX(), e.getY());
             mapParameters.changeZoomLevel(zoomDelta);
             mapParameters.scroll(-e.getX(), -e.getY());
-            redrawOnNextPulse();
 
-        });
-
-
-        pane.setOnMousePressed( e ->
-                lastMousePosition = new Point2D(e.getX(),e.getY())   // mouse pressed handler
-
-        );
-        pane.setOnMouseDragged( e -> {
-            double deltaX = lastMousePosition.getX() - e.getX();
-            double deltaY = lastMousePosition.getY() - e.getY();
-            mapParameters.scroll(deltaX, deltaY);
-            lastMousePosition = lastMousePosition.subtract(deltaX, deltaY);
-            redrawOnNextPulse();
-        });
-        pane.setOnMouseReleased(e -> {
-            double deltaX = lastMousePosition.getX() - e.getX();
-            double deltaY = lastMousePosition.getY() - e.getY();
-            mapParameters.scroll(deltaX, deltaY);
-            lastMousePosition = lastMousePosition.subtract(deltaX, deltaY);
             redrawOnNextPulse();
         });
 
+        pane.setOnMousePressed(e ->
+                lastMousePosition = new Point2D(e.getX(), e.getY()));
+        pane.setOnMouseDragged(this::mouseDraggedAndReleased);
+        pane.setOnMouseReleased(this::mouseDraggedAndReleased);
+        pane.widthProperty().addListener((obs, oldVal, newVal) ->
+                this.redrawOnNextPulse());
+        pane.heightProperty().addListener((obs, oldVal, newVal) ->
+                this.redrawOnNextPulse());
+
     }
 
-    public Pane pane ( ){
-        return pane;
-    }
 
-    public void centerOn(GeoPos position){
-        Objects.requireNonNull(position);
-        double x = WebMercator.x(mapParameters.getZoomLevel(), position.longitude());
-        double y = WebMercator.y(mapParameters.getZoomLevel(), position.latitude());
 
-        double newMinX = x - this.canvas.getWidth()/2;
-        double newMinY = y - this.canvas.getHeight()/2;
-
-        double deltaMinX = newMinX - mapParameters.getMinX();
-        double deltaMinY = newMinY - mapParameters.getMinY();
-
-        mapParameters.scroll(deltaMinX, deltaMinY);
-    }
 
     private void redrawOnNextPulse() {
         redrawNeeded = true;
         Platform.requestNextPulse();
     }
-
-
 
     private void redrawIfNeeded() {
         if (!this.redrawNeeded)
@@ -122,33 +100,40 @@ public final class BaseMapController {
 
         this.redrawNeeded = false;
 
-        double widthPadding = mapParameters.getMinX() % TILE_SIZE;
-        double heightPadding = mapParameters.getMinY() % TILE_SIZE;
+        int minIndexTileX = (int)Math.floor(this.mapParameters.getMinX()/TILE_SIZE);
+        int minIndexTileY = (int)Math.floor(this.mapParameters.getMinY()/TILE_SIZE);
+        int maxIndexTileX = (int)Math.ceil((this.mapParameters.getMinX() + this.canvas.getWidth()  )/TILE_SIZE + 1);
+        int maxIndexTileY = (int)Math.ceil((this.mapParameters.getMinY() + this.canvas.getHeight() )/TILE_SIZE + 1);
 
-        int minIndexTileX = (int)Math.floor(mapParameters.getMinX()/ TILE_SIZE);
-        int minIndexTileY = (int)Math.floor(mapParameters.getMinY()/ TILE_SIZE);
-        int maxIndexTileX = (int)Math.ceil((mapParameters.getMinX() + this.canvas.getWidth() + widthPadding)/ ch.epfl.javions.gui.BaseMapController.TILE_SIZE);
-        int maxIndexTileY = (int)Math.ceil((mapParameters.getMinY() + this.canvas.getHeight() + heightPadding)/ ch.epfl.javions.gui.BaseMapController.TILE_SIZE);
-
-        //code pour les images
-        for (int i = minIndexTileX; i < maxIndexTileX; i++) {
-            for (int j = minIndexTileY; j < maxIndexTileY; j++) {
-                TileManager.TileId tileId = new TileManager.TileId(mapParameters.getZoomLevel(), i, j);
+        //affichage des tiles
+        for (int i = 0; i < maxIndexTileX - minIndexTileX; i++) {
+            for (int j = 0; j < maxIndexTileY - minIndexTileY; j++) {
+                TileManager.TileId tileId = new TileManager.TileId(this.mapParameters.getZoomLevel(), i + minIndexTileX, j + minIndexTileY);
                 try {
                     Image tileImage = tileManager.imageForTileAt(tileId);
-                    this.context.drawImage(tileImage, (i-minIndexTileX)*TILE_SIZE - widthPadding, (j-minIndexTileY)*TILE_SIZE - heightPadding);
-                } catch (Exception ignored) {
-                    System.out.println("There's an exception");
-                }
+                    this.context.drawImage(tileImage, i*TILE_SIZE - this.mapParameters.getMinX() % TILE_SIZE, j*TILE_SIZE - this.mapParameters.getMinY() % TILE_SIZE);
+                } catch (IOException exception) { throw new UncheckedIOException(exception); }
             }
-
-
         }
-
     }
 
+
+    public void centerOn(GeoPos position) {Objects.requireNonNull(position);
+        double lastX = WebMercator.x(mapParameters.getZoomLevel(), position.longitude());
+        double lasty = WebMercator.y(mapParameters.getZoomLevel(), position.latitude());
+        double newX = lastX - canvas.getWidth()/2;
+        double newY = lasty - canvas.getHeight()/2;
+        mapParameters.scroll(newX - mapParameters.getMinX(),  newY - mapParameters.getMinY());
+    }
+
+
+    public Pane pane() { return this.pane; }
+
+    private void mouseDraggedAndReleased(MouseEvent e) {
+        double x = lastMousePosition.getX() - e.getX();
+        double y = lastMousePosition.getY() - e.getY();
+        mapParameters.scroll(x, y);
+        lastMousePosition = lastMousePosition.subtract(x,y);
+        this.redrawOnNextPulse();
+    }
 }
-
-
-
-

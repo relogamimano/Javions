@@ -22,10 +22,10 @@ public final class TileManager {
     private static final boolean LRU_ORDER = true;
     private final Path discCache;
     private final String serverAddress;
-//    private final LinkedHashMap<TileId, Image> memoryCache = new LinkedHashMap<>(MAX_CAPACITY, LOAD_FACTOR, LRU_ORDER);
+    //    private final LinkedHashMap<TileId, Image> memoryCache = new LinkedHashMap<>(MAX_CAPACITY, LOAD_FACTOR, LRU_ORDER);
     private final LinkedHashMap<Path, Image> memoryCache = new LinkedHashMap<>(MAX_CAPACITY, LOAD_FACTOR, LRU_ORDER) {
         protected boolean removeEldestEntry(Map.Entry<Path, Image> eldest) {
-                return size() > MAX_CAPACITY;
+            return size() > MAX_CAPACITY;
         }
     };
     /**

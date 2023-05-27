@@ -47,25 +47,25 @@ public final class AircraftTableController {
 
 
 
-        createTextColumn("oaci",70, f -> new ReadOnlyObjectWrapper<>(f.getIcaoAddress().string()));
+        createTextColumn("OACI",70, f -> new ReadOnlyObjectWrapper<>(f.getIcaoAddress().string()));
 
 
-        createTextColumn("callSign",70, f ->  (f.callSignProperty().map(CallSign::string)));
+        createTextColumn("Indicatif",70, f ->  (f.callSignProperty().map(CallSign::string)));
 
 
 
-        createTextColumn("model", 230,  f ->
+        createTextColumn("Modèle", 230,  f ->
                 f.getAircraftData() == null ?
                         new ReadOnlyStringWrapper("") : new ReadOnlyStringWrapper(f.getAircraftData().model()));
 
 
 
-        createTextColumn("type", 50, f ->
+        createTextColumn("Type", 50, f ->
                 f.getAircraftData() == null ?
                         new ReadOnlyStringWrapper("") : new ReadOnlyStringWrapper(f.getAircraftData().typeDesignator().string()));
 
 
-        createTextColumn("description", 70, f->
+        createTextColumn("Description", 70, f->
                 f.getAircraftData() == null ?
                         new ReadOnlyStringWrapper("") : new ReadOnlyObjectWrapper<>(f.getAircraftData().description().string()));
 
@@ -78,11 +78,10 @@ public final class AircraftTableController {
         nf1.setMinimumFractionDigits(0);
 
 
-
-        createNumericColumn("altitude", ObservableAircraftState::altitudeProperty, nf0, Units.Length.METER);
-        createNumericColumn("latitude", f -> f.positionProperty().map(GeoPos::latitude),nf1, Units.Angle.DEGREE);
-        createNumericColumn("longitude", f -> f.positionProperty().map(GeoPos::longitude), nf1, Units.Angle.DEGREE);
-        createNumericColumn("velocity",ObservableAircraftState::velocityProperty, nf0, Units.Speed.KILOMETER_PER_HOUR);
+        createNumericColumn("longitude(°)", f -> f.positionProperty().map(GeoPos::longitude), nf1, Units.Angle.DEGREE);
+        createNumericColumn("latitude(°)", f -> f.positionProperty().map(GeoPos::latitude),nf1, Units.Angle.DEGREE);
+        createNumericColumn("altitude(m)", ObservableAircraftState::altitudeProperty, nf0, Units.Length.METER);
+        createNumericColumn("Vitesse (km/h)",ObservableAircraftState::velocityProperty, nf0, Units.Speed.KILOMETER_PER_HOUR);
 
         installListeners();
         installHandlers();
@@ -172,10 +171,9 @@ public final class AircraftTableController {
 
     private void installHandlers(){
         table.setOnMouseClicked( c -> {
-            if (c.getButton().equals(MouseButton.PRIMARY) && c.getClickCount() == 2 && consumer!=null);{
-                consumer.accept(table.getSelectionModel().getSelectedItem());
+            if (c.getButton().equals(MouseButton.PRIMARY) && c.getClickCount() == 2 && this.consumer!=null);{
+                this.consumer.accept(table.getSelectionModel().getSelectedItem());
             }
         });
     }
 }
-

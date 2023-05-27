@@ -34,7 +34,7 @@ public class testTable extends Application {
                 bytesRead = s.readNBytes(bytes, 0, bytes.length);
                 messages.add(RawMessage.of(timeStampNs, bytes));
             }
-        } catch (EOFException e) { /* nothing to do */ }
+        } catch (Exception e) { /* nothing to do */ }
         return messages;
     }
 

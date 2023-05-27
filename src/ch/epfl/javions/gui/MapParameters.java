@@ -13,10 +13,11 @@ public final class MapParameters {
     private final DoubleProperty minY = new SimpleDoubleProperty(); // y value of the top left hand corner
 
     public MapParameters(int zoom, double minX, double minY) {
-        Preconditions.checkArgument(zoom >= MIN_ZOOM && zoom <= MAX_ZOOM);
-        this.zoom.set(zoom);
         this.minX.set(minX);
         this.minY.set(minY);
+        Preconditions.checkArgument(zoom >= MIN_ZOOM && zoom <= MAX_ZOOM);
+        this.zoom.set(zoom);
+
     }
 
     public ReadOnlyIntegerProperty zoomProperty() {
@@ -44,19 +45,19 @@ public final class MapParameters {
     }
 
     public void scroll(double translateX, double translateY) {
-        this.minX.set(this.minX.get() + translateX);
-        this.minY.set(this.minY.get() + translateY);
+        this.minX.set(getMinX() + translateX);
+        this.minY.set(getMinY() + translateY);
     }
 
 
-    public void changeZoomLevel(int deltaZoom) {
-        zoom.set(Math2.clamp(MIN_ZOOM, this.getZoomLevel() + deltaZoom, MAX_ZOOM));
-        minX.set(Math.scalb(minX.get(), deltaZoom));
-        minY.set(Math.scalb(minY.get() , deltaZoom));
+    public void changeZoomLevel(int newZoom) {
+        int odlZoom = zoom.get();
+        zoom.set(Math2.clamp(MIN_ZOOM, odlZoom + newZoom, MAX_ZOOM));
+        minX.set(Math.scalb(minX.get(), zoom.get() - odlZoom));
+        minY.set(Math.scalb(minY.get() , zoom.get() - odlZoom));
 
     }
 
 
 }
-
 

@@ -23,4 +23,3 @@ public final class BaseMapControllerTest extends Application {
             primaryStage.show();
         }
     }
-
