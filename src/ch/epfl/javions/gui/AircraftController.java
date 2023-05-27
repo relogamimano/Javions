@@ -29,9 +29,9 @@ import static javafx.scene.paint.CycleMethod.NO_CYCLE;
 
 public final class AircraftController {
     private static final ColorRamp COLOR_RAMP = ColorRamp.PLASMA;
-    private static final int ALT_RANGE = 12000;
-    private static final int MIN_TAG_ZOOM = 11;
-    private static final int MARGIN_SIZE = 4;
+    private static final int ALT_RANGE = 12000;// Average altitude range for plane from airliner to small recreational plane.
+    private static final int MIN_TAG_ZOOM = 11;// Minimum zoom for all tags to appear on screen
+    private static final int MARGIN_SIZE = 4;// Margin between the text and the edge of the rectangle containing it.
     private final MapParameters mapParameters;
     private final ObjectProperty<ObservableAircraftState> selectedState;
     private final Pane pane;
@@ -55,9 +55,14 @@ public final class AircraftController {
 
         states.addListener((SetChangeListener<ObservableAircraftState>)
                 change -> {
+            // If change was made to the list
                 if (change.wasAdded()) {
+                    //, and it happens to be the adding of an element :
+                    //The specific annotated aircraft is added from the pane children list
                     pane().getChildren().add(annotatedAircraft(change.getElementAdded()));
                 } else if (change.wasRemoved()) {
+                    //, or it happens to be the removing of an element :
+                    //The specific annotated aircraft is removed from the pane children list
                     pane().getChildren().removeIf(p ->
                             change.getElementRemoved().getIcaoAddress().string().equals(p.getId()));
                 }
@@ -71,17 +76,17 @@ public final class AircraftController {
     public Pane pane() {
         return pane;
     }
-
+    // AnnotatedAircraft -> Group = AircraftCompound + Trajectory
     private Group annotatedAircraft(ObservableAircraftState state) {
         Group annotatedAircraft = new Group(trajectory(state), aircraftCompound(state));
         annotatedAircraft.viewOrderProperty().bind(state.altitudeProperty().negate());
         annotatedAircraft.setId(state.getIcaoAddress().string());
         return annotatedAircraft;
     }
-
+    //  AircraftCompound -> Group = icon + tag
     private Group aircraftCompound(ObservableAircraftState state) {
         Group aircraftCompound = new Group(tag(state), icon(state));
-
+        //Binding of the abscissa position of the annotated aircraft on the pane
         aircraftCompound.layoutXProperty().bind(Bindings.createDoubleBinding(() ->
                         x(mapParameters.getZoomLevel(), state.getPosition().longitude())
                                 - mapParameters.getMinX(),
@@ -89,6 +94,7 @@ public final class AircraftController {
                 state.positionProperty(),
                 mapParameters.minXProperty()
         ));
+        //Binding of the ordinate position of the annotated aircraft on the pane
         aircraftCompound.layoutYProperty().bind(Bindings.createDoubleBinding(() ->
                         y(mapParameters.getZoomLevel(), state.getPosition().latitude())
                                 - mapParameters.getMinY(),
@@ -99,14 +105,15 @@ public final class AircraftController {
         return aircraftCompound;
     }
 
+    // Trajectory -> Group = Line + Line + ... + Line
     private Group trajectory(ObservableAircraftState state) {
         Group trajectory = new Group();
         trajectory.visibleProperty().bind(selectedState.isEqualTo(state));
         var l0 = (ListChangeListener<ObservableAircraftState.AirbornePos>) change ->
             updateTrajectory(trajectory, state.getTrajectoryList());
-
         var l1 = (InvalidationListener) change -> updateTrajectory(trajectory, state.getTrajectoryList());
-
+        //Visibility of the trajectory depends on whether the trajectory list or the zoom level has been changed or not.
+        //The trajectory is created only if the aircraft is selected. It is done so in order to keep a certain degree of processing speed.
         trajectory.visibleProperty().addListener((o, oV, nV) -> {
                     if (nV) {
                         state.getTrajectoryList().addListener(l0);
@@ -120,24 +127,26 @@ public final class AircraftController {
         return trajectory;
     }
 
-
+    //Method used to update the trajectory by adding one new line to the existing group of lines segments,
+    //it is called each time an aircraft change it trajectory or each time the level of zoom changes.
     private void updateTrajectory(Group trajectory, ObservableList<ObservableAircraftState.AirbornePos> list) {
         for (int i = 0; i < list.size()-1; i++) {
-            if (list.get(i).geopos() != null && list.get(i).geopos() != null) {
+            if (list.get(i).geopos() != null && list.get(i+1).geopos() != null) {
+                //Coloring of the line
                 Stop s1 = new Stop(0, COLOR_RAMP.at(Math.cbrt( list.get(i).altitude() / ALT_RANGE ) ));
                 Stop s2 = new Stop(1, COLOR_RAMP.at(Math.cbrt( list.get(i+1).altitude() / ALT_RANGE ) ));
                 LinearGradient linearGradient = new LinearGradient(0, 0, 1, 0, true, NO_CYCLE, s1, s2);
                 Line line = new Line();
-                line.startXProperty().bind(subtract(
+                line.startXProperty().bind(subtract(/* position x of the start of the line */
                         x(mapParameters.getZoomLevel(), list.get(i).geopos().longitude()),
                         mapParameters.minXProperty()));
-                line.startYProperty().bind(subtract(
+                line.startYProperty().bind(subtract(/* position y of the start of the line */
                         y(mapParameters.getZoomLevel(), list.get(i).geopos().latitude()),
                         mapParameters.minYProperty()));
-                line.endXProperty().bind(subtract(
+                line.endXProperty().bind(subtract(/* position x of the end of the line */
                         x(mapParameters.getZoomLevel(), list.get(i+1).geopos().longitude()),
                         mapParameters.minXProperty()));
-                line.endYProperty().bind(subtract(
+                line.endYProperty().bind(subtract(/* position y of the end of the line */
                         y(mapParameters.getZoomLevel(), list.get(i+1).geopos().latitude()),
                         mapParameters.minYProperty()));
                 line.setStroke(linearGradient);
@@ -147,33 +156,38 @@ public final class AircraftController {
         }
     }
 
-
+    // Icon -> Path
     private SVGPath icon(ObservableAircraftState state) {
         SVGPath svgPath = new SVGPath();
         svgPath.setOnMouseClicked(e -> selectedState.set(state));
         svgPath.getStyleClass().add("aircraft");
+        //Optional types are used because a series of called instances are subject to being null
+        //and its use remove the need for explicit null testing
         Optional<AircraftTypeDesignator> type = Optional.ofNullable(state.getAircraftData())
                 .map(AircraftData::typeDesignator);
         Optional<AircraftDescription> descr = Optional.ofNullable(state.getAircraftData())
                 .map(AircraftData::description);
         Optional<WakeTurbulenceCategory> turbCategory = Optional.ofNullable(state.getAircraftData())
                 .map(AircraftData::wakeTurbulenceCategory);
-
+        //Initialization of the aircraft icon while being careful to implement the fact that the category is subject to changing.
+        //Therefore, to the icon being updated.
         ObservableValue<AircraftIcon> aircraftIcon = state.categoryProperty().map(c -> AircraftIcon.iconFor(
                 type.orElse(new AircraftTypeDesignator("")),
                 descr.orElse(new AircraftDescription("")),
                 c.intValue(),
                 turbCategory.orElse(WakeTurbulenceCategory.UNKNOWN)));
-
+        //Binding of the svg path content property to the path of the icon
         svgPath.contentProperty().bind(
                 aircraftIcon.map(AircraftIcon::svgPath));
 
+        //Binding of the rotation property to the trajectory of the aircraft
         svgPath.rotateProperty().bind(createDoubleBinding(() ->
                         aircraftIcon.getValue().canRotate()
                                 ? convertTo(state.getTrackOrHeading(), DEGREE)
                                 : 0.0,
                 state.trackOrHeadingProperty()
         ));
+        //Coloring of the icon in real time.
         ReadOnlyDoubleProperty alt = state.altitudeProperty();
         svgPath.fillProperty().bind(
                         alt.map(b -> COLOR_RAMP.at(
@@ -181,17 +195,22 @@ public final class AircraftController {
         return svgPath;
     }
 
+    // Tag -> Group = | Label            |
+    //                | Speed Altitude   |
     private Group tag(ObservableAircraftState state) {
         Text txt = new Text();
         Rectangle rect = new Rectangle();
         Group tag = new Group(rect, txt);
         tag.getStyleClass().add("label");
-
+        //Optional types are used because ICAO address is subject to being null
+        //and its use remove the need for explicit null testing
         Optional<String> address = Optional.ofNullable(state.getIcaoAddress())
                 .map(IcaoAddress::string);
 
         txt.textProperty().bind(
                 createStringBinding(() -> {
+                    //The Label string is the top part of the rectangle that display the registration if not null
+                    //otherwise the call sign if not null otherwise the ICAO address
                     String label = state.getAircraftData() != null
                             ? state.getAircraftData().registration().string()
                             :  Bindings.when(state.callSignProperty().isNotNull())
@@ -206,12 +225,12 @@ public final class AircraftController {
                             : String.valueOf((int)state.getAltitude());
                     return String.format("%s\n%s km/h\u2002%s m", label, velocity, altitude);
                     },
-                        state.callSignProperty(),
+                        state.callSignProperty(),// Dependencies make sure that the code inside de brackets is updated in real time
                         state.velocityProperty(),
                         state.altitudeProperty())
         );
 
-
+        //Set of the dimensions and the visibility of the tag
         rect.widthProperty().bind(
                 txt.layoutBoundsProperty().map(b -> b.getWidth() + MARGIN_SIZE));
         rect.heightProperty().bind(
