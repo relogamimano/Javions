@@ -26,16 +26,32 @@ public class AircraftStateManager {
     private long lastTimeStamp = 0;
     private final ObservableSet<ObservableAircraftState> unmodifiableStates;
 
+    /**
+     * Aircraft State Manager constructor that builds a manager of aircraft state.
+     * It controls their ongoing state and give access to tools to update or remove them.
+     * @param aircraftDatabase aircraft data base
+     */
     public AircraftStateManager(AircraftDatabase aircraftDatabase) {
         this.table = new HashMap<>();
         this.observableStates = FXCollections.observableSet();
         this.unmodifiableStates = FXCollections.unmodifiableObservableSet(observableStates);
         this.aircraftDatabase = Objects.requireNonNull(aircraftDatabase);
     }
+
+    /**
+     * Getter method that return an unmodifiable version of the observable aircraft states.
+     * @return unmodifiable states set
+     */
     public ObservableSet<ObservableAircraftState> states() {
         return unmodifiableStates;
     }
 
+    /**
+     * Updating method used bring up to date the state of aircraft, in the set of observables state,
+     * corresponding to the message took in argument.
+     * @param message message
+     * @throws IOException if an input/output file error occurs when calling the update methode
+     */
     public void updateWithMessage(Message message) throws IOException {
         if (message != null) {
             lastTimeStamp = message.timeStampNs();
@@ -52,11 +68,12 @@ public class AircraftStateManager {
                     .getPosition() != null) {
                 observableStates.add(table.get(address).stateSetter());
             }
-
         }
-
     }
 
+    /**
+     * Updating method used to remove aircraft no longer sending position messages.
+     */
     public void purge() {
         Iterator<AircraftStateAccumulator<ObservableAircraftState>> i = table.values().iterator();
         while (i.hasNext()) {
