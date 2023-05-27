@@ -28,8 +28,6 @@ public final class TileManager {
                 return size() > MAX_CAPACITY;
         }
     };
-
-
     /**
      * Tile identity record
      * @param zoom  level of magnification
@@ -78,7 +76,7 @@ public final class TileManager {
         File imageFile = imagePath.toFile();
 
         //check if image is already stored in memory cache
-        if (memoryCache.containsKey(imagePath)){// TODO: 02.05.23 contains ?
+        if (memoryCache.containsKey(imagePath)){
             return memoryCache.get(imagePath);
         } else {
             //if not, check in the disc cache if it contains the image
@@ -87,7 +85,7 @@ public final class TileManager {
 
                 FileInputStream fileIn = new FileInputStream(imagePath.toString());
                 Image image = new Image(fileIn);
-                memoryCache.put(imagePath, image);// TODO: 02.05.23 put ?
+                memoryCache.put(imagePath, image);
                 return image;
             } else {
                 //if not, get it from the server, put it in the memory and disc cache, and return it
