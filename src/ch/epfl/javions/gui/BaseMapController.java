@@ -100,18 +100,19 @@ public final class BaseMapController {
 
         this.redrawNeeded = false;
 
-        int minIndexTileX = (int)Math.floor(this.mapParameters.getMinX()/TILE_SIZE);
-        int minIndexTileY = (int)Math.floor(this.mapParameters.getMinY()/TILE_SIZE);
-        int maxIndexTileX = (int)Math.ceil((this.mapParameters.getMinX() + this.canvas.getWidth()  )/TILE_SIZE + 1);
-        int maxIndexTileY = (int)Math.ceil((this.mapParameters.getMinY() + this.canvas.getHeight() )/TILE_SIZE + 1);
+        int firstTileX = (int)(mapParameters.getMinX()/TILE_SIZE);
+        int firstTileY = (int)(mapParameters.getMinY()/TILE_SIZE);
+        int lastTileX = (int)((mapParameters.getMinX() + canvas.getWidth()  )/TILE_SIZE + 1);
+        int lastTileY = (int)((mapParameters.getMinY() + canvas.getHeight() )/TILE_SIZE + 1);
 
-        //affichage des tiles
-        for (int i = 0; i < maxIndexTileX - minIndexTileX; i++) {
-            for (int j = 0; j < maxIndexTileY - minIndexTileY; j++) {
-                TileManager.TileId tileId = new TileManager.TileId(this.mapParameters.getZoomLevel(), i + minIndexTileX, j + minIndexTileY);
+        for (int i = 0; i < lastTileX - firstTileX; i++) {
+            for (int j = 0; j < lastTileY - firstTileY; j++) {
+                TileManager.TileId tileId = new TileManager.TileId(this.mapParameters.getZoomLevel(),
+                        i + firstTileX, j + firstTileY);
                 try {
                     Image tileImage = tileManager.imageForTileAt(tileId);
-                    this.context.drawImage(tileImage, i*TILE_SIZE - this.mapParameters.getMinX() % TILE_SIZE, j*TILE_SIZE - this.mapParameters.getMinY() % TILE_SIZE);
+                    this.context.drawImage(tileImage, i*TILE_SIZE - this.mapParameters.getMinX() % TILE_SIZE,
+                            j*TILE_SIZE - this.mapParameters.getMinY() % TILE_SIZE);
                 } catch (IOException exception) { throw new UncheckedIOException(exception); }
             }
         }
@@ -119,15 +120,13 @@ public final class BaseMapController {
 
 
     public void centerOn(GeoPos position) {Objects.requireNonNull(position);
-        double lastX = WebMercator.x(mapParameters.getZoomLevel(), position.longitude());
-        double lasty = WebMercator.y(mapParameters.getZoomLevel(), position.latitude());
-        double newX = lastX - canvas.getWidth()/2;
-        double newY = lasty - canvas.getHeight()/2;
-        mapParameters.scroll(newX - mapParameters.getMinX(),  newY - mapParameters.getMinY());
+        double positionEnX = WebMercator.x(mapParameters.getZoomLevel(), position.longitude()) - canvas.getWidth()/2;
+        double positionEnY = WebMercator.y(mapParameters.getZoomLevel(), position.latitude()) - canvas.getHeight()/2;
+        mapParameters.scroll(positionEnX - mapParameters.getMinX(),  positionEnY - mapParameters.getMinY());
     }
 
 
-    public Pane pane() { return this.pane; }
+    public Pane pane() { return pane; }
 
     private void mouseDraggedAndReleased(MouseEvent e) {
         double x = lastMousePosition.getX() - e.getX();

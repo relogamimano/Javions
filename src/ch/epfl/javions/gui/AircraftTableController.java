@@ -40,7 +40,7 @@ public final class AircraftTableController {
         table = new TableView<>();
         table.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY_SUBSEQUENT_COLUMNS);
         table.setTableMenuButtonVisible(true);
-        table.getStyleClass().add("table.ccs");
+        table.getStylesheets().add("/table.css");
 
         states = aircraftStates;
         selectedA = selectedAircraft;
@@ -52,7 +52,13 @@ public final class AircraftTableController {
 
         createTextColumn("Indicatif",70, f ->  (f.callSignProperty().map(CallSign::string)));
 
-
+        createTextColumn("Immatriculation",90,f -> {
+            if(f.getAircraftData() == null ) {
+                return new ReadOnlyStringWrapper("");
+            } else {
+                return new ReadOnlyStringWrapper(f.getAircraftData().registration().string());
+            }
+        });
 
         createTextColumn("Modèle", 230,  f ->
                 f.getAircraftData() == null ?
@@ -102,8 +108,8 @@ public final class AircraftTableController {
                                       NumberFormat numberFormat, double unit){
 
         TableColumn<ObservableAircraftState,String> column= new TableColumn<>(title);
-        column.getStyleClass().add("numeric");
         column.setPrefWidth(85);
+        column.getStyleClass().add("numeric");
         column.setCellValueFactory( f -> function.apply(f.getValue()).map(n ->
                 numberFormat.format(Units.convertTo(n.doubleValue(),unit))));
         table.getColumns().add(column);
@@ -122,11 +128,12 @@ public final class AircraftTableController {
                 }
                 return Double.compare(d1, d2);
             }
-
         });
     }
 
-    private void installListeners(){
+
+
+        private void installListeners(){
         states.addListener((SetChangeListener<ObservableAircraftState>) c -> {
             if (c.wasAdded()) {
                 table.getItems().add(c.getElementAdded());
@@ -166,13 +173,17 @@ public final class AircraftTableController {
      * @param aircraftState selected aircraft
     **/
     public void setOnDoubleClick(Consumer<ObservableAircraftState> aircraftState){
-        consumer = aircraftState;
+            consumer = aircraftState;
     }
 
-    private void installHandlers(){
-        table.setOnMouseClicked( c -> {
-            if (c.getButton().equals(MouseButton.PRIMARY) && c.getClickCount() == 2 && this.consumer!=null);{
-                this.consumer.accept(table.getSelectionModel().getSelectedItem());
+    private void installHandlers() {
+        table.setOnMouseClicked(c -> {
+            if (c.getButton().equals(MouseButton.PRIMARY) && c.getClickCount() == 2) ;
+            {
+                ObservableAircraftState selectedState = table.getSelectionModel().getSelectedItem();
+                if (consumer != null && selectedState != null) {
+                    consumer.accept(selectedState);
+                }
             }
         });
     }
