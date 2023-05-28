@@ -45,7 +45,7 @@ public final class TileManager {
             checkArgument(isValid(zoom, x, y));
         }
         public static boolean isValid(int zoom, int x, int y) {
-            return (zoom>=0 && zoom<=19)
+            return (zoom>=8 && zoom<=19)
                     && (x>=0 && x<=(1<<zoom)-1)
                     && (y>=0 && y<=(1<<zoom)-1);
         }
