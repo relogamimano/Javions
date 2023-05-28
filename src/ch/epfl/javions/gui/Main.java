@@ -31,6 +31,11 @@ import static ch.epfl.javions.Units.*;
 import static java.nio.file.Path.of;
 
 public class Main extends Application {
+    private static final int STARTING_ZOOM = 8;
+    private static final int STARTING_MIN_X = 33530;
+    private static final int STARTING_MIN_Y = 23070;
+    private static final int STARTING_MIN_WIDTH = 800;
+    private static final int STARTING_MIN_HEIGHT = 600;
     private final ConcurrentLinkedQueue<RawMessage> queue = new ConcurrentLinkedQueue<>();
 
     public static void main(String[] args) {launch(args);}
@@ -93,7 +98,7 @@ public class Main extends Application {
         //Set up of the graphic user interface
         Path tileCache = of("tile-cache");
         TileManager tm = new TileManager(tileCache, "tile.openstreetmap.org");
-        MapParameters mp = new MapParameters(8, 33530, 23070);
+        MapParameters mp = new MapParameters(STARTING_ZOOM, STARTING_MIN_X, STARTING_MIN_Y);
         URL u = getClass().getResource("/aircraft.zip");
         assert u != null;
         Path p = Path.of(u.toURI());
@@ -112,8 +117,8 @@ public class Main extends Application {
         splitPane.setOrientation(Orientation.VERTICAL);
         primaryStage.setScene(new Scene(splitPane));
         primaryStage.setTitle("Javions");
-        primaryStage.setMinWidth(800);
-        primaryStage.setMinHeight(600);
+        primaryStage.setMinWidth(STARTING_MIN_WIDTH);
+        primaryStage.setMinHeight(STARTING_MIN_HEIGHT);
         primaryStage.show();
 
 
