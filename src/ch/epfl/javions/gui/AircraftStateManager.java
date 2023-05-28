@@ -79,7 +79,6 @@ public class AircraftStateManager {
         while (i.hasNext()) {
             var a = i.next();
             if ( (lastTimeStamp - a.stateSetter().getTimeStampNs()) > convertTo(MINUTE, NANO)) {
-                System.out.println(a.stateSetter().getIcaoAddress());
                 observableStates.remove(a.stateSetter());
                 i.remove();
             }
