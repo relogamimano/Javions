@@ -100,10 +100,10 @@ public final class BaseMapController {
 
         this.redrawNeeded = false;
 
-        int firstTileX = (int)Math.floor(this.mapParameters.getMinX()/TILE_SIZE);
-        int firstTileY = (int)Math.floor(this.mapParameters.getMinY()/TILE_SIZE);
-        int lastTileX = (int)Math.ceil((this.mapParameters.getMinX() + this.canvas.getWidth()  )/TILE_SIZE + 1);
-        int lastTileY = (int)Math.ceil((this.mapParameters.getMinY() + this.canvas.getHeight() )/TILE_SIZE + 1);
+        int firstTileX = (int)(mapParameters.getMinX()/TILE_SIZE);
+        int firstTileY = (int)(mapParameters.getMinY()/TILE_SIZE);
+        int lastTileX = (int)((mapParameters.getMinX() + canvas.getWidth()  )/TILE_SIZE + 1);
+        int lastTileY = (int)((mapParameters.getMinY() + canvas.getHeight() )/TILE_SIZE + 1);
 
         for (int i = 0; i < lastTileX - firstTileX; i++) {
             for (int j = 0; j < lastTileY - firstTileY; j++) {

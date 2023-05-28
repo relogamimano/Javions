@@ -40,7 +40,7 @@ public final class AircraftTableController {
         table = new TableView<>();
         table.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY_SUBSEQUENT_COLUMNS);
         table.setTableMenuButtonVisible(true);
-        table.getStyleClass().add("table.ccs");
+        table.getStylesheets().add("/table.css");
 
         states = aircraftStates;
         selectedA = selectedAircraft;
@@ -128,7 +128,6 @@ public final class AircraftTableController {
                 }
                 return Double.compare(d1, d2);
             }
-
         });
     }
 
