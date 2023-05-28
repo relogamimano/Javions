@@ -45,7 +45,7 @@ public final class TileManager {
             checkArgument(isValid(zoom, x, y));
         }
         public static boolean isValid(int zoom, int x, int y) {
-            return (zoom>=8 && zoom<=19)
+            return (zoom >= MapParameters.MIN_ZOOM && zoom <= MapParameters.MAX_ZOOM)
                     && (x>=0 && x<=(1<<zoom)-1)
                     && (y>=0 && y<=(1<<zoom)-1);
         }
