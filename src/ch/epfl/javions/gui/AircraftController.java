@@ -27,6 +27,12 @@ import static ch.epfl.javions.WebMercator.y;
 import static javafx.beans.binding.Bindings.*;
 import static javafx.scene.paint.CycleMethod.NO_CYCLE;
 
+/**
+ *
+ * Aircraft controller class to manage the manage the entire set of aircraft on the map
+ * @author Sofia Henriques Garfo (346298)
+ * @author Romeo Maignal (360568)
+ */
 public final class AircraftController {
     private static final ColorRamp COLOR_RAMP = ColorRamp.PLASMA;
     private static final int ALT_RANGE = 12000;// Average altitude range for plane from airliner to small recreational plane.
