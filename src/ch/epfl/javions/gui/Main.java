@@ -9,17 +9,23 @@ import ch.epfl.javions.aircraft.AircraftDatabase;
 import ch.epfl.javions.demodulation.AdsbDemodulator;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableIntegerValue;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.ProviderNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +37,8 @@ import static ch.epfl.javions.Units.*;
 import static java.nio.file.Path.of;
 
 public class Main extends Application {
+    private int aircraftCount = 0;
+    private long messageCount = 0;
     private static final int STARTING_ZOOM = 8;
     private static final int STARTING_MIN_X = 33530;
     private static final int STARTING_MIN_Y = 23070;
@@ -76,6 +84,8 @@ public class Main extends Application {
                 ? airSpySupplier()
                 : defaultMessageSupplier(str);
 
+
+
         Thread messagesThread = new Thread(() -> {
             while(true) {
                 long elapsedTime = System.nanoTime() - bootTime;
@@ -89,6 +99,7 @@ public class Main extends Application {
                         e.printStackTrace();
                     }
                 }
+
                 queue.add(supplier.get());
             }
         });
@@ -109,17 +120,32 @@ public class Main extends Application {
         BaseMapController bmc = new BaseMapController(tm, mp);
         AircraftController ac = new AircraftController(mp, asm.states(), sap);
         AircraftTableController atc = new AircraftTableController(asm.states(), sap);
-        StackPane aircraftView = new StackPane(bmc.pane(), ac.pane());
-        StackPane table = new StackPane(atc.pane());
-//        BorderPane aircraftConsole = new SplitPane(atc.pane(), );
 
-        SplitPane splitPane = new SplitPane(aircraftView, table);
+        StatusLineController slc = new StatusLineController();
+        slc.aircraftCountProperty().bind(
+                Bindings.createIntegerBinding(() -> asm.states().size(),
+                        asm.states() ));
+
+        StackPane aircraftView = new StackPane(bmc.pane(), ac.pane());
+        BorderPane aircraftConsole = new BorderPane();
+        aircraftConsole.setCenter(atc.pane());
+        aircraftConsole.setTop(slc.pane());
+
+        SplitPane splitPane = new SplitPane(aircraftView, aircraftConsole);
         splitPane.setOrientation(Orientation.VERTICAL);
         primaryStage.setScene(new Scene(splitPane));
         primaryStage.setTitle("Javions");
         primaryStage.setMinWidth(STARTING_MIN_WIDTH);
         primaryStage.setMinHeight(STARTING_MIN_HEIGHT);
         primaryStage.show();
+
+//        sap.addListener((q, o, n) -> {
+//            bmc.centerOn(n.getPosition());
+//        });
+//        atc.setOnDoubleClick((state) -> {
+//            bmc.centerOn(state.positionProperty().getValue());
+//
+//        });
 
 
         // Aircraft animation
@@ -131,7 +157,8 @@ public class Main extends Application {
                         RawMessage rawMessage = queue.poll();
                         Message m = Objects.isNull(rawMessage) ? null : MessageParser.parse(rawMessage);
                         if (m != null) {
-                            //slc
+                            slc.messageCountProperty().set(
+                                    slc.messageCountProperty().get() + 1L);
                             asm.updateWithMessage(m);
                         }
                         asm.purge();
