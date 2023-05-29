@@ -36,6 +36,11 @@ import java.util.function.Supplier;
 import static ch.epfl.javions.Units.*;
 import static java.nio.file.Path.of;
 
+/**
+ * Main class for launching the program
+ * @author Sofia Henriques Garfo (346298)
+ * @author Romeo Maignal (360568)
+ */
 public class Main extends Application {
     private int aircraftCount = 0;
     private long messageCount = 0;
@@ -54,7 +59,7 @@ public class Main extends Application {
                 new BufferedInputStream(
                         new FileInputStream(fileName)))) {
             byte[] bytes = new byte[RawMessage.LENGTH];
-
+            //infinite loop broken by the assert key word when messages can no longer be read
             while (true) {
                 long timeStampNs = s.readLong();
                 int bytesRead = s.readNBytes(bytes, 0, bytes.length);
@@ -84,8 +89,7 @@ public class Main extends Application {
                 ? airSpySupplier()
                 : defaultMessageSupplier(str);
 
-
-
+        //Thread class used to delegate the message processing to another computing entity of the machine
         Thread messagesThread = new Thread(() -> {
             while(true) {
                 long elapsedTime = System.nanoTime() - bootTime;
@@ -107,6 +111,7 @@ public class Main extends Application {
         messagesThread.start();
 
         //Set up of the graphic user interface
+        //Data
         Path tileCache = of("tile-cache");
         TileManager tm = new TileManager(tileCache, "tile.openstreetmap.org");
         MapParameters mp = new MapParameters(STARTING_ZOOM, STARTING_MIN_X, STARTING_MIN_Y);
@@ -117,22 +122,25 @@ public class Main extends Application {
 
         AircraftStateManager asm = new AircraftStateManager(db);
         ObjectProperty<ObservableAircraftState> sap = new SimpleObjectProperty<>();
+
+        //Controllers
         BaseMapController bmc = new BaseMapController(tm, mp);
         AircraftController ac = new AircraftController(mp, asm.states(), sap);
         AircraftTableController atc = new AircraftTableController(asm.states(), sap);
-
         StatusLineController slc = new StatusLineController();
         slc.aircraftCountProperty().bind(
                 Bindings.createIntegerBinding(() -> asm.states().size(),
                         asm.states() ));
 
+        //View
         StackPane aircraftView = new StackPane(bmc.pane(), ac.pane());
         BorderPane aircraftConsole = new BorderPane();
         aircraftConsole.setCenter(atc.pane());
         aircraftConsole.setTop(slc.pane());
-
         SplitPane splitPane = new SplitPane(aircraftView, aircraftConsole);
         splitPane.setOrientation(Orientation.VERTICAL);
+
+        //Stage settings
         primaryStage.setScene(new Scene(splitPane));
         primaryStage.setTitle("Javions");
         primaryStage.setMinWidth(STARTING_MIN_WIDTH);
@@ -157,11 +165,12 @@ public class Main extends Application {
                         RawMessage rawMessage = queue.poll();
                         Message m = Objects.isNull(rawMessage) ? null : MessageParser.parse(rawMessage);
                         if (m != null) {
+                            //message flow
                             slc.messageCountProperty().set(
                                     slc.messageCountProperty().get() + 1L);
                             asm.updateWithMessage(m);
                         }
-                        asm.purge();
+                        asm.purge();//check on the right of the aircraft to remain on screen
                     }
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
