@@ -103,7 +103,9 @@ public class Main extends Application {
                         e.printStackTrace();
                     }
                 }
-
+//                if (supplier.get() == null) {
+//                    var iii = 0;
+//                }
                 queue.add(supplier.get());
             }
         });
@@ -193,7 +195,9 @@ public class Main extends Application {
         AdsbDemodulator adsbDemodulator = new AdsbDemodulator(System.in);
         return () -> {
             try {
+
                 return adsbDemodulator.nextMessage();
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
