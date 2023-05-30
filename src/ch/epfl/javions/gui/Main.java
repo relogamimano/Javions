@@ -149,14 +149,9 @@ public class Main extends Application {
         primaryStage.setMinHeight(STARTING_MIN_HEIGHT);
         primaryStage.show();
 
-//        sap.addListener((q, o, n) -> {
-//            bmc.centerOn(n.getPosition());
-//        });
-//        atc.setOnDoubleClick((state) -> {
-//            bmc.centerOn(state.positionProperty().getValue());
-//
-//        });
-
+        atc.setOnDoubleClick((state) -> {
+            bmc.centerOn(state.positionProperty().getValue());
+        });
 
         // Aircraft animation
         new AnimationTimer() {
