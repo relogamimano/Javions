@@ -1,6 +1,5 @@
 package ch.epfl.javions.gui;
 
-
 import ch.epfl.javions.ByteString;
 import ch.epfl.javions.adsb.Message;
 import ch.epfl.javions.adsb.MessageParser;
@@ -11,14 +10,11 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableIntegerValue;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -50,7 +46,6 @@ public class Main extends Application {
     private static final int STARTING_MIN_WIDTH = 800;
     private static final int STARTING_MIN_HEIGHT = 600;
     private final ConcurrentLinkedQueue<RawMessage> queue = new ConcurrentLinkedQueue<>();
-
     public static void main(String[] args) {launch(args);}
 
     static List<RawMessage> readAllMessages(String fileName) throws IOException {
@@ -88,7 +83,6 @@ public class Main extends Application {
         Supplier<RawMessage> supplier = (str == null)
                 ? airSpySupplier()
                 : defaultMessageSupplier(str);
-
         //Thread class used to delegate the message processing to another computing entity of the machine
         Thread messagesThread = new Thread(() -> {
             while(true) {
@@ -103,10 +97,8 @@ public class Main extends Application {
                         e.printStackTrace();
                     }
                 }
-//                if (supplier.get() == null) {
-//                    var iii = 0;
-//                }
-                queue.add(supplier.get());
+
+                queue.add(rm);
             }
         });
         messagesThread.setDaemon(true);
