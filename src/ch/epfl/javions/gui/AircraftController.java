@@ -106,7 +106,7 @@ public final class AircraftController {
         return annotatedAircraft;
     }
 
-    //  Aircraft Compound contains the icon and the tag
+    //  Aircraft Compound is composed of the icon and the tag
     //  AircraftCompound -> Group = icon + tag
     private Group aircraftCompound(ObservableAircraftState state) {
         Group aircraftCompound = new Group(tag(state), icon(state));
@@ -131,15 +131,18 @@ public final class AircraftController {
 
     // Trajectory -> Group = Line + Line + ... + Line
     private Group trajectory(ObservableAircraftState state) {
-        Group trajectory = new Group();
-        trajectory.getStyleClass().add(TRAJECTORY_CSS);
-        trajectory.visibleProperty().bind(selectedState.isEqualTo(state));
+        Group groupLine = new Group();
+        groupLine.getStyleClass().add(TRAJECTORY_CSS);
+        groupLine.visibleProperty().bind(selectedState.isEqualTo(state));
+        groupLine.layoutXProperty().bind(mapParameters.minXProperty().negate());
+        groupLine.layoutYProperty().bind(mapParameters.minYProperty().negate());
+
         var trajectoryListener = (ListChangeListener<ObservableAircraftState.AirbornePos>) change ->
-                updateTrajectory(trajectory, state.getTrajectoryList());
-        var zoomListener = (InvalidationListener) change -> updateTrajectory(trajectory, state.getTrajectoryList());
+                updateTrajectory(groupLine, state.getTrajectoryList());
+        var zoomListener = (InvalidationListener) change -> updateTrajectory(groupLine, state.getTrajectoryList());
         //Visibility of the trajectory depends on whether the trajectory list or the zoom level has been changed or not.
         //The trajectory is created only if the aircraft is selected. It is done so in order to keep a certain degree of processing speed.
-        trajectory.visibleProperty().addListener((o, oV, nV) -> {
+        groupLine.visibleProperty().addListener((o, oV, nV) -> {
             if (nV) {
                 state.getTrajectoryList().addListener(trajectoryListener);
                 mapParameters.zoomProperty().addListener(zoomListener);
@@ -149,44 +152,44 @@ public final class AircraftController {
             }
         });
 
-        return trajectory;
+        return groupLine;
     }
 
     //Method used to update the trajectory by adding one new line to the existing group of lines segments,
     //it is called each time an aircraft change it trajectory or each time the level of zoom changes.
     private void updateTrajectory(Group trajectory, ObservableList<ObservableAircraftState.AirbornePos> list) {
+        trajectory.getChildren().clear();
         for (int i = 0; i < list.size() - 1; i++) {
+            ObservableAircraftState.AirbornePos posStart = list.get(i); //trajectory point positon in the list
+            ObservableAircraftState.AirbornePos posEnd = list.get(i+1); //next trajectory point positon in the list
             if (list.get(i).geopos() != null && list.get(i + 1).geopos() != null) {
                 //Coloring of the line
                 Stop s1 = new Stop(0, COLOR_RAMP.at(Math.cbrt(list.get(i).altitude() / ALT_RANGE)));
                 Stop s2 = new Stop(1, COLOR_RAMP.at(Math.cbrt(list.get(i + 1).altitude() / ALT_RANGE)));
                 LinearGradient linearGradient = new LinearGradient(0, 0, 1, 0, true, NO_CYCLE, s1, s2);
                 Line line = new Line();
-                line.startXProperty().bind(subtract(/* position x of the start of the line */
-                        xPosAt(i, list),
-                        mapParameters.minXProperty()));
-                line.startYProperty().bind(subtract(/* position y of the start of the line */
-                        yPosAt(i, list),
-                        mapParameters.minYProperty()));
-                line.endXProperty().bind(subtract(  /* position x of the end of the line */
-                        yPosAt(i + 1, list),
-                        mapParameters.minXProperty()));
-                line.endYProperty().bind(subtract(  /* position y of the end of the line */
-                        yPosAt(i + 1, list),
-                        mapParameters.minYProperty()));
+
+                line.startXProperty().set(xPosAt(posStart));
+                line.startYProperty().set(yPosAt(posStart));
+                line.endXProperty().set(xPosAt(posEnd));
+                line.endYProperty().set(yPosAt(posEnd));
+
                 line.setStroke(linearGradient);
                 line.setStrokeWidth(STROKE_WIDTH);
                 trajectory.getChildren().add(line);
             }
         }
+
     }
 
-    private double xPosAt(int i, ObservableList<ObservableAircraftState.AirbornePos> list) {
-        return x(mapParameters.getZoomLevel(), list.get(i).geopos().longitude());
+    // Methode used to decongest the settings of lines position, above in updateTrajectory()
+    private double xPosAt(ObservableAircraftState.AirbornePos pos) {
+        return x(mapParameters.getZoomLevel(), pos.geopos().longitude()); //WebMercator static methode
     }
 
-    private double yPosAt(int i, ObservableList<ObservableAircraftState.AirbornePos> list) {
-        return y(mapParameters.getZoomLevel(), list.get(i).geopos().longitude());
+    // Methode used to decongest the settings of lines position, above in updateTrajectory()
+    private double yPosAt(ObservableAircraftState.AirbornePos pos) {
+        return y(mapParameters.getZoomLevel(), pos.geopos().latitude()); //WebMercator static methode
     }
 
     // Icon -> Path
@@ -253,6 +256,7 @@ public final class AircraftController {
                             String velocity = Double.isNaN(state.getVelocity())
                                     ? UNKNOWN_VELOCITY  /* UNKNOWN_VEL = "?" */
                                     : String.valueOf((int) convertTo(state.getVelocity(), KILOMETER_PER_HOUR));
+
                             String altitude = Double.isNaN(state.getAltitude())
                                     ? UNKOWN_ALT        /* UNKNOWN_ALT = "?" */
                                     : String.valueOf((int) state.getAltitude());
