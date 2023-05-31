@@ -16,7 +16,11 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Objects;
 
-
+/**
+ * Class that handles the display of the map and the interactions with the said map
+ * @author Sofia Henriques Garfo (346298)
+ *  @author Romeo Maignal (360568)
+ */
 public final class BaseMapController {
     private final TileManager tileManager;
     private final MapParameters mapParameters;
@@ -28,7 +32,12 @@ public final class BaseMapController {
 
     private Point2D lastMousePosition = new Point2D(0d,0d) ;
 
-
+    /**
+     *  Creates and sets the canvas, installs the listeners and the handlers
+     * @param tileManager tile manager that provides the tiles of the map
+     * @param mapParams parameters of the visible portion of the map
+     * @throws
+     */
     public BaseMapController(TileManager tileManager, MapParameters mapParams) {
         this.tileManager = tileManager;
         this.mapParameters = mapParams;
@@ -53,6 +62,10 @@ public final class BaseMapController {
 
         canvas.widthProperty().addListener((p, oldW, newW) -> redrawOnNextPulse());
         canvas.widthProperty().addListener((p,oldW, newW) -> redrawOnNextPulse());
+        mapParameters.minXProperty().addListener((p,oldS,newS) -> redrawOnNextPulse());
+        mapParameters.minYProperty().addListener((p,oldS,newS) -> redrawOnNextPulse());
+        mapParameters.zoomProperty().addListener(p -> redrawOnNextPulse());
+
     }
 
     private void installHandlers(){
@@ -75,8 +88,11 @@ public final class BaseMapController {
             redrawOnNextPulse();
         });
 
-        pane.setOnMousePressed(e ->
-                lastMousePosition = new Point2D(e.getX(), e.getY()));
+        pane.setOnMousePressed(e -> {
+                    lastMousePosition = new Point2D(e.getX(), e.getY()); //updates last mouse position
+                    redrawOnNextPulse();
+                }
+        );
         pane.setOnMouseDragged(this::mouseDraggedAndReleased);
         pane.setOnMouseReleased(this::mouseDraggedAndReleased);
         pane.widthProperty().addListener((obs, oldVal, newVal) ->
@@ -104,7 +120,6 @@ public final class BaseMapController {
         int firstTileY = (int)(mapParameters.getMinY()/TILE_SIZE);
         int lastTileX = (int)((mapParameters.getMinX() + canvas.getWidth()  )/TILE_SIZE + 1);
         int lastTileY = (int)((mapParameters.getMinY() + canvas.getHeight() )/TILE_SIZE + 1);
-
         for (int i = 0; i < lastTileX - firstTileX; i++) {
             for (int j = 0; j < lastTileY - firstTileY; j++) {
                 TileManager.TileId tileId = new TileManager.TileId(this.mapParameters.getZoomLevel(),
@@ -112,27 +127,33 @@ public final class BaseMapController {
                 try {
                     Image tileImage = tileManager.imageForTileAt(tileId);
                     this.context.drawImage(tileImage, i*TILE_SIZE - this.mapParameters.getMinX() % TILE_SIZE,
-                            j*TILE_SIZE - this.mapParameters.getMinY() % TILE_SIZE);
-                } catch (IOException exception) { throw new UncheckedIOException(exception); }
+                            j*TILE_SIZE - this.mapParameters.getMinY() % TILE_SIZE); // draws each tile
+                } catch (Exception ignored) {  }
             }
         }
     }
 
-
+    /**
+     * Centers the map's on the given position
+     * @param position
+     */
     public void centerOn(GeoPos position) {Objects.requireNonNull(position);
         double positionEnX = WebMercator.x(mapParameters.getZoomLevel(), position.longitude()) - canvas.getWidth()/2;
         double positionEnY = WebMercator.y(mapParameters.getZoomLevel(), position.latitude()) - canvas.getHeight()/2;
         mapParameters.scroll(positionEnX - mapParameters.getMinX(),  positionEnY - mapParameters.getMinY());
     }
 
-
+    /**
+     * @return pane JavaFx that displays the map
+     */
     public Pane pane() { return pane; }
 
     private void mouseDraggedAndReleased(MouseEvent e) {
         double x = lastMousePosition.getX() - e.getX();
         double y = lastMousePosition.getY() - e.getY();
         mapParameters.scroll(x, y);
-        lastMousePosition = lastMousePosition.subtract(x,y);
-        this.redrawOnNextPulse();
+        lastMousePosition = lastMousePosition.subtract(x,y); //assures that the mouse position doesn't change
+        redrawOnNextPulse();
+
     }
 }
