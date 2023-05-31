@@ -37,127 +37,203 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     private final ObservableList<AirbornePos> trajectoryList = observableArrayList();
     private final ObservableList<AirbornePos> unmodifiableTrajectoryList = unmodifiableObservableList(trajectoryList); //final?
 
+    /**
+     * Read-only trajectory list which contains the positions of the aircraft in space since the first message
+     * @return read-only non-modifiable trajectory list
+     */
     public ObservableList<AirbornePos> trajectoryProperty(){
         return unmodifiableTrajectoryList;
     }
 
+    /**
+     * Trajectory list which contains the positions of the aircraft in space since the first message
+     * @return observable and modifiable trajectory list
+     */
     public ObservableList<AirbornePos> getTrajectoryList(){
         return trajectoryList;
     }
 
+
+    /**
+     * @return IcaoAdress of the aircraft
+     */
     public IcaoAddress getIcaoAddress(){
         return icaoAddress;
     }
 
+    /**
+     * @return AircraftData for the aircraft
+     */
     public AircraftData getAircraftData() {
         return aircraftData;
     }
 
+    /**
+     * @return Read-only category of the aircraft
+     */
     public ReadOnlyIntegerProperty categoryProperty(){
         return category;
     }
 
+    /**
+     * @return category of the aircraft
+     */
     public int getCategory(){
         return category.get();
     }
 
+    /**
+     * Set the aircraft's category
+     * @param category the category of the aircraft
+     */
     @Override
     public void setCategory(int category) {
         this.category.set(category);
     }
 
+    /**
+     * @return read-only CallSign of the aircraft
+     */
     public ReadOnlyObjectProperty<CallSign> callSignProperty(){
         return callSign;
     }
 
-
+    /**
+     * @return CallSign of the aircraft
+     */
     public CallSign getCallSign() {
         return callSign.get();
     }
 
+    /**
+     * Sets the aircraft's callSign
+     * @param callsSign the call sign of the aircraft
+     */
     @Override
     public void setCallSign(CallSign callsSign) {
         this.callSign.set(callsSign);
     }
 
-
+    /**
+     * @return read-only geographic position of the aircraft
+     */
     public ReadOnlyObjectProperty<GeoPos> positionProperty(){
         return position;
     }
 
+    /**
+     * @return  geographic position of the aircraft
+     */
     public GeoPos getPosition(){
         return position.get();
     }
 
+    /**
+     * sets the aircraft's geographic position
+     * @param position the geographic position of the airplane
+     */
     @Override
     public void setPosition(GeoPos position) {
         this.position.set(position);
-        if( trajectoryList.isEmpty()){
-            add( position, getAltitude());
-        } else if ( trajectoryList.get(trajectoryList.size()-1).geopos() != position){
-            add(position, getAltitude());
-        }
-        else if ( lastTimeStamp == getTimeStampNs()){
-            trajectoryList.remove( trajectoryList.size()-1);
-            add(position, getAltitude());
+        if(!Double.isNaN(getAltitude())){
+            trajectoryList.add(new AirbornePos(position,getAltitude()));
         }
     }
 
-
-
+    /**
+     * @return read-only direction of the aircraft
+     */
     public ReadOnlyDoubleProperty trackOrHeadingProperty(){
         return trackOrHeading;
     }
 
+    /**
+     * @return direction of the aircraft
+     */
     public double getTrackOrHeading() {
         return trackOrHeading.get();
     }
 
+    /**
+     *
+     * @param trackOrHeading the direction of the airplane
+     */
     @Override
     public void setTrackOrHeading(double trackOrHeading) {
         this.trackOrHeading.set(trackOrHeading);
     }
 
+    /**
+     * @return read-only altitude data of the aircraft
+     */
     public ReadOnlyDoubleProperty altitudeProperty(){
         return altitude;
     }
+
+    /**
+     * @return altitude data of the aircraft
+     */
     public double getAltitude(){
         return altitude.get();
     }
 
+    /**
+     * Sets the aircraft's altitude if the aircraft's position has changed or if
+     * the time stamp of the last message is the same as the on of the current message
+     * @param altitude the altitude data of the airplane
+     */
     @Override
     public void setAltitude(double altitude) {
         this.altitude.set(altitude);
-        if( trajectoryList.isEmpty()){
+    if( trajectoryList.isEmpty()){
             add( getPosition(), altitude);
         }
-        else if ( lastTimeStamp == getTimeStampNs()){  // in setAltitude and setPosition ou juste dans alt??????, est que ca va pas se repeter
+        else if (   getTimeStampNs() == lastTimeStamp){
             trajectoryList.remove( trajectoryList.size()-1);
             add(getPosition(), altitude);
         }
 
     }
 
+    /**
+     * @return read-only velocity of the aircraft
+     */
     public ReadOnlyDoubleProperty velocityProperty(){
         return velocity;
     }
 
+    /**
+     * @return velocity of the aircraft
+     */
     public double getVelocity() {
         return velocity.get();
     }
 
+    /**
+     * @param velocity the airplane's velocity
+     */
     @Override
     public void setVelocity(double velocity) {
         this.velocity.set(velocity);
     }
 
+    /**
+     * @return read-only time stamp of the aircraft's  message
+     */
     public ReadOnlyLongProperty timeStampNsProperty(){
         return timeSampsNs;
     }
+
+    /**
+     * @return time stamp of the aircraft's message
+     */
     public long getTimeStampNs(){
         return timeSampsNs.get();
     }
 
+    /**
+     * @param timeStampNs the timestamp of the  message
+     */
     @Override
     public void setLastMessageTimeStampNs(long timeStampNs) {
         this.timeSampsNs.set(timeStampNs);
@@ -172,7 +248,10 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
     }
 
-
+    /**
+     * @param address of the aircraft
+     * @param aircraftData of the aircraft
+     */
     public ObservableAircraftState(IcaoAddress address, AircraftData aircraftData){
         this.icaoAddress = address;
         this.aircraftData = aircraftData;
