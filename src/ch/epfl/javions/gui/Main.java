@@ -19,9 +19,9 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.net.SocketImpl;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.ProviderNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,10 +30,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 
 import static ch.epfl.javions.Units.*;
-import static java.nio.file.Path.of;
 
 /**
  * Main class for launching the program
+ *
  * @author Sofia Henriques Garfo (346298)
  * @author Romeo Maignal (360568)
  */
@@ -45,8 +45,12 @@ public class Main extends Application {
     private static final int STARTING_MIN_Y = 23070;
     private static final int STARTING_MIN_WIDTH = 800;
     private static final int STARTING_MIN_HEIGHT = 600;
+    private static final String TITLE = "Javions";
     private final ConcurrentLinkedQueue<RawMessage> queue = new ConcurrentLinkedQueue<>();
-    public static void main(String[] args) {launch(args);}
+
+    public static void main(String[] args) {
+        launch(args);
+    }
 
     static List<RawMessage> readAllMessages(String fileName) throws IOException {
         List<RawMessage> list = new ArrayList<>();
@@ -69,10 +73,11 @@ public class Main extends Application {
 
     /**
      * Recursive method used to launch the program by calling itself at its end.
+     *
      * @param primaryStage the primary stage for this application, onto which
-     * the application scene can be set.
-     * Applications may create other stages, if needed, but they will not be
-     * primary stages.
+     *                     the application scene can be set.
+     *                     Applications may create other stages, if needed, but they will not be
+     *                     primary stages.
      * @throws Exception if the reading of the input stream faces issues
      */
     @Override
@@ -85,7 +90,7 @@ public class Main extends Application {
                 : defaultMessageSupplier(str);
         //Thread class used to delegate the message processing to another computing entity of the machine
         Thread messagesThread = new Thread(() -> {
-            while(true) {
+            while (true) {
                 long elapsedTime = System.nanoTime() - bootTime;
                 RawMessage rm = supplier.get();
                 if (Objects.isNull(rm)) continue;
@@ -106,7 +111,7 @@ public class Main extends Application {
 
         //Set up of the graphic user interface
         //Data
-        Path tileCache = of("tile-cache");
+        Path tileCache = Path.of("tile-cache");
         TileManager tm = new TileManager(tileCache, "tile.openstreetmap.org");
         MapParameters mp = new MapParameters(STARTING_ZOOM, STARTING_MIN_X, STARTING_MIN_Y);
         URL u = getClass().getResource("/aircraft.zip");
@@ -124,7 +129,7 @@ public class Main extends Application {
         StatusLineController slc = new StatusLineController();
         slc.aircraftCountProperty().bind(
                 Bindings.createIntegerBinding(() -> asm.states().size(),
-                        asm.states() ));
+                        asm.states()));
 
         //View
         StackPane aircraftView = new StackPane(bmc.pane(), ac.pane());
@@ -136,7 +141,7 @@ public class Main extends Application {
 
         //Stage settings
         primaryStage.setScene(new Scene(splitPane));
-        primaryStage.setTitle("Javions");
+        primaryStage.setTitle(TITLE);
         primaryStage.setMinWidth(STARTING_MIN_WIDTH);
         primaryStage.setMinHeight(STARTING_MIN_HEIGHT);
         primaryStage.show();
