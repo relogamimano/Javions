@@ -1,22 +1,22 @@
-        package ch.epfl.javions.gui;
-        import ch.epfl.javions.GeoPos;
-        import ch.epfl.javions.Units;
-        import ch.epfl.javions.adsb.CallSign;
-        import javafx.beans.property.ObjectProperty;
-        import javafx.beans.property.ReadOnlyObjectWrapper;
-        import java.text.NumberFormat;
-        import java.text.ParseException;
-        import java.util.function.Consumer;
-        import java.util.function.Function;
-        import javafx.beans.property.ReadOnlyStringWrapper;
-        import javafx.beans.value.ObservableValue;
-        import javafx.collections.ObservableSet;
-        import javafx.collections.SetChangeListener;
-        import javafx.scene.control.TableColumn;
-        import javafx.scene.control.TableView;
-        import javafx.scene.input.MouseButton;
+package ch.epfl.javions.gui;
+import ch.epfl.javions.GeoPos;
+import ch.epfl.javions.Units;
+import ch.epfl.javions.adsb.CallSign;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.input.MouseButton;
 
-        import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY_SUBSEQUENT_COLUMNS;
+import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY_SUBSEQUENT_COLUMNS;
 
 
 /**
@@ -26,33 +26,68 @@
  * */
 
 public final class AircraftTableController {
-    private final TableView<ObservableAircraftState> table;
+
+    private static final int NUM_PREFERED_WIDTH = 85;
+    private static final int OACI_PREFERED_WIDTH = 70;
+
+    private static final int REG_PREFERED_WIDTH = 90;
+
+    private static final int MOD_PREFERED_WIDTH = 230;
+
+    private static final int TYP_PREFERED_WIDTH = 50;
+
+    private static final int FRACT_DIGITS_POSITION = 4;
+
+    private static final int FRACT_DIGITS_OTHERS = 0;
+
+
+    private  final TableView<ObservableAircraftState> table;
     private final ObservableSet<ObservableAircraftState>  states;
 
     private final ObjectProperty<ObservableAircraftState> selectedA;
     private Consumer<ObservableAircraftState> consumer;
-    // TODO: final? static? pr tt
 
+    private static  final String OACI = "OACI";
 
+    private static  final String CALLSIGN = "Indicatif";
+    private static  final String REGISTRATION = "Immatriculation";
+    private static  final String MODEL = "Modèle";
+    private static  final String TYPE = "Type";
+    private static  final String DESCRIPTION = "Description";
+    private static  final String LONGITUDE = "longitude(°)";
+    private static  final String LATITUDE = "latitude(°)";
+    private static  final String ALTITUDE = "altitude(m)";
+    private static  final String VELOCITY = "Vitesse(km/h)";
+    private static final String NUMERIC = "numeric";
+    private static final String TABLE_STYLE = "table.css";
+
+    /**
+     * Creates a table, defines the columns and install the listeners and the handlers
+     * @param aircraftStates states of the aircraft
+     * @param selectedAircraft selected aircraft
+     */
     public AircraftTableController(ObservableSet<ObservableAircraftState> aircraftStates,
                                    ObjectProperty<ObservableAircraftState> selectedAircraft){
 
         table = new TableView<>();
         table.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY_SUBSEQUENT_COLUMNS);
         table.setTableMenuButtonVisible(true);
-        table.getStylesheets().add("/table.css");
+        table.getStylesheets().add(TABLE_STYLE);
 
         states = aircraftStates;
         selectedA = selectedAircraft;
 
 
 
-        createTextColumn("OACI",70, f -> new ReadOnlyObjectWrapper<>(f.getIcaoAddress().string()));
+        createTextColumn(OACI,OACI_PREFERED_WIDTH,
+                f -> new ReadOnlyObjectWrapper<>(f.getIcaoAddress().string()));
 
 
-        createTextColumn("Indicatif",70, f ->  (f.callSignProperty().map(CallSign::string)));
+        createTextColumn(CALLSIGN,OACI_PREFERED_WIDTH,
+                f ->  (f.callSignProperty().map(CallSign::string)));
 
-        createTextColumn("Immatriculation",90,f -> {
+
+        createTextColumn(REGISTRATION,REG_PREFERED_WIDTH, f -> {
             if(f.getAircraftData() == null ) {
                 return new ReadOnlyStringWrapper("");
             } else {
@@ -60,40 +95,47 @@ public final class AircraftTableController {
             }
         });
 
-        createTextColumn("Modèle", 230,  f ->
+        createTextColumn(MODEL, MOD_PREFERED_WIDTH,  f ->
                 f.getAircraftData() == null ?
-                        new ReadOnlyStringWrapper("") : new ReadOnlyStringWrapper(f.getAircraftData().model()));
+                        new ReadOnlyStringWrapper("") :
+                        new ReadOnlyStringWrapper(f.getAircraftData().model()));
 
 
 
-        createTextColumn("Type", 50, f ->
+        createTextColumn(TYPE, TYP_PREFERED_WIDTH, f ->
                 f.getAircraftData() == null ?
-                        new ReadOnlyStringWrapper("") : new ReadOnlyStringWrapper(f.getAircraftData().typeDesignator().string()));
+                        new ReadOnlyStringWrapper("") :
+                        new ReadOnlyStringWrapper(f.getAircraftData().typeDesignator().string()));
 
 
-        createTextColumn("Description", 70, f->
+        createTextColumn(DESCRIPTION, OACI_PREFERED_WIDTH, f->
                 f.getAircraftData() == null ?
-                        new ReadOnlyStringWrapper("") : new ReadOnlyObjectWrapper<>(f.getAircraftData().description().string()));
+                        new ReadOnlyStringWrapper("") :
+                        new ReadOnlyObjectWrapper<>(f.getAircraftData().description().string()));
 
         NumberFormat nf0 = NumberFormat.getInstance();
-        nf0.setMaximumFractionDigits(0);
-        nf0.setMinimumFractionDigits(0);
+        nf0.setMaximumFractionDigits(FRACT_DIGITS_OTHERS);
+        nf0.setMinimumFractionDigits(FRACT_DIGITS_OTHERS);
 
         NumberFormat nf1 = NumberFormat.getInstance();
-        nf1.setMaximumFractionDigits(4);
-        nf1.setMinimumFractionDigits(0);
+        nf1.setMaximumFractionDigits(FRACT_DIGITS_POSITION);
+        nf1.setMinimumFractionDigits(FRACT_DIGITS_OTHERS);
 
-
-        createNumericColumn("longitude(°)", f -> f.positionProperty().map(GeoPos::longitude), nf1, Units.Angle.DEGREE);
-        createNumericColumn("latitude(°)", f -> f.positionProperty().map(GeoPos::latitude),nf1, Units.Angle.DEGREE);
-        createNumericColumn("altitude(m)", ObservableAircraftState::altitudeProperty, nf0, Units.Length.METER);
-        createNumericColumn("Vitesse (km/h)",ObservableAircraftState::velocityProperty, nf0, Units.Speed.KILOMETER_PER_HOUR);
+        createNumericColumn(LONGITUDE,
+                f -> f.positionProperty().map(GeoPos::longitude), nf1, Units.Angle.DEGREE);
+        createNumericColumn(LATITUDE,
+                f -> f.positionProperty().map(GeoPos::latitude),nf1, Units.Angle.DEGREE);
+        createNumericColumn(ALTITUDE,
+                ObservableAircraftState::altitudeProperty, nf0, Units.Length.METER);
+        createNumericColumn(VELOCITY,
+                ObservableAircraftState::velocityProperty, nf0, Units.Speed.KILOMETER_PER_HOUR);
 
         installListeners();
         installHandlers();
 
     }
 
+    //create table's text columns
     private  void createTextColumn(String title, int width,
                                    Function<ObservableAircraftState, ObservableValue<String>> function){
 
@@ -103,13 +145,14 @@ public final class AircraftTableController {
         table.getColumns().add(column);
     }
 
+    // create tables numeric columns
     private  void createNumericColumn(String title,
                                       Function<ObservableAircraftState, ObservableValue<Number>> function,
                                       NumberFormat numberFormat, double unit){
 
         TableColumn<ObservableAircraftState,String> column= new TableColumn<>(title);
-        column.setPrefWidth(85);
-        column.getStyleClass().add("numeric");
+        column.setPrefWidth(NUM_PREFERED_WIDTH);
+        column.getStyleClass().add(NUMERIC);
         column.setCellValueFactory( f -> function.apply(f.getValue()).map(n ->
                 numberFormat.format(Units.convertTo(n.doubleValue(),unit))));
         table.getColumns().add(column);
@@ -133,7 +176,7 @@ public final class AircraftTableController {
 
 
 
-        private void installListeners(){
+    private void installListeners(){
         states.addListener((SetChangeListener<ObservableAircraftState>) c -> {
             if (c.wasAdded()) {
                 table.getItems().add(c.getElementAdded());
@@ -160,10 +203,10 @@ public final class AircraftTableController {
     }
 
 
-   /**
+    /**
      * Returns the highest node of the scene graph
      * @return  highest node
-    */
+     */
     public TableView pane(){
         return table;
     }
@@ -171,20 +214,18 @@ public final class AircraftTableController {
     /**
      * When an aircraft is selected calls it's accept method
      * @param aircraftState selected aircraft
-    **/
+     **/
     public void setOnDoubleClick(Consumer<ObservableAircraftState> aircraftState){
-            consumer = aircraftState;
+        consumer = aircraftState;
     }
 
     private void installHandlers() {
-        table.setOnMouseClicked(c -> {
-            if (c.getButton().equals(MouseButton.PRIMARY) && c.getClickCount() == 2) ;
-            {
-                ObservableAircraftState selectedState = table.getSelectionModel().getSelectedItem();
-                if (consumer != null && selectedState != null) {
-                    consumer.accept(selectedState);
-                }
+        table.setOnMouseClicked(c -> { //accepts the consummer when a doubleclick on the table occurs
+            if (c.getButton().equals(MouseButton.PRIMARY) && c.getClickCount() == 2 && consumer != null &&
+                    table.getSelectionModel().getSelectedItem() != null) {
+                consumer.accept(table.getSelectionModel().getSelectedItem());
             }
+
         });
     }
 }
