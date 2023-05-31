@@ -18,8 +18,6 @@ public final class StatusLineController {
     private final IntegerProperty aircraftCountProperty;
     private final LongProperty messageCountProperty;
     private static final String STATUS_LINE_CSS_FILE = "status.css";
-    private static final String LEFT_REF = "Aéronefs visibles : ";
-    private static final String RIGHT_REF = "Messages reçus : ";
 
     public StatusLineController() {
         this.pane = new BorderPane();
@@ -34,7 +32,7 @@ public final class StatusLineController {
         Text leftTxt = new Text();
         leftTxt.textProperty().bind(
                 aircraftCountProperty.map(m -> {
-                    return LEFT_REF + m.intValue();
+                    return "Messages reçus : " + m.intValue();
                 }));
         return leftTxt;
     }
@@ -43,7 +41,7 @@ public final class StatusLineController {
         Text rightTxt = new Text();
         rightTxt.textProperty().bind(
                 messageCountProperty.map(m -> {
-                    return RIGHT_REF + m.longValue();
+                    return "Aéronefs visibles : " + m.longValue();
                 }));
         return rightTxt;
     }
