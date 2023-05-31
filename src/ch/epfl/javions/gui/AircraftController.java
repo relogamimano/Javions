@@ -43,7 +43,6 @@ public final class AircraftController {
     private static final int ALT_RANGE = 12000;// Average altitude range for plane from airliner to small recreational plane.
     private static final int MIN_TAG_ZOOM = 11;// Minimum zoom for all tags to appear on screen
     private static final int MARGIN_SIZE = 4;// Margin between the text and the edge of the rectangle containing it.
-    private static final int STROKE_WIDTH = 2;// width of trajectory line
     private static final String UNKNOWN_VALUE = "?";
     private static final String UNKOWN_ALT = UNKNOWN_VALUE;
     private static final String UNKNOWN_VELOCITY = UNKNOWN_VALUE;
@@ -175,7 +174,6 @@ public final class AircraftController {
                 line.endYProperty().set(yPosAt(posEnd));
 
                 line.setStroke(linearGradient);
-                line.setStrokeWidth(STROKE_WIDTH);
                 trajectory.getChildren().add(line);
             }
         }
