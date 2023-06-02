@@ -18,8 +18,10 @@ import java.util.Objects;
 
 /**
  * Class that handles the display of the map and the interactions with the said map
+ * This class is responsible for managing the canvas, installing listeners and handlers,
+ * and handling the graphical updates of the map.
  * @author Sofia Henriques Garfo (346298)
- *  @author Romeo Maignal (360568)
+ * @author Romeo Maignal (360568)
  */
 public final class BaseMapController {
     private final TileManager tileManager;
@@ -44,6 +46,7 @@ public final class BaseMapController {
         canvas = new Canvas();
         pane  = new Pane(canvas);
 
+        // Bind the canvas size to the pane size
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
 
@@ -55,11 +58,12 @@ public final class BaseMapController {
         installHandlers();
     }
     private void installListeners(){
+        // Listener to handle scene changes and redraw the map if needed
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
-
+        // Listeners on interface inputs to trigger redraw on next pulse
         canvas.widthProperty().addListener((p, oldW, newW) -> redrawOnNextPulse());
         canvas.widthProperty().addListener((p,oldW, newW) -> redrawOnNextPulse());
         mapParameters.minXProperty().addListener((p,oldS,newS) -> redrawOnNextPulse());
@@ -68,8 +72,10 @@ public final class BaseMapController {
 
     }
 
+    //
     private void installHandlers(){
         LongProperty minScrollTime = new SimpleLongProperty();
+        // Handler for scroll events to zoom in/out the map
         pane.setOnScroll(e -> {
             int zoomDelta = (int) Math.signum(e.getDeltaY());
             if (zoomDelta == 0)
@@ -81,6 +87,7 @@ public final class BaseMapController {
 
             minScrollTime.set(currentTime + 200);
 
+            // Adjust map parameters for zooming
             mapParameters.scroll(e.getX(), e.getY());
             mapParameters.changeZoomLevel(zoomDelta);
             mapParameters.scroll(-e.getX(), -e.getY());
@@ -88,13 +95,16 @@ public final class BaseMapController {
             redrawOnNextPulse();
         });
 
+        // Handler for mouse pressed event to update the last mouse position
         pane.setOnMousePressed(e -> {
                     lastMousePosition = new Point2D(e.getX(), e.getY()); //updates last mouse position
                     redrawOnNextPulse();
                 }
         );
+        // Handler for mouse dragged and released events to handle panning of the map
         pane.setOnMouseDragged(this::mouseDraggedAndReleased);
         pane.setOnMouseReleased(this::mouseDraggedAndReleased);
+        // Redraw the map when the pane size changes
         pane.widthProperty().addListener((obs, oldVal, newVal) ->
                 this.redrawOnNextPulse());
         pane.heightProperty().addListener((obs, oldVal, newVal) ->
@@ -110,6 +120,7 @@ public final class BaseMapController {
         Platform.requestNextPulse();
     }
 
+    //Graphical updating of the screen
     private void redrawIfNeeded() {
         if (!this.redrawNeeded)
             return;
@@ -120,6 +131,7 @@ public final class BaseMapController {
         int firstTileY = (int)(mapParameters.getMinY()/TILE_SIZE);
         int lastTileX = (int)((mapParameters.getMinX() + canvas.getWidth()  )/TILE_SIZE + 1);
         int lastTileY = (int)((mapParameters.getMinY() + canvas.getHeight() )/TILE_SIZE + 1);
+        // Draw each visible tile
         for (int i = 0; i < lastTileX - firstTileX; i++) {
             for (int j = 0; j < lastTileY - firstTileY; j++) {
                 TileManager.TileId tileId = new TileManager.TileId(this.mapParameters.getZoomLevel(),
@@ -128,7 +140,7 @@ public final class BaseMapController {
                     Image tileImage = tileManager.imageForTileAt(tileId);
                     this.context.drawImage(tileImage, i*TILE_SIZE - this.mapParameters.getMinX() % TILE_SIZE,
                             j*TILE_SIZE - this.mapParameters.getMinY() % TILE_SIZE); // draws each tile
-                } catch (Exception ignored) {  }
+                } catch (Exception ignored) {/* ignore exceptions when loading tile images*/}
             }
         }
     }
@@ -152,7 +164,7 @@ public final class BaseMapController {
         double x = lastMousePosition.getX() - e.getX();
         double y = lastMousePosition.getY() - e.getY();
         mapParameters.scroll(x, y);
-        lastMousePosition = lastMousePosition.subtract(x,y); //assures that the mouse position doesn't change
+        lastMousePosition = lastMousePosition.subtract(x,y); // Ensures that the mouse position doesn't change
         redrawOnNextPulse();
 
     }
