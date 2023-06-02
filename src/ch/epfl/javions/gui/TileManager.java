@@ -1,6 +1,7 @@
 package ch.epfl.javions.gui;
 
 import javafx.scene.image.Image;
+
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
@@ -9,10 +10,11 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static ch.epfl.javions.Preconditions.*;
+import static ch.epfl.javions.Preconditions.checkArgument;
 
 /**
  * OSM tile manager
+ *
  * @author Sofia Henriques Garfo (346298)
  * @author Romeo Maignal (360568)
  */
@@ -28,33 +30,46 @@ public final class TileManager {
             return size() > MAX_CAPACITY;
         }
     };
+
     /**
      * Tile identity record
-     * @param zoom  level of magnification
-     * @param x     abscissa index of the tile
-     * @param y     ordinate index of the tile
+     *
+     * @param zoom level of magnification
+     * @param x    abscissa index of the tile
+     * @param y    ordinate index of the tile
      */
     public record TileId(int zoom, int x, int y) {
         /**
          * Methode to check if the tile attributes are valid
+         *
          * @param zoom level of magnification
          * @param x    abscissa index of the tile
          * @param y    ordinate index of the tile
          */
-        public TileId{
+        public TileId {
             checkArgument(isValid(zoom, x, y));
         }
+
+        /**
+         * Checker method used to verify the validity of a Tile without throwing any errors
+         *
+         * @param zoom zoom level of the tile
+         * @param x    abscissa coordinate of the tile
+         * @param y    ordinate coordinate of the tile
+         * @return whether the tile si valid or not
+         */
         public static boolean isValid(int zoom, int x, int y) {
             return (zoom >= MapParameters.MIN_ZOOM && zoom <= MapParameters.MAX_ZOOM)
-                    && (x>=0 && x<=(1<<zoom)-1)
-                    && (y>=0 && y<=(1<<zoom)-1);
+                    && (x >= 0 && x <= (1 << zoom) - 1)
+                    && (y >= 0 && y <= (1 << zoom) - 1);
         }
     }
 
     /**
      * Constructor of TileManager
-     * @param filePath  UNIX Path of the disc cache directory
-     * @param serverAddress     online server address
+     *
+     * @param filePath      UNIX Path of the disc cache directory
+     * @param serverAddress online server address
      */
     public TileManager(Path filePath, String serverAddress) {
         this.discCache = filePath;
@@ -64,19 +79,20 @@ public final class TileManager {
     /**
      * Image getter method : it takes a specific tile ID and look it up in the different image storing caches,
      * or download it from an online server.
-     * @param tileId    Tile ID
-     * @return  tile Image
+     *
+     * @param tileId Tile ID
+     * @return tile Image
      * @throws IOException if the input reading or the output writing fails
      */
     public Image imageForTileAt(TileId tileId) throws IOException {
         Path dirPath = discCache.resolve(String.valueOf(tileId.zoom))
-                .resolve(String.valueOf(tileId.x));
+                .resolve(String.valueOf(tileId.x));/* .resolve(...) used to make sure path are working the same for UNIX and Windows systems*/
         checkArgument(TileId.isValid(tileId.zoom(), tileId.x(), tileId.y()));
-        Path imagePath = dirPath.resolve(tileId.y+".png");
+        Path imagePath = dirPath.resolve(tileId.y + ".png");
         File imageFile = imagePath.toFile();
 
         //check if image is already stored in memory cache
-        if (memoryCache.containsKey(imagePath)){
+        if (memoryCache.containsKey(imagePath)) {
             return memoryCache.get(imagePath);
         } else {
             //if not, check in the disc cache if it contains the image
@@ -90,21 +106,20 @@ public final class TileManager {
             } else {
                 //if not, get it from the server, put it in the memory and disc cache, and return it
                 Files.createDirectories(dirPath);
-                String urlString = "https://"+serverAddress+"/"+tileId.zoom+"/"+tileId.x+"/"+tileId.y+".png";
+                String urlString = "https://" + serverAddress + "/" + tileId.zoom + "/" + tileId.x + "/" + tileId.y + ".png";
                 URL u = new URL(urlString);
                 URLConnection c = u.openConnection();
                 c.setRequestProperty("User-Agent", "JaVelo");
-
+                //try-with-resources
                 try (InputStream i = c.getInputStream(); OutputStream a =
                         new FileOutputStream(imageFile)) {
                     i.transferTo(a);
-                }
-                catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 InputStream i = new FileInputStream(imageFile);
                 Image image = new Image(i);
-                memoryCache.put(imagePath,image);
+                memoryCache.put(imagePath, image);
                 return image;
             }
         }
