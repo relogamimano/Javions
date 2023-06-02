@@ -26,15 +26,15 @@ import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY_SUBSEQUEN
  * */
 
 public final class AircraftTableController {
+    //Optimal dimensions for the columns holding data
+    private static final int NUM_PREFERRED_WIDTH = 85;
+    private static final int OACI_PREFERRED_WIDTH = 70;
+    
+    private static final int REG_PREFERRED_WIDTH = 90;
 
-    private static final int NUM_PREFERED_WIDTH = 85;
-    private static final int OACI_PREFERED_WIDTH = 70;
+    private static final int MOD_PREFERRED_WIDTH = 230;
 
-    private static final int REG_PREFERED_WIDTH = 90;
-
-    private static final int MOD_PREFERED_WIDTH = 230;
-
-    private static final int TYP_PREFERED_WIDTH = 50;
+    private static final int TYP_PREFERRED_WIDTH = 50;
 
     private static final int FRACT_DIGITS_POSITION = 4;
 
@@ -47,18 +47,6 @@ public final class AircraftTableController {
     private final ObjectProperty<ObservableAircraftState> selectedA;
     private Consumer<ObservableAircraftState> consumer;
 
-    private static  final String OACI = "OACI";
-
-    private static  final String CALLSIGN = "Indicatif";
-    private static  final String REGISTRATION = "Immatriculation";
-    private static  final String MODEL = "Modèle";
-    private static  final String TYPE = "Type";
-    private static  final String DESCRIPTION = "Description";
-    private static  final String LONGITUDE = "longitude(°)";
-    private static  final String LATITUDE = "latitude(°)";
-    private static  final String ALTITUDE = "altitude(m)";
-    private static  final String VELOCITY = "Vitesse(km/h)";
-    private static final String NUMERIC = "numeric";
     private static final String TABLE_STYLE = "table.css";
 
     /**
@@ -78,16 +66,14 @@ public final class AircraftTableController {
         selectedA = selectedAircraft;
 
 
-
-        createTextColumn(OACI,OACI_PREFERED_WIDTH,
+        //Columns set up :
+        createTextColumn("OACI", OACI_PREFERRED_WIDTH,
                 f -> new ReadOnlyObjectWrapper<>(f.getIcaoAddress().string()));
 
-
-        createTextColumn(CALLSIGN,OACI_PREFERED_WIDTH,
+        createTextColumn("Immatriculation", OACI_PREFERRED_WIDTH,
                 f ->  (f.callSignProperty().map(CallSign::string)));
-
-
-        createTextColumn(REGISTRATION,REG_PREFERED_WIDTH, f -> {
+        
+        createTextColumn("Immatriculation", REG_PREFERRED_WIDTH, f -> {
             if(f.getAircraftData() == null ) {
                 return new ReadOnlyStringWrapper("");
             } else {
@@ -95,24 +81,21 @@ public final class AircraftTableController {
             }
         });
 
-        createTextColumn(MODEL, MOD_PREFERED_WIDTH,  f ->
+        createTextColumn("Modèle", MOD_PREFERRED_WIDTH, f ->
                 f.getAircraftData() == null ?
                         new ReadOnlyStringWrapper("") :
                         new ReadOnlyStringWrapper(f.getAircraftData().model()));
 
-
-
-        createTextColumn(TYPE, TYP_PREFERED_WIDTH, f ->
+        createTextColumn("Type", TYP_PREFERRED_WIDTH, f ->
                 f.getAircraftData() == null ?
                         new ReadOnlyStringWrapper("") :
                         new ReadOnlyStringWrapper(f.getAircraftData().typeDesignator().string()));
-
-
-        createTextColumn(DESCRIPTION, OACI_PREFERED_WIDTH, f->
+        
+        createTextColumn("Description", OACI_PREFERRED_WIDTH, f->
                 f.getAircraftData() == null ?
                         new ReadOnlyStringWrapper("") :
                         new ReadOnlyObjectWrapper<>(f.getAircraftData().description().string()));
-
+        //Setting a limit for the decimal representation of digits
         NumberFormat nf0 = NumberFormat.getInstance();
         nf0.setMaximumFractionDigits(FRACT_DIGITS_OTHERS);
         nf0.setMinimumFractionDigits(FRACT_DIGITS_OTHERS);
@@ -121,51 +104,56 @@ public final class AircraftTableController {
         nf1.setMaximumFractionDigits(FRACT_DIGITS_POSITION);
         nf1.setMinimumFractionDigits(FRACT_DIGITS_OTHERS);
 
-        createNumericColumn(LONGITUDE,
+        createNumericColumn("longitude(°)",
                 f -> f.positionProperty().map(GeoPos::longitude), nf1, Units.Angle.DEGREE);
-        createNumericColumn(LATITUDE,
+        createNumericColumn("altitude(m)",
                 f -> f.positionProperty().map(GeoPos::latitude),nf1, Units.Angle.DEGREE);
-        createNumericColumn(ALTITUDE,
+        createNumericColumn("Vitesse(km/h)",
                 ObservableAircraftState::altitudeProperty, nf0, Units.Length.METER);
-        createNumericColumn(VELOCITY,
+        createNumericColumn("Vitesse(km/h)",
                 ObservableAircraftState::velocityProperty, nf0, Units.Speed.KILOMETER_PER_HOUR);
-
         installListeners();
         installHandlers();
-
     }
 
     //create table's text columns
     private  void createTextColumn(String title, int width,
                                    Function<ObservableAircraftState, ObservableValue<String>> function){
-
         TableColumn<ObservableAircraftState,String> column= new TableColumn<>(title);
         column.setPrefWidth(width);
         column.setCellValueFactory( f -> function.apply(f.getValue()));
         table.getColumns().add(column);
     }
 
-    // create tables numeric columns
+    // Creates a numeric column for the table.
     private  void createNumericColumn(String title,
                                       Function<ObservableAircraftState, ObservableValue<Number>> function,
                                       NumberFormat numberFormat, double unit){
-
+        // Create a new TableColumn with the specified title
         TableColumn<ObservableAircraftState,String> column= new TableColumn<>(title);
-        column.setPrefWidth(NUM_PREFERED_WIDTH);
-        column.getStyleClass().add(NUMERIC);
+        column.setPrefWidth(NUM_PREFERRED_WIDTH);
+        column.getStyleClass().add("numeric");
+
+        // Set the cell value factory to map the numeric value to a formatted string value
         column.setCellValueFactory( f -> function.apply(f.getValue()).map(n ->
                 numberFormat.format(Units.convertTo(n.doubleValue(),unit))));
-        table.getColumns().add(column);
-        column.setComparator((s1,s2) -> { // TODO: Comment mieux ecrire le try/catch
-            if ( s1.isEmpty() || s2.isEmpty()){
 
+        // Add the column to the table
+        table.getColumns().add(column);
+
+        // Set the comparator for the column to handle sorting of numeric values
+        column.setComparator((s1,s2) -> {
+            if ( s1.isEmpty() || s2.isEmpty()){
+                // Handle empty cells by sorting them to the bottom
                 return s2.compareTo(s1);
             } else {
                 Double d1 = null;
                 Double d2 = null;
                 try {
+                    // Parse the numeric values from the formatted strings
                     d1 = numberFormat.parse(s1).doubleValue();
                     d2 = numberFormat.parse(s2).doubleValue();
+                    // Compare the numeric values
                     return Double.compare(d1, d2);
                 } catch (ParseException ignored) {
                 }
@@ -177,6 +165,7 @@ public final class AircraftTableController {
 
 
     private void installListeners(){
+        //listener
         states.addListener((SetChangeListener<ObservableAircraftState>) c -> {
             if (c.wasAdded()) {
                 table.getItems().add(c.getElementAdded());
@@ -187,8 +176,7 @@ public final class AircraftTableController {
             table.sort();
         });
 
-
-
+        //listener on selected aircraft
         selectedA.addListener((o, oV, nV) -> {
             if (!table.getSelectionModel().isSelected(nV.getCategory())) {
                 table.scrollTo(nV);
@@ -225,7 +213,6 @@ public final class AircraftTableController {
                     table.getSelectionModel().getSelectedItem() != null) {
                 consumer.accept(table.getSelectionModel().getSelectedItem());
             }
-
         });
     }
 }
