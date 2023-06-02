@@ -29,7 +29,7 @@ public final class AircraftTableController {
     //Optimal dimensions for the columns holding data
     private static final int NUM_PREFERRED_WIDTH = 85;
     private static final int OACI_PREFERRED_WIDTH = 70;
-    
+
     private static final int REG_PREFERRED_WIDTH = 90;
 
     private static final int MOD_PREFERRED_WIDTH = 230;
@@ -72,7 +72,7 @@ public final class AircraftTableController {
 
         createTextColumn("Immatriculation", OACI_PREFERRED_WIDTH,
                 f ->  (f.callSignProperty().map(CallSign::string)));
-        
+
         createTextColumn("Immatriculation", REG_PREFERRED_WIDTH, f -> {
             if(f.getAircraftData() == null ) {
                 return new ReadOnlyStringWrapper("");
@@ -90,7 +90,7 @@ public final class AircraftTableController {
                 f.getAircraftData() == null ?
                         new ReadOnlyStringWrapper("") :
                         new ReadOnlyStringWrapper(f.getAircraftData().typeDesignator().string()));
-        
+
         createTextColumn("Description", OACI_PREFERRED_WIDTH, f->
                 f.getAircraftData() == null ?
                         new ReadOnlyStringWrapper("") :
@@ -162,30 +162,29 @@ public final class AircraftTableController {
         });
     }
 
-
-
     private void installListeners(){
-        //listener
+        //listener that updates the table when the aircraft states change
         states.addListener((SetChangeListener<ObservableAircraftState>) c -> {
             if (c.wasAdded()) {
-                table.getItems().add(c.getElementAdded());
+                table.getItems().add(c.getElementAdded()); // if another aircraft state is added to the
+                // list then add it to the table
             } else if (c.wasRemoved()){
-                table.getItems().remove(c.getElementRemoved());
-            }
+                table.getItems().remove(c.getElementRemoved()); // if an aircraft state is removed then remove it
+            }                                                   // from the table
 
             table.sort();
         });
 
         //listener on selected aircraft
         selectedA.addListener((o, oV, nV) -> {
-            if (!table.getSelectionModel().isSelected(nV.getCategory())) {
-                table.scrollTo(nV);
+            if (!table.getSelectionModel().isSelected(nV.getCategory())) { /* if the selected aircraft isn't the on */
+                table.scrollTo(nV);                                        /* selected on the table then scroll to it*/
 
             }
-            table.getSelectionModel().select(nV);
+            table.getSelectionModel().select(nV); /* selectioner l'avion dans la table */
         });
 
-
+        // if an aircraft is selected on the table set it as selected aircraft
         table.getSelectionModel().selectedItemProperty().addListener((o, oV, nV) -> selectedA.set(nV));
 
     }
