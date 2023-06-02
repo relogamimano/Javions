@@ -27,7 +27,7 @@ public final class StatusLineController {
         pane.setLeft(leftTxt());
         pane.setRight(rightTxt());
     }
-
+    //Single use method used to decongest the code above
     private Text leftTxt() {
         Text leftTxt = new Text();
         leftTxt.textProperty().bind(
@@ -36,7 +36,7 @@ public final class StatusLineController {
                 }));
         return leftTxt;
     }
-
+    //Single use method used to decongest the code above
     private Text rightTxt() {
         Text rightTxt = new Text();
         rightTxt.textProperty().bind(
