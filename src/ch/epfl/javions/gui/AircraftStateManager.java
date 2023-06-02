@@ -53,19 +53,22 @@ public class AircraftStateManager {
      * @throws IOException if an input/output file error occurs when calling the update methode
      */
     public void updateWithMessage(Message message) throws IOException {
+
         if (message != null) {
             lastTimeStamp = message.timeStampNs();
             IcaoAddress address = message.icaoAddress();
-            if (table.get(address) == null) {
+            if (table.get(address) == null) {/*check if the aircraft's message doesn't already have a state slot in the table
+            IF NOT : the message is used to create a new aircraft state in the table */
                 table.put( address,
                         new AircraftStateAccumulator<>(
                                 new ObservableAircraftState( address,
                                         aircraftDatabase.get( address ) ) ) );
             }
-            table.get(address).update(message);
+            table.get(address).update(message);// message updating the table of aircraft states
+            //here we check if a state is eligible to become an observable aircraft
             if(table.get(address)
                     .stateSetter()
-                    .getPosition() != null) {
+                    .getPosition() != null) {/*The state need to have a known position */
                 observableStates.add(table.get(address).stateSetter());
             }
         }
@@ -79,7 +82,7 @@ public class AircraftStateManager {
         while (i.hasNext()) {
             var a = i.next();
             if ( (lastTimeStamp - a.stateSetter().getTimeStampNs()) > convertTo(MINUTE, NANO)) {
-                observableStates.remove(a.stateSetter());
+                observableStates.remove(a.stateSetter());//removing of the Accumulator and the State independently
                 i.remove();
             }
         }
