@@ -56,6 +56,9 @@ At zoom level 1, the OpenStreetMap world map is exactly twice as large as at zoo
 In order to be able to place a point on a map whose geographic coordinates are known, it is necessary to know the projection formulas. These formulas give the Cartesian coordinates (x, y) of a point on the map at the zoom level z, as a function of its geographic coordinates (λ, φ), expressed in radians (!):
 ![image](https://github.com/user-attachments/assets/9252bea8-577f-4236-843b-c09f656c41a4)
 
+## Detailed building process
+CS-108 website : https://cs108.epfl.ch/archive/23/archive.html
+
 ## Requirements
 - Have Java 17 installed
 ### JUnit
