@@ -6,9 +6,12 @@ ADS-B messages are transmitted on the 1090 MHz frequency and can be received eit
 
 The goal of this year's project, called Javiones, is precisely to write a program capable of decoding ADS-B messages received by a software-defined radio, and to display the aircraft that have transmitted them on a map. The figure below shows the graphical interface of the completed project.
 
-https://cs108.epfl.ch/archive/23/p/i/javions;32.png
+![image](https://github.com/user-attachments/assets/154b3218-2260-4660-bfe4-4d74b85d124d)
 
 The software radio used for Javions is the AirSpy R2, visible below. Like any software radio, it must be connected to an antenna and a computer. Once set to a given frequency, it digitizes the radio signal it receives from the antenna and then transmits it to the computer.
+
+![image](https://github.com/user-attachments/assets/d0c69e74-95ce-43ce-a4ee-0f6e15263279)
+
 
 In order to receive ADS-B messages from an aircraft, there must be no significant obstacle between it and the receiving antenna. It is therefore important to position the latter well, and the image in Figure 1 was for example obtained with an antenna placed near the roof of a building in the center of Lausanne.
 
