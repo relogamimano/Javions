@@ -53,12 +53,18 @@ At zoom level 1, the OpenStreetMap world map is exactly twice as large as at zoo
 
 ### 5. Projection formulas
 In order to be able to place a point on a map whose geographic coordinates are known, it is necessary to know the projection formulas. These formulas give the Cartesian coordinates (x, y) of a point on the map at the zoom level z, as a function of its geographic coordinates (λ, φ), expressed in radians (!):
-$$
-x=2^{8+z}\big (\frac{\lambda}2\pi}+\frac{1}{2}\big )
-$$
-$$
-y=2^{8+z}\big (-\frac{\asinh(\tan\phi)}{2\pi}+\frac{1}{2}\big )
-$$
+![image](https://github.com/user-attachments/assets/9252bea8-577f-4236-843b-c09f656c41a4)
+
 ## Requirements
 - Have Java 17 installed
-- 
+### JUnit
+JUnit est une bibliothèque Java simplifiant l'écriture de tests unitaires. Pour pouvoir l'utiliser dans un projet IntelliJ, il vous faut l'ajouter à ce dernier en effectuant les opérations suivantes :
+
+Sélectionnez l'entrée Project Structure… du menu File.
+Sélectionnez Libraries sous Project Settings, cliquez sur le bouton + de la seconde colonne, et choisissez From Maven….
+Dans la boîte de dialogue qui s'ouvre, entrez le texte suivant, qui constitue ce que l'on appelle les « coordonnées Maven » de la version 5.9.2 de Junit : org.junit.jupiter:junit-jupiter:5.9.2
+Cliquez sur le bouton Ok.
+Si tout s'est bien passé, vous devriez voir JUnit apparaître sous External Libraries dans le panneau Project.
+
+### JavaFX
+Follow this setup guide : https://cs108.epfl.ch/archive/23/g/openjfx.html
