@@ -58,13 +58,13 @@ In order to be able to place a point on a map whose geographic coordinates are k
 ## Requirements
 - Have Java 17 installed
 ### JUnit
-JUnit est une bibliothèque Java simplifiant l'écriture de tests unitaires. Pour pouvoir l'utiliser dans un projet IntelliJ, il vous faut l'ajouter à ce dernier en effectuant les opérations suivantes :
+JUnit is a Java library that simplifies writing unit tests. To use it in an IntelliJ project, you need to add it to the project by doing the following:
 
-Sélectionnez l'entrée Project Structure… du menu File.
-Sélectionnez Libraries sous Project Settings, cliquez sur le bouton + de la seconde colonne, et choisissez From Maven….
-Dans la boîte de dialogue qui s'ouvre, entrez le texte suivant, qui constitue ce que l'on appelle les « coordonnées Maven » de la version 5.9.2 de Junit : org.junit.jupiter:junit-jupiter:5.9.2
-Cliquez sur le bouton Ok.
-Si tout s'est bien passé, vous devriez voir JUnit apparaître sous External Libraries dans le panneau Project.
+- Select the Project Structure… entry from the File menu.
+- Select Libraries under Project Settings, click the + button in the second column, and choose From Maven…
+- In the dialog that opens, enter the following text, which is the so-called “Maven coordinates” for Junit version 5.9.2: org.junit.jupiter:junit-jupiter:5.9.2
+- Click the Ok button.
+- If all went well, you should see JUnit appear under External Libraries in the Project panel.
 
 ### JavaFX
 Follow this setup guide : https://cs108.epfl.ch/archive/23/g/openjfx.html
