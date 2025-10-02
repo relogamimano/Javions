@@ -2,8 +2,7 @@
 ## Live flight tracker (Flightradar24 from scratch)
 
 Java program capable of decoding ADS-B messages received by a software-defined radio, and to display the aircraft that have transmitted them on a map. The figure below shows the graphical interface of the completed project.
-
-![image](https://github.com/user-attachments/assets/154b3218-2260-4660-bfe4-4d74b85d124d)
+![javions](https://github.com/user-attachments/assets/50a50cc9-eb92-4fc3-b561-dc3f62ca6f50)
 
 The software radio used for Javions is the AirSpy R2, visible below. Like any software radio, it must be connected to an antenna and a computer. Once set to a given frequency, it digitizes the radio signal it receives from the antenna and then transmits it to the computer.
 
