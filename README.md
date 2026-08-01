@@ -56,7 +56,54 @@ In order to be able to place a point on a map whose geographic coordinates are k
 ![image](https://github.com/user-attachments/assets/9252bea8-577f-4236-843b-c09f656c41a4)
 
 ## Requirements
-- Have Java 17 installed
+
+- **Java 17 or newer** (tested with OpenJDK 21)
+- **JavaFX SDK** (tested with OpenJFX 21). Note: the project code is *not* modular, so JavaFX is passed on the module path at compile/run time — it is not on the classpath.
+- An **internet connection** the first time you run it, so the map tiles can be downloaded from OpenStreetMap.
+
+To install the JavaFX SDK:
+
+1. Download the SDK for your platform from <https://gluonhq.com/products/javafx/> (e.g. `macos-aarch64` on Apple Silicon).
+2. Unzip it somewhere, e.g. `~/tools/javafx-sdk`.
+
+## Building and running
+
+From the command line, the helper script handles compilation and launching:
+
+```bash
+# Replay a recorded messages file (recommended, no SDR needed):
+./run.sh resources/messages_20230318_0915.bin
+
+# Read live data from an AirSpy R2 SDR on stdin:
+./run.sh
+```
+
+The script recompiles the sources automatically when they change. If you installed the JavaFX SDK somewhere other than `~/tools/javafx-sdk`, edit the `JFX=...` line at the top of `run.sh`.
+
+### Manually (without `run.sh`)
+
+```bash
+# Compile (JavaFX on the module path, not the classpath):
+javac --module-path $JFX/lib --add-modules javafx.controls,javafx.swing \
+      -d out/classes $(find src -name "*.java")
+
+# Copy the resources (aircraft.zip, css files, …) next to the classes:
+cp resources/* out/classes/
+
+# Run:
+java --module-path $JFX/lib --add-modules javafx.controls,javafx.swing \
+     -cp out/classes ch.epfl.javions.gui.Main resources/messages_20230318_0915.bin
+```
+
+where `$JFX` is the path to the JavaFX SDK (e.g. `$HOME/tools/javafx-sdk`).
+
+### In IntelliJ
+
+- Add the JavaFX SDK as a library and configure a run configuration for `ch.epfl.javions.gui.Main`, passing the path of a messages file (e.g. `resources/messages_20230318_0915.bin`) as a program argument, or pass none to read live data from the SDR.
+- The setup guide for JavaFX is available here: <https://cs108.epfl.ch/archive/23/g/openjfx.html>
+
+## Tests
+
 ### JUnit
 JUnit is a Java library that simplifies writing unit tests. To use it in an IntelliJ project, you need to add it to the project by doing the following:
 
@@ -66,5 +113,12 @@ JUnit is a Java library that simplifies writing unit tests. To use it in an Inte
 - Click the Ok button.
 - If all went well, you should see JUnit appear under External Libraries in the Project panel.
 
-### JavaFX
-Follow this setup guide : https://cs108.epfl.ch/archive/23/g/openjfx.html
+To run the tests from the command line, add JUnit to the test compilation:
+
+```bash
+# Download the JUnit 5.9.2 jars, e.g. from Maven Central, into a lib/ folder, then:
+javac -cp out/classes:lib/junit-jupiter-5.9.2.jar:lib/junit-platform-console-standalone-1.9.2.jar \
+      -d out/test-classes $(find test -name "*.java")
+java -jar lib/junit-platform-console-standalone-1.9.2.jar \
+     --class-path out/classes:out/test-classes --scan-class-path
+```
